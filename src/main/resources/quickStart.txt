@@ -1,0 +1,14 @@
+# 1. Create the database
+psql -U postgres -c "CREATE DATABASE zimparks_pos;"
+
+# 2. Run the app (schema auto-creates via ddl-auto=update)
+cd zimparks-backend
+mvn spring-boot:run
+
+# 3. Seed data — run data.sql manually once:
+psql -U postgres -d zimparks_pos -f src/main/resources/data.sql
+
+# 4. Test login
+curl -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"operator","password":"1234"}'

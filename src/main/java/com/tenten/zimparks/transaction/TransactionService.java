@@ -1,0 +1,256 @@
+package com.tenten.zimparks.transaction;
+
+
+import com.tenten.zimparks.event.EventStreamController;
+import com.tenten.zimparks.currency.Currency;
+import com.tenten.zimparks.currency.CurrencyService;
+import com.tenten.zimparks.shift.NoOpenShiftException;
+import com.tenten.zimparks.shift.ShiftRepository;
+import com.tenten.zimparks.station.StationRepository;
+import com.tenten.zimparks.user.Role;
+import com.tenten.zimparks.user.User;
+import com.tenten.zimparks.user.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class TransactionService {
+
+    private final TransactionRepository repo;
+    private final StationRepository stationRepo;
+    private final CurrencyService currencyService;
+    private final ReceiptRepository receiptRepo;
+    private final UserRepository userRepo;
+    private final ShiftRepository shiftRepo;
+    private final com.tenten.zimparks.vat.VatService vatService;
+    private final EventStreamController eventStream;
+
+    private static final DateTimeFormatter TF = DateTimeFormatter.ofPattern("hh:mm a");
+    private static final DateTimeFormatter DF = DateTimeFormatter.ofPattern("dd MMM yyyy");
+
+    private User getCurrentUser() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String username;
+        if (principal instanceof UserDetails) {
+            username = ((UserDetails) principal).getUsername();
+        } else {
+            username = principal.toString();
+        }
+        return userRepo.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Current user not found: " + username));
+    }
+
+    public List<Transaction> findAll() {
+        User user = getCurrentUser();
+        if (user.getRole() == Role.ADMIN) {
+            return repo.findAll();
+        }
+        return repo.findByStationId(user.getStation().getId());
+    }
+
+    public List<Transaction> findByShiftId(String shiftId) {
+        return repo.findByShiftId(shiftId);
+    }
+
+    public List<Transaction> findByStatus(String status) {
+        User user = getCurrentUser();
+        if (user.getRole() == Role.ADMIN) {
+            return repo.findByStatus(status);
+        }
+        return repo.findByStatusAndStationId(status, user.getStation().getId());
+    }
+
+    public List<Transaction> findByCustomer(String custId) {
+        User user = getCurrentUser();
+        if (user.getRole() == Role.ADMIN) {
+            return repo.findByCustomerId(custId);
+        }
+        return repo.findByCustomerIdAndStationId(custId, user.getStation().getId());
+    }
+
+    public Transaction findByRef(String ref) {
+        return repo.findById(ref)
+                .orElseThrow(() -> new RuntimeException("Transaction not found: " + ref));
+    }
+
+    public Receipt findReceiptByRef(String ref) {
+        return receiptRepo.findById(ref)
+                .orElseThrow(() -> new RuntimeException("Receipt not found for transaction: " + ref));
+    }
+
+    public Transaction create(Transaction tx) {
+        User user = getCurrentUser();
+        var shift = shiftRepo.findTopByOperatorOrderByStartFullDesc(user.getUsername())
+                .filter(s -> "Open".equals(s.getStatus()))
+                .orElseThrow(() -> new NoOpenShiftException("no open shifts are available"));
+
+        String ref = "TXN-" + String.valueOf(System.currentTimeMillis()).substring(6);
+        LocalDateTime now = LocalDateTime.now();
+        tx.setRef(ref);
+        tx.setStatus("PAID");
+        tx.setTxTime(now.format(TF));
+        tx.setTxDate(now.format(DF));
+        // If shiftId is not provided in request, use the current active shift
+        if (tx.getShiftId() == null) {
+            tx.setShiftId(shift.getId());
+        }
+
+        // Link to bank
+        var station = user.getStation();
+        if (station != null && station.getBanks() != null) {
+            var banks = station.getBanks();
+            if (banks.size() == 1) {
+                // Only one bank linked to station, select it automatically
+                tx.setBankCode(banks.get(0).getCode());
+            } else if (banks.size() > 1) {
+                // Multiple banks linked, person should choose one
+                if (tx.getBankCode() == null || tx.getBankCode().isBlank()) {
+                    throw new RuntimeException("Multiple banks linked to station, please select a bank");
+                }
+                // Verify that the chosen bank is linked to the station
+                boolean bankIsLinked = banks.stream()
+                        .anyMatch(b -> b.getCode().equals(tx.getBankCode()));
+                if (!bankIsLinked) {
+                    throw new RuntimeException("Selected bank is not linked to this station");
+                }
+            }
+        }
+
+        BigDecimal originalAmount = tx.getAmount();
+        // Determine original currency (currency tendered)
+        // If breakdown is present and has at least one entry, we prefer the breakdown currency
+        // as the "original" one if it's different from the top-level currency.
+        String currencyFromTx = tx.getCurrency();
+        if (tx.getBreakdown() != null && !tx.getBreakdown().isEmpty()) {
+            // Use the first currency from breakdown as the primary original currency for the receipt
+            currencyFromTx = tx.getBreakdown().get(0).getCurrency();
+        }
+        final String originalCurrency = currencyFromTx != null ? currencyFromTx : "USD";
+
+        // Calculate VAT based on currency tendered
+        var vatSettings = vatService.get();
+        BigDecimal vatRate = "ZWG".equalsIgnoreCase(originalCurrency) ? vatSettings.getZwgRate() : vatSettings.getOtherRate();
+        // Assuming price is inclusive: vatAmount = amount * (rate / (100 + rate))
+        BigDecimal vatDivisor = vatRate.add(new BigDecimal("100")).divide(new BigDecimal("100"), 4, RoundingMode.HALF_UP);
+        BigDecimal amountExclVat = originalAmount.divide(vatDivisor, 2, RoundingMode.HALF_UP);
+        BigDecimal vatAmount = originalAmount.subtract(amountExclVat);
+
+        tx.setVatRate(vatRate);
+
+        BigDecimal baseAmount = originalAmount;
+        BigDecimal baseVatAmount = vatAmount;
+        String baseCurrency = "USD";
+
+        if (!baseCurrency.equalsIgnoreCase(originalCurrency)) {
+            Currency cur = currencyService.findById(originalCurrency)
+                    .orElseThrow(() -> new RuntimeException("Currency not found: " + originalCurrency));
+            // Convert amounts to base currency (USD)
+            baseAmount = originalAmount.divide(cur.getExchangeRate(), 2, RoundingMode.HALF_UP);
+            baseVatAmount = vatAmount.divide(cur.getExchangeRate(), 2, RoundingMode.HALF_UP);
+        }
+
+        // Transaction record should be in base currency
+        tx.setAmount(baseAmount);
+        tx.setVatAmount(baseVatAmount);
+        tx.setCurrency(baseCurrency);
+
+        Receipt receipt = Receipt.builder()
+                .txRef(ref)
+                .originalCurrency(originalCurrency)
+                .originalAmount(originalAmount)
+                .baseCurrency(baseCurrency)
+                .baseAmount(baseAmount)
+                .receiptNumber("REC-" + ref.substring(4))
+                .status("PAID")
+                .vatRate(vatRate)
+                .vatAmount(vatAmount)
+                .shiftId(tx.getShiftId())
+                .build();
+        tx.setReceipt(receipt);
+
+        if (tx.getBreakdown() != null) {
+            tx.getBreakdown().forEach(b -> {
+                b.setTxRef(ref);
+                b.setOriginalAmount(b.getAmount());
+                b.setOriginalCurrency(b.getCurrency());
+
+                // Also convert breakdown amounts to base currency if they are in different currency
+                if (b.getCurrency() != null && !baseCurrency.equals(b.getCurrency())) {
+                    Currency cur = currencyService.findById(b.getCurrency())
+                            .orElseThrow(() -> new RuntimeException("Currency not found: " + b.getCurrency()));
+                    b.setAmount(b.getAmount().divide(cur.getExchangeRate(), 2, RoundingMode.HALF_UP));
+                    b.setCurrency(baseCurrency);
+                }
+            });
+        }
+        if (tx.getVehicle() != null)
+            tx.getVehicle().setTxRef(ref);
+        Transaction saved = repo.save(tx);
+        eventStream.broadcastTxUpdate();
+        return saved;
+    }
+
+        public Transaction voidTx(String ref, VoidTransactionRequest body) {
+            User user = getCurrentUser();
+            Transaction tx = repo.findById(ref)
+                    .orElseThrow(() -> new RuntimeException("Transaction not found: " + ref));
+
+            if ("VOIDED".equals(tx.getStatus()))
+                throw new IllegalStateException("Already voided");
+
+            // All roles (Operator, Supervisor, Admin) only initiate a void request
+            tx.setStatus("PENDING_VOID");
+            tx.setVoidReason(body.getReason());
+            tx.setVoidRequestedBy(user.getUsername());
+
+            Transaction saved = repo.save(tx);
+            eventStream.broadcastTxUpdate();
+            return saved;
+        }
+
+        public Transaction approveVoid(String ref) {
+            User user = getCurrentUser();
+            Transaction tx = repo.findById(ref)
+                    .orElseThrow(() -> new RuntimeException("Transaction not found: " + ref));
+
+            if (!"PENDING_VOID".equals(tx.getStatus())) {
+                throw new IllegalStateException("Transaction is not pending void");
+            }
+
+            tx.setStatus("VOIDED");
+            tx.setVoidedBy(user.getUsername());
+            if (tx.getReceipt() != null) {
+                tx.getReceipt().setStatus("VOIDED");
+            }
+            Transaction saved = repo.save(tx);
+            eventStream.broadcastTxUpdate();
+            return saved;
+        }
+
+        public Transaction rejectVoid(String ref, String reason) {
+            User user = getCurrentUser();
+            Transaction tx = repo.findById(ref)
+                    .orElseThrow(() -> new RuntimeException("Transaction not found: " + ref));
+
+            if (!"PENDING_VOID".equals(tx.getStatus())) {
+                throw new IllegalStateException("Transaction is not pending void");
+            }
+
+            tx.setStatus("VOID_REJECTED");
+            if (reason != null) {
+                tx.setVoidReason(tx.getVoidReason() + " [REJECTED: " + reason + "]");
+            }
+            Transaction saved = repo.save(tx);
+            eventStream.broadcastTxUpdate();
+            return saved;
+        }
+}
