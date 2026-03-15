@@ -4,13 +4,37 @@ ZimParks POS (Point of Sale) Backend is a Spring Boot application designed to ma
 
 ## 🚀 Tech Stack
 
+### Core Technologies
 - **Language:** Java 17
 - **Framework:** Spring Boot 4.0.3
-- **Security:** Spring Security with JWT (JSON Web Tokens)
-- **Database:** PostgreSQL (Primary), H2 (Testing)
-- **ORM:** Spring Data JPA / Hibernate
-- **API Documentation:** SpringDoc OpenAPI (Swagger UI)
-- **Build Tool:** Maven
+- **Build Tool:** Apache Maven
+
+### Web & API
+- **Spring Web:** For building RESTful APIs.
+- **Springdoc OpenAPI (Swagger UI):** For API documentation and testing (version 2.8.5).
+- **CORS Configuration:** Support for multiple origins including local development and ngrok.
+
+### Security & Authentication
+- **Spring Security:** For comprehensive security management.
+- **JWT (JSON Web Token):** Implemented using `jjwt` (version 0.11.5) for stateless authentication.
+- **Validation:** `spring-boot-starter-validation` for input data constraints.
+
+### Data Persistence
+- **Database:** PostgreSQL (Primary), H2 (Testing).
+- **ORM:** Spring Data JPA / Hibernate for database interactions.
+- **Connection Pooling:** Default Spring Boot HikariCP (implied).
+
+### Development & Utilities
+- **Lombok:** To reduce boilerplate code (Getters, Setters, Constructors, etc.).
+- **Spring Boot Maven Plugin:** For packaging and running the application.
+
+### Integrations
+- **SMS Gateway:** Integration with `sms.1010tech.io` for messaging services.
+
+### Testing
+- **Spring Boot Starter Test:** Core testing framework.
+- **Spring Security Test:** For testing secured endpoints.
+- **H2 Database:** In-memory database used for unit and integration testing.
 
 ## 📋 Requirements
 
