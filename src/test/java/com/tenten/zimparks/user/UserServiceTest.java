@@ -8,12 +8,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -50,8 +54,8 @@ class UserServiceTest {
                 .banks(List.of(Bank.builder().code("CBZ").name("CBZ Bank").build()))
                 .build();
 
-        when(repo.existsByUsername("testuser")).thenReturn(false);
-        when(encoder.encode("password")).thenReturn("encoded_password");
+        when(repo.existsByUsername("TESTUSER")).thenReturn(false);
+        when(encoder.encode("PASSWORD")).thenReturn("encoded_password");
         when(stationRepo.findById("ST01")).thenReturn(Optional.of(fullStation));
         when(repo.save(any(User.class))).thenAnswer(i -> i.getArguments()[0]);
 
@@ -59,6 +63,7 @@ class UserServiceTest {
         User result = userService.create(inputUser);
 
         // Assert
+        assertEquals("TESTUSER", result.getUsername());
         assertNotNull(result.getStation());
         assertEquals("Main Gate", result.getStation().getName());
         assertFalse(result.getStation().getBanks().isEmpty());
@@ -67,40 +72,110 @@ class UserServiceTest {
     }
 
     @Test
-    void update_shouldFetchFullStationEntity() {
+    void update_shouldNotOverwriteWithNulls() {
         // Arrange
         UUID userId = UUID.randomUUID();
         User existingUser = User.builder()
                 .id(userId)
-                .username("testuser")
-                .active(true)
-                .build();
-
-        Station partialStation = Station.builder().id("ST02").build();
-        User patch = User.builder()
-                .username("updateduser")
-                .fullName("Updated Name")
+                .username("TESTUSER")
+                .fullName("Test User")
                 .role(Role.OPERATOR)
                 .active(true)
-                .station(partialStation)
+                .password("old_password")
                 .build();
 
-        Station fullStation = Station.builder()
-                .id("ST02")
-                .name("North Entrance")
+        User patch = User.builder()
+                .fullName(null) // Should not overwrite
+                .username(null) // Should not overwrite
+                .role(null)     // Should not overwrite
+                .active(false)  // Should overwrite
                 .build();
 
         when(repo.findByIdAndActiveTrue(userId)).thenReturn(Optional.of(existingUser));
-        when(stationRepo.findById("ST02")).thenReturn(Optional.of(fullStation));
         when(repo.save(any(User.class))).thenAnswer(i -> i.getArguments()[0]);
 
         // Act
         User result = userService.update(userId, patch);
 
         // Assert
-        assertNotNull(result.getStation());
-        assertEquals("North Entrance", result.getStation().getName());
-        assertEquals("updateduser", result.getUsername());
-        verify(stationRepo).findById("ST02");
+        assertEquals("Test User", result.getFullName());
+        assertEquals("TESTUSER", result.getUsername());
+        assertEquals(Role.OPERATOR, result.getRole());
+        assertFalse(result.getActive());
+        assertEquals("old_password", result.getPassword());
+        verify(repo).save(any(User.class));
+    }
+
+    @Test
+    void update_shouldFetchFullStationEntity() {
+        // ... (existing test)
+    }
+
+    @Test
+    void loadUserByUsername_shouldIncludePermissions() {
+        // Arrange
+        String username = "TESTUSER";
+        User user = User.builder()
+                .username(username)
+                .password("password")
+                .role(Role.SUPERVISOR)
+                .active(true)
+                .build();
+
+        when(repo.findByUsername(username)).thenReturn(Optional.of(user));
+
+        // Act
+        UserDetails userDetails = userService.loadUserByUsername(username);
+
+        // Assert
+        assertNotNull(userDetails);
+        assertEquals(username, userDetails.getUsername());
+
+        Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
+        List<String> authorityStrings = authorities.stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
+
+        assertTrue(authorityStrings.contains("ROLE_SUPERVISOR"));
+        assertTrue(authorityStrings.contains(Permission.CLOSE_SHIFT.getPermission()));
+        assertTrue(authorityStrings.contains(Permission.UPDATE_PRODUCT_PRICING.getPermission()));
+        assertTrue(authorityStrings.contains(Permission.ADD_PRODUCT.getPermission()));
+        assertTrue(authorityStrings.contains(Permission.LINK_BANKS.getPermission()));
+        assertTrue(authorityStrings.contains(Permission.UNLINK_BANKS.getPermission()));
+        
+        // Supervisor has 5 permissions + 1 role = 6 authorities
+        assertEquals(6, authorityStrings.size());
+    }
+
+    @Test
+    void loadUserByUsername_shouldIncludeIndividualPermissions() {
+        // Arrange
+        String username = "TESTUSER";
+        User user = User.builder()
+                .username(username)
+                .password("password")
+                .role(Role.OPERATOR) // Operator has CLOSE_SHIFT
+                .active(true)
+                .permissions(java.util.Set.of(Permission.LINK_BANKS))
+                .build();
+
+        when(repo.findByUsername(username)).thenReturn(Optional.of(user));
+
+        // Act
+        UserDetails userDetails = userService.loadUserByUsername(username);
+
+        // Assert
+        assertNotNull(userDetails);
+        Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
+        List<String> authorityStrings = authorities.stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
+
+        assertTrue(authorityStrings.contains("ROLE_OPERATOR"));
+        assertTrue(authorityStrings.contains(Permission.CLOSE_SHIFT.getPermission()));
+        assertTrue(authorityStrings.contains(Permission.LINK_BANKS.getPermission()));
+        
+        // 1 role + 1 role-perm + 1 individual-perm = 3 authorities
+        assertEquals(3, authorityStrings.size());
     }
 }

@@ -22,6 +22,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtConfig jwtConfig;
     private final UserDetailsService userDetailsService;
+    private final com.tenten.zimparks.user.UserRepository userRepo;
 
     @Override
     protected void doFilterInternal(HttpServletRequest req,
@@ -34,9 +35,13 @@ public class JwtFilter extends OncePerRequestFilter {
             UserDetails ud = userDetailsService.loadUserByUsername(username);
 
             if (jwtConfig.validateToken(token, ud)) {
-                var auth = new UsernamePasswordAuthenticationToken(ud, null, ud.getAuthorities());
-                auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
-                SecurityContextHolder.getContext().setAuthentication(auth);
+                // Check if this token is the user's current valid session token
+                var userOpt = userRepo.findByUsername(username);
+                if (userOpt.isPresent() && token.equals(userOpt.get().getCurrentToken())) {
+                    var auth = new UsernamePasswordAuthenticationToken(ud, null, ud.getAuthorities());
+                    auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
+                    SecurityContextHolder.getContext().setAuthentication(auth);
+                }
             }
         }
 

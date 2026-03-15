@@ -34,6 +34,12 @@ public class StationController {
         return ResponseEntity.ok(service.update(id, s));
     }
 
+    @PatchMapping("/{id}")
+    @Operation(summary = "Partially update an existing station.")
+    public ResponseEntity<Station> patch(@PathVariable String id, @RequestBody Station s) {
+        return ResponseEntity.ok(service.update(id, s));
+    }
+
     @PostMapping("/{stationId}/banks/{bankCode}")
     @Operation(summary = "Add a bank to a station.")
     public ResponseEntity<Station> addBank(@PathVariable String stationId, @PathVariable String bankCode) {

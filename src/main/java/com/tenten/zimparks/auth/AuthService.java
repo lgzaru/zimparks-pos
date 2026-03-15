@@ -10,7 +10,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -21,24 +25,84 @@ public class AuthService {
     private final UserDetailsService    userDetailsService;
     private final JwtConfig jwtConfig;
     private final UserRepository        userRepo;
+    private final SmsService smsService;
+    private final PasswordEncoder passwordEncoder;
+
+    public void initiateForgotPassword(ForgotPasswordRequest req) {
+        String phoneNumber = req.getPhoneNumber();
+        if (phoneNumber != null) {
+            phoneNumber = phoneNumber.replaceAll("[\\+\\s]", "");
+        }
+        User user = userRepo.findByCellPhone(phoneNumber)
+                .orElseThrow(() -> new IllegalArgumentException("the provided number is not linked to any user"));
+
+        String otp = String.format("%04d", new Random().nextInt(10000));
+        user.setResetOtp(otp);
+        user.setResetOtpExpiry(LocalDateTime.now().plusMinutes(15));
+        userRepo.save(user);
+
+        String message = "Your ZimParks POS password reset code is: " + otp;
+        smsService.sendSms(user.getCellPhone(), message);
+        log.info("Sent forgot password OTP to phone={}", phoneNumber);
+    }
+
+    public void verifyOtp(VerifyOtpRequest req) {
+        String username = req.getUsername().toUpperCase();
+        User user = userRepo.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("the provided username is not linked to any user"));
+
+        if (user.getResetOtp() == null || !user.getResetOtp().equals(req.getOtp())) {
+            throw new IllegalArgumentException("Invalid OTP.");
+        }
+
+        if (user.getResetOtpExpiry() == null || user.getResetOtpExpiry().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("OTP has expired.");
+        }
+        log.info("OTP verified successfully for username={}", username);
+    }
+
+    public void resetPassword(ResetPasswordRequest req) {
+        String username = req.getUsername().toUpperCase();
+        User user = userRepo.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + username));
+
+        if (user.getResetOtp() == null || !user.getResetOtp().equals(req.getOtp())) {
+            throw new IllegalArgumentException("Invalid OTP.");
+        }
+
+        if (user.getResetOtpExpiry() == null || user.getResetOtpExpiry().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("OTP has expired.");
+        }
+
+        user.setPassword(passwordEncoder.encode(req.getNewPassword().toUpperCase()));
+        user.setResetOtp(null);
+        user.setResetOtpExpiry(null);
+        userRepo.save(user);
+        log.info("Password reset successfully for user={}", username);
+    }
 
     public LoginResponse login(LoginRequest req) {
         try {
-            log.debug("Authenticating username={}", req.getUsername());
+            String username = req.getUsername() != null ? req.getUsername().toUpperCase() : null;
+            String password = req.getPassword() != null ? req.getPassword().toUpperCase() : null;
+
+            log.debug("Authenticating username={}", username);
             authManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(req.getUsername(), req.getPassword())
+                    new UsernamePasswordAuthenticationToken(username, password)
             );
-            log.debug("AuthenticationManager accepted username={}", req.getUsername());
+            log.debug("AuthenticationManager accepted username={}", username);
 
-            UserDetails ud = userDetailsService.loadUserByUsername(req.getUsername());
-            log.debug("UserDetails loaded for username={}", req.getUsername());
+            UserDetails ud = userDetailsService.loadUserByUsername(username);
+            log.debug("UserDetails loaded for username={}", username);
 
-            User user = userRepo.findByUsername(req.getUsername())
+            User user = userRepo.findByUsername(username)
                     .orElseThrow(() -> new IllegalStateException("User not found after successful authentication"));
             log.debug("User entity loaded for username={} role={} active={}",
-                    user.getUsername(), user.getRole(), user.isActive());
+                    user.getUsername(), user.getRole(), user.getActive());
 
             String token = jwtConfig.generateToken(ud, user.getRole().name());
+            user.setCurrentToken(token);
+            userRepo.save(user);
             log.info("Login successful for username={}", req.getUsername());
             
             String stationId = (user.getStation() != null) ? user.getStation().getId() : null;

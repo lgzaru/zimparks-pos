@@ -26,6 +26,12 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_permissions", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "permission")
+    @Enumerated(EnumType.STRING)
+    private java.util.Set<Permission> permissions;
+
     @ManyToOne
     @JoinColumn(name = "station_id")
     @JsonIgnoreProperties({"banks","region"})
@@ -35,5 +41,18 @@ public class User {
     private String password;
 
     @Column(nullable = false)
-    private boolean active = true;
+    @Builder.Default
+    private Boolean active = true;
+
+    @Column(name = "current_token", length = 1000)
+    private String currentToken;
+
+    @Column(name = "cell_phone", length = 20)
+    private String cellPhone;
+
+    @Column(name = "reset_otp", length = 6)
+    private String resetOtp;
+
+    @Column(name = "reset_otp_expiry")
+    private java.time.LocalDateTime resetOtpExpiry;
 }

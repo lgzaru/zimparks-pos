@@ -32,5 +32,6 @@ public class Station {
             joinColumns = @JoinColumn(name = "station_id"),
             inverseJoinColumns = @JoinColumn(name = "bank_code")
     )
+    @Builder.Default
     private List<Bank> banks = new ArrayList<>();
 }

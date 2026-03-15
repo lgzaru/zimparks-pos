@@ -39,6 +39,12 @@ public class ProductController {
         return ResponseEntity.ok(service.update(new ProductId(code, stationId), p));
     }
 
+    @PatchMapping("/{stationId}/{code}")
+    @Operation(summary = "Partially update a product by station and code.")
+    public ResponseEntity<Product> patch(@PathVariable String stationId, @PathVariable String code, @RequestBody Product p) {
+        return ResponseEntity.ok(service.update(new ProductId(code, stationId), p));
+    }
+
     @DeleteMapping("/{stationId}/{code}")
     @Operation(summary = "Delete a product by station and code.")
     public ResponseEntity<Void> delete(@PathVariable String stationId, @PathVariable String code) {

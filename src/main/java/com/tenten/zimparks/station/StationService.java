@@ -26,12 +26,12 @@ public class StationService {
 
     public Station update(String id, Station patch) {
         Station s = repo.findById(id).orElseThrow(() -> new RuntimeException("Station not found"));
-        s.setName(patch.getName());
+        if (patch.getName() != null) s.setName(patch.getName());
         if (patch.getBanks() != null) {
             s.setBanks(resolveBanksByCode(patch.getBanks()));
         }
-        s.setRegion(patch.getRegion());
-        s.setCluster(patch.getCluster());
+        if (patch.getRegion() != null) s.setRegion(patch.getRegion());
+        if (patch.getCluster() != null) s.setCluster(patch.getCluster());
         return repo.save(s);
     }
 

@@ -29,6 +29,18 @@ public class UserController {
         return ResponseEntity.ok(service.findById(id));
     }
 
+    @GetMapping("/by-cell/{cellPhone}")
+    @Operation(summary = "Get user details by cell phone number.", security = {})
+    public ResponseEntity<User> getUserDetailsByCell(@PathVariable String cellPhone) {
+        return ResponseEntity.ok(service.findByCellPhone(cellPhone));
+    }
+
+    @GetMapping("/permissions")
+    @Operation(summary = "List all available permissions.")
+    public Permission[] listPermissions() {
+        return Permission.values();
+    }
+
     @PostMapping
     @Operation(summary = "Create a new user.")
     public ResponseEntity<User> create(@RequestBody User u) {
@@ -38,6 +50,12 @@ public class UserController {
     @PutMapping("/{id}")
     @Operation(summary = "Update an existing user.")
     public ResponseEntity<User> update(@PathVariable UUID id, @RequestBody User u) {
+        return ResponseEntity.ok(service.update(id, u));
+    }
+
+    @PatchMapping("/{id}")
+    @Operation(summary = "Partially update an existing user.")
+    public ResponseEntity<User> patch(@PathVariable UUID id, @RequestBody User u) {
         return ResponseEntity.ok(service.update(id, u));
     }
 

@@ -31,6 +31,14 @@ public class DataSeedInitializer {
             return;
         }
 
+        // Fix stale enum check constraint for user_permissions table (Hibernate doesn't update it)
+        try {
+            jdbcTemplate.execute("ALTER TABLE user_permissions DROP CONSTRAINT IF EXISTS user_permissions_permission_check");
+            log.info("Ensured user_permissions_permission_check constraint is dropped to allow enum expansion.");
+        } catch (Exception e) {
+            log.warn("Could not drop user_permissions_permission_check constraint; it might not exist or another error occurred: {}", e.getMessage());
+        }
+
         Integer userCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users", Integer.class);
         if (userCount != null && userCount > 0) {
             log.info("Skipping data.sql seed; users table already contains {} row(s)", userCount);

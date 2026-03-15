@@ -20,7 +20,7 @@ public class Transaction {
     private String productCode;
 
     @Column
-    private int items;
+    private Integer items;
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal amount;
