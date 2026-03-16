@@ -2,6 +2,7 @@ package com.tenten.zimparks.auth;
 
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,14 @@ public class AuthController {
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest req) {
         log.info("Login request received for username={}", req.getUsername());
         return ResponseEntity.ok(authService.login(req));
+    }
+
+    @PostMapping("/logout")
+    @Operation(summary = "Invalidate user's current JWT token.")
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<Map<String, String>> logout() {
+        authService.logout();
+        return ResponseEntity.ok(Map.of("message", "Logged out successfully."));
     }
 
     @PostMapping("/forgot-password")

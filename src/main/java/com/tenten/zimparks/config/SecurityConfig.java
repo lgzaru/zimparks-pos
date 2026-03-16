@@ -31,6 +31,7 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
+    private final com.tenten.zimparks.activity.ActivityLogFilter activityLogFilter;
 
     @Value("${app.cors.allowed-origins}")
     private String allowedOrigins;
@@ -86,7 +87,8 @@ public class SecurityConfig {
                         // Authenticated
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(activityLogFilter, JwtFilter.class);
 
         return http.build();
     }

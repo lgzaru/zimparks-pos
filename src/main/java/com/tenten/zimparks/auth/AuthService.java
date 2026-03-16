@@ -1,5 +1,6 @@
 package com.tenten.zimparks.auth;
 
+import com.tenten.zimparks.activity.ActivityLogService;
 import com.tenten.zimparks.config.JwtConfig;
 import com.tenten.zimparks.user.User;
 import com.tenten.zimparks.user.UserRepository;
@@ -8,10 +9,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Random;
@@ -27,6 +30,7 @@ public class AuthService {
     private final UserRepository        userRepo;
     private final SmsService smsService;
     private final PasswordEncoder passwordEncoder;
+    private final ActivityLogService activityLogService;
 
     public void initiateForgotPassword(ForgotPasswordRequest req) {
         String phoneNumber = req.getPhoneNumber();
@@ -104,7 +108,9 @@ public class AuthService {
             user.setCurrentToken(token);
             userRepo.save(user);
             log.info("Login successful for username={}", req.getUsername());
-            
+
+            activityLogService.logActivity(user.getUsername(), "LOGIN", "User logged in successfully");
+
             String stationId = (user.getStation() != null) ? user.getStation().getId() : null;
             var banks = (user.getStation() != null) ? user.getStation().getBanks() : null;
 
@@ -125,5 +131,25 @@ public class AuthService {
                     req.getUsername(), e.getClass().getSimpleName(), e.getMessage(), e);
             throw e;
         }
+    }
+
+    @Transactional
+    public void logout() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String username;
+        if (principal instanceof UserDetails) {
+            username = ((UserDetails) principal).getUsername();
+        } else {
+            username = principal.toString();
+        }
+
+        User user = userRepo.findByUsername(username)
+                .orElseThrow(() -> new IllegalStateException("User not found during logout"));
+
+        user.setCurrentToken(null);
+        userRepo.save(user);
+
+        activityLogService.logActivity(username, "LOGOUT", "User logged out successfully");
+        log.info("Logout successful for username={}", username);
     }
 }

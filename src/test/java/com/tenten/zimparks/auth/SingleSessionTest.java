@@ -34,6 +34,8 @@ class SingleSessionTest {
     private JwtConfig jwtConfig;
     @Mock
     private UserRepository userRepo;
+    @Mock
+    private com.tenten.zimparks.activity.ActivityLogService activityLogService;
 
     @InjectMocks
     private AuthService authService;
