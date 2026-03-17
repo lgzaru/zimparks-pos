@@ -47,7 +47,7 @@ public class AuthController {
     @PostMapping("/verify-otp")
     @Operation(summary = "Verify OTP sent via SMS.")
     public ResponseEntity<Map<String, String>> verifyOtp(@Valid @RequestBody VerifyOtpRequest req) {
-        log.info("Verify OTP request received for username={}", req.getUsername());
+        log.info("Verify OTP request received for phone={}", req.getPhoneNumber());
         authService.verifyOtp(req);
         return ResponseEntity.ok(Map.of("message", "OTP verified successfully."));
     }
@@ -55,7 +55,7 @@ public class AuthController {
     @PostMapping("/reset-password")
     @Operation(summary = "Reset password using an OTP sent via SMS.")
     public ResponseEntity<Map<String, String>> resetPassword(@Valid @RequestBody ResetPasswordRequest req) {
-        log.info("Reset password request received for username={}", req.getUsername());
+        log.info("Reset password request received for phone={}", req.getPhoneNumber());
         authService.resetPassword(req);
         return ResponseEntity.ok(Map.of("message", "Password reset successfully."));
     }

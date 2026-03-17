@@ -51,9 +51,12 @@ public class AuthService {
     }
 
     public void verifyOtp(VerifyOtpRequest req) {
-        String username = req.getUsername().toUpperCase();
-        User user = userRepo.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("the provided username is not linked to any user"));
+        String phoneNumber = req.getPhoneNumber();
+        if (phoneNumber != null) {
+            phoneNumber = phoneNumber.replaceAll("[\\+\\s]", "");
+        }
+        User user = userRepo.findByCellPhone(phoneNumber)
+                .orElseThrow(() -> new IllegalArgumentException("the provided number is not linked to any user"));
 
         if (user.getResetOtp() == null || !user.getResetOtp().equals(req.getOtp())) {
             throw new IllegalArgumentException("Invalid OTP.");
@@ -62,13 +65,16 @@ public class AuthService {
         if (user.getResetOtpExpiry() == null || user.getResetOtpExpiry().isBefore(LocalDateTime.now())) {
             throw new IllegalArgumentException("OTP has expired.");
         }
-        log.info("OTP verified successfully for username={}", username);
+        log.info("OTP verified successfully for phone={}", phoneNumber);
     }
 
     public void resetPassword(ResetPasswordRequest req) {
-        String username = req.getUsername().toUpperCase();
-        User user = userRepo.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("User not found: " + username));
+        String phoneNumber = req.getPhoneNumber();
+        if (phoneNumber != null) {
+            phoneNumber = phoneNumber.replaceAll("[\\+\\s]", "");
+        }
+        User user = userRepo.findByCellPhone(phoneNumber)
+                .orElseThrow(() -> new IllegalArgumentException("the provided number is not linked to any user"));
 
         if (user.getResetOtp() == null || !user.getResetOtp().equals(req.getOtp())) {
             throw new IllegalArgumentException("Invalid OTP.");
@@ -82,7 +88,7 @@ public class AuthService {
         user.setResetOtp(null);
         user.setResetOtpExpiry(null);
         userRepo.save(user);
-        log.info("Password reset successfully for user={}", username);
+        log.info("Password reset successfully for phone={}", phoneNumber);
     }
 
     public LoginResponse login(LoginRequest req) {
