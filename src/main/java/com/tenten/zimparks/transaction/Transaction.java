@@ -72,6 +72,17 @@ public class Transaction {
     @Column(name = "shift_id", length = 20)
     private String shiftId;
 
+    @Column(name = "v_device_id", length = 100)
+    private String virtualDeviceId;
+
+    @Column(name = "has_entry")
+    @Builder.Default
+    private Boolean hasEntry = false;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "tx_ref")
+    private List<TransactionItem> itemsList;
+
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "tx_ref")
     private List<PaymentBreakdown> breakdown;

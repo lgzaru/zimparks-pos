@@ -47,7 +47,7 @@ public class User {
     @Column(name = "current_token", length = 1000)
     private String currentToken;
 
-    @Column(name = "cell_phone", length = 20)
+    @Column(name = "cell_phone", unique = true, length = 20)
     private String cellPhone;
 
     @Column(name = "reset_otp", length = 6)

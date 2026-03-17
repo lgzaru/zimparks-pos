@@ -70,4 +70,17 @@ public class TransactionController {
         String reason = (body != null) ? body.getReason() : null;
         return ResponseEntity.ok(service.rejectVoid(ref, reason));
     }
+
+    @PutMapping("/{ref}")
+    @Operation(summary = "Update an existing transaction.")
+    public ResponseEntity<Transaction> update(@PathVariable String ref, @RequestBody Transaction tx) {
+        return ResponseEntity.ok(service.update(ref, tx));
+    }
+
+    @DeleteMapping("/{ref}")
+    @Operation(summary = "Delete a transaction.")
+    public ResponseEntity<Void> delete(@PathVariable String ref) {
+        service.delete(ref);
+        return ResponseEntity.noContent().build();
+    }
 }

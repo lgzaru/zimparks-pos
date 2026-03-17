@@ -32,9 +32,9 @@ ON CONFLICT (id) DO NOTHING;
 INSERT INTO users (id, username, full_name, role, password, active, station_id, cell_phone)
 VALUES
   ('5c2ec8f9-6a3f-4d2a-b9ee-39f11f7ec8b1', 'OPERATOR',   'Tendai Moyo',   'OPERATOR',   crypt('1234', gen_salt('bf', 10)), TRUE, 'ST01', '263773814511'),
-  ('09b5ccf3-4195-46ac-8f84-2ac7c6f7da8a', 'OPERATOR2',  'Farai Dube',    'OPERATOR',   crypt('1234', gen_salt('bf', 10)), TRUE, 'ST02', '263773814511'),
-  ('4c6e1372-12b5-4f4c-8a52-e5ee7802f4c2', 'SUPERVISOR', 'Rudo Chikwanda','SUPERVISOR', crypt('1234', gen_salt('bf', 10)), TRUE, 'ST01', '263773814511'),
-  ('f2dd7026-8557-42c2-b4a8-934a8f8f4c41', 'ADMIN',      'System Admin',  'ADMIN',      crypt('1234', gen_salt('bf', 10)), TRUE, NULL, '263773814511')
+  ('09b5ccf3-4195-46ac-8f84-2ac7c6f7da8a', 'OPERATOR2',  'Farai Dube',    'OPERATOR',   crypt('1234', gen_salt('bf', 10)), TRUE, 'ST02', '263773814512'),
+  ('4c6e1372-12b5-4f4c-8a52-e5ee7802f4c2', 'SUPERVISOR', 'Rudo Chikwanda','SUPERVISOR', crypt('1234', gen_salt('bf', 10)), TRUE, 'ST01', '263773814513'),
+  ('f2dd7026-8557-42c2-b4a8-934a8f8f4c41', 'ADMIN',      'System Admin',  'ADMIN',      crypt('1234', gen_salt('bf', 10)), TRUE, NULL, '263773814514')
 ON CONFLICT (username) DO NOTHING;
 
 -- User Permissions (Assigned to supervisor Chikwanda)
@@ -91,14 +91,14 @@ VALUES
 ON CONFLICT (code) DO NOTHING;
 
 -- Products
-INSERT INTO products (code, station_id, category_code, descr, price)
+INSERT INTO products (code, station_id, category_code, descr, price, entry_product)
 VALUES
-  ('HWST01A001', 'ST01', 'A', 'Park Entry - Adult', 15.00),
-  ('HWST02A002', 'ST02', 'A', 'Park Entry - Adult', 15.00),
-  ('HWST01A003', 'ST01', 'A', 'Park Entry - Child',  8.00),
-  ('HWST01C004', 'ST01', 'C', 'Camping Fee',        25.00),
-  ('HWST01E005', 'ST01', 'E', 'Vehicle Entry',      10.00),
-  ('HWST01E006', 'ST01', 'E', 'Guide Service',      30.00)
+  ('HWST01A001', 'ST01', 'A', 'Park Entry - Adult', 15.00, TRUE),
+  ('HWST02A002', 'ST02', 'A', 'Park Entry - Adult', 15.00, TRUE),
+  ('HWST01A003', 'ST01', 'A', 'Park Entry - Child',  8.00, TRUE),
+  ('HWST01C004', 'ST01', 'C', 'Camping Fee',        25.00, FALSE),
+  ('HWST01E005', 'ST01', 'E', 'Vehicle Entry',      10.00, FALSE),
+  ('HWST01E006', 'ST01', 'E', 'Guide Service',      30.00, FALSE)
 ON CONFLICT (code, station_id) DO NOTHING;
 
 -- VAT Settings

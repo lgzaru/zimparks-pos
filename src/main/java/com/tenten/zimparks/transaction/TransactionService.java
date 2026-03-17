@@ -33,6 +33,8 @@ public class TransactionService {
     private final ShiftRepository shiftRepo;
     private final com.tenten.zimparks.vat.VatService vatService;
     private final EventStreamController eventStream;
+    private final com.tenten.zimparks.product.ProductRepository productRepo;
+    private final EntryTransactionRepository entryTxRepo;
 
     private static final DateTimeFormatter TF = DateTimeFormatter.ofPattern("hh:mm a");
     private static final DateTimeFormatter DF = DateTimeFormatter.ofPattern("dd MMM yyyy");
@@ -194,6 +196,49 @@ public class TransactionService {
         }
         if (tx.getVehicle() != null)
             tx.getVehicle().setTxRef(ref);
+
+        // Process Entry Transactions
+        if (tx.getItemsList() != null && !tx.getItemsList().isEmpty()) {
+            for (TransactionItem item : tx.getItemsList()) {
+                item.setTxRef(ref);
+                productRepo.findById(new com.tenten.zimparks.product.ProductId(item.getProductCode(), user.getStation().getId()))
+                        .ifPresent(p -> {
+                            if (Boolean.TRUE.equals(p.getEntryProduct())) {
+                                for (int i = 0; i < item.getQuantity(); i++) {
+                                    EntryTransaction entry = EntryTransaction.builder()
+                                            .txRef(ref)
+                                            .productCode(p.getId().getCode())
+                                            .productDescr(p.getDescr())
+                                            .amount(item.getUnitPrice()) // Use unit price for each entry
+                                            .createdAt(now)
+                                            .build();
+                                    entryTxRepo.save(entry);
+                                }
+                                tx.setHasEntry(true);
+                            }
+                        });
+            }
+        } else if (tx.getProductCode() != null) {
+            // Backward compatibility for single product transaction
+            productRepo.findById(new com.tenten.zimparks.product.ProductId(tx.getProductCode(), user.getStation().getId()))
+                    .ifPresent(p -> {
+                        if (Boolean.TRUE.equals(p.getEntryProduct())) {
+                            int count = tx.getItems() != null ? tx.getItems() : 1;
+                            for (int i = 0; i < count; i++) {
+                                EntryTransaction entry = EntryTransaction.builder()
+                                        .txRef(ref)
+                                        .productCode(p.getId().getCode())
+                                        .productDescr(p.getDescr())
+                                        .amount(p.getPrice())
+                                        .createdAt(now)
+                                        .build();
+                                entryTxRepo.save(entry);
+                            }
+                            tx.setHasEntry(true);
+                        }
+                    });
+        }
+
         Transaction saved = repo.save(tx);
         eventStream.broadcastTxUpdate();
         return saved;
@@ -253,4 +298,52 @@ public class TransactionService {
             eventStream.broadcastTxUpdate();
             return saved;
         }
-}
+
+        public Transaction update(String ref, Transaction patch) {
+            Transaction tx = repo.findById(ref)
+                    .orElseThrow(() -> new RuntimeException("Transaction not found: " + ref));
+
+            if (patch.getProductCode() != null) tx.setProductCode(patch.getProductCode());
+            if (patch.getItems() != null) tx.setItems(patch.getItems());
+            if (patch.getAmount() != null) tx.setAmount(patch.getAmount());
+            if (patch.getStatus() != null) tx.setStatus(patch.getStatus());
+            if (patch.getCurrency() != null) tx.setCurrency(patch.getCurrency());
+            if (patch.getCustomerName() != null) tx.setCustomerName(patch.getCustomerName());
+            if (patch.getCustomerId() != null) tx.setCustomerId(patch.getCustomerId());
+            if (patch.getOperatorName() != null) tx.setOperatorName(patch.getOperatorName());
+            if (patch.getStation() != null) tx.setStation(patch.getStation());
+            if (patch.getBankCode() != null) tx.setBankCode(patch.getBankCode());
+            if (patch.getVatRate() != null) tx.setVatRate(patch.getVatRate());
+            if (patch.getVatAmount() != null) tx.setVatAmount(patch.getVatAmount());
+            if (patch.getShiftId() != null) tx.setShiftId(patch.getShiftId());
+            if (patch.getVirtualDeviceId() != null) tx.setVirtualDeviceId(patch.getVirtualDeviceId());
+            if (patch.getHasEntry() != null) tx.setHasEntry(patch.getHasEntry());
+
+            Transaction saved = repo.save(tx);
+            eventStream.broadcastTxUpdate();
+            return saved;
+        }
+
+        public void delete(String ref) {
+            if (!repo.existsById(ref)) {
+                throw new RuntimeException("Transaction not found: " + ref);
+            }
+            repo.deleteById(ref);
+            eventStream.broadcastTxUpdate();
+        }
+
+        // --- Entry Transaction Methods ---
+
+        public List<EntryTransaction> findAllEntryTransactions() {
+            return entryTxRepo.findAll();
+        }
+
+        public List<EntryTransaction> findEntriesByTxRef(String txRef) {
+            return entryTxRepo.findByTxRef(txRef);
+        }
+
+        public EntryTransaction findEntryById(Long id) {
+            return entryTxRepo.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Entry transaction not found: " + id));
+        }
+    }

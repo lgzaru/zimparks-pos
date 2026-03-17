@@ -28,4 +28,8 @@ public class Product {
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @Column(name = "entry_product", nullable = false)
+    @Builder.Default
+    private Boolean entryProduct = false;
 }
