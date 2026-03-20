@@ -11,4 +11,10 @@ import java.util.UUID;
 public interface ActivityLogRepository extends JpaRepository<ActivityLog, UUID> {
     Page<ActivityLog> findByUsernameOrderByTimestampDesc(String username, Pageable pageable);
     Page<ActivityLog> findAllByOrderByTimestampDesc(Pageable pageable);
+
+    Page<ActivityLog> findByUsernameAndOperationContainingIgnoreCaseOrUsernameAndDetailsContainingIgnoreCaseOrderByTimestampDesc(
+            String username1, String operation, String username2, String details, Pageable pageable);
+
+    Page<ActivityLog> findByOperationContainingIgnoreCaseOrUsernameContainingIgnoreCaseOrDetailsContainingIgnoreCaseOrderByTimestampDesc(
+            String operation, String username, String details, Pageable pageable);
 }

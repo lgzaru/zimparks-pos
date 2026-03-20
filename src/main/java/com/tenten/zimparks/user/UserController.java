@@ -21,7 +21,14 @@ public class UserController {
 
     @GetMapping
     @Operation(summary = "List all users.")
-    public List<User> list() { return service.findAll(); }
+    public List<User> list(@RequestParam(required = false) String stationId, @RequestParam(required = false) Role role) {
+        if (stationId != null && role != null) {
+            return service.findByStationAndRole(stationId, role);
+        } else if (role != null) {
+            return service.findByRole(role);
+        }
+        return service.findAll();
+    }
 
     @GetMapping("/{id}")
     @Operation(summary = "Get a user by ID.")

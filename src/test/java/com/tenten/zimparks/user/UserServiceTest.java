@@ -1,6 +1,8 @@
 package com.tenten.zimparks.user;
 
 import com.tenten.zimparks.bank.Bank;
+import com.tenten.zimparks.shift.Shift;
+import com.tenten.zimparks.shift.ShiftRepository;
 import com.tenten.zimparks.station.Station;
 import com.tenten.zimparks.station.StationRepository;
 import org.junit.jupiter.api.Test;
@@ -31,6 +33,9 @@ class UserServiceTest {
 
     @Mock
     private StationRepository stationRepo;
+
+    @Mock
+    private ShiftRepository shiftRepo;
 
     @Mock
     private PasswordEncoder encoder;
@@ -109,6 +114,129 @@ class UserServiceTest {
     @Test
     void update_shouldFetchFullStationEntity() {
         // ... (existing test)
+    }
+
+    @Test
+    void update_shouldThrowException_whenChangingRoleWithOpenShift() {
+        // Arrange
+        UUID userId = UUID.randomUUID();
+        User existingUser = User.builder()
+                .id(userId)
+                .username("TESTUSER")
+                .role(Role.OPERATOR)
+                .active(true)
+                .build();
+
+        User patch = User.builder()
+                .role(Role.SUPERVISOR)
+                .build();
+
+        when(repo.findByIdAndActiveTrue(userId)).thenReturn(Optional.of(existingUser));
+        when(shiftRepo.findByStatusAndOperatorIn("Open", List.of("TESTUSER")))
+                .thenReturn(List.of(Shift.builder().status("Open").operator("TESTUSER").build()));
+
+        // Act & Assert
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> userService.update(userId, patch));
+        assertEquals("User has an open shift and cannot change role or station", exception.getMessage());
+        verify(repo, never()).save(any(User.class));
+    }
+
+    @Test
+    void update_shouldThrowException_whenChangingStationWithOpenShift() {
+        // Arrange
+        UUID userId = UUID.randomUUID();
+        User existingUser = User.builder()
+                .id(userId)
+                .username("TESTUSER")
+                .station(Station.builder().id("ST01").build())
+                .active(true)
+                .build();
+
+        User patch = User.builder()
+                .station(Station.builder().id("ST02").build())
+                .build();
+
+        when(repo.findByIdAndActiveTrue(userId)).thenReturn(Optional.of(existingUser));
+        when(shiftRepo.findByStatusAndOperatorIn("Open", List.of("TESTUSER")))
+                .thenReturn(List.of(Shift.builder().status("Open").operator("TESTUSER").build()));
+
+        // Act & Assert
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> userService.update(userId, patch));
+        assertEquals("User has an open shift and cannot change role or station", exception.getMessage());
+        verify(repo, never()).save(any(User.class));
+    }
+
+    @Test
+    void update_shouldAllowChangingRole_whenNoOpenShift() {
+        // Arrange
+        UUID userId = UUID.randomUUID();
+        User existingUser = User.builder()
+                .id(userId)
+                .username("TESTUSER")
+                .role(Role.OPERATOR)
+                .active(true)
+                .build();
+
+        User patch = User.builder()
+                .role(Role.SUPERVISOR)
+                .build();
+
+        when(repo.findByIdAndActiveTrue(userId)).thenReturn(Optional.of(existingUser));
+        when(shiftRepo.findByStatusAndOperatorIn("Open", List.of("TESTUSER")))
+                .thenReturn(Collections.emptyList());
+        when(repo.save(any(User.class))).thenAnswer(i -> i.getArguments()[0]);
+
+        // Act
+        User result = userService.update(userId, patch);
+
+        // Assert
+        assertEquals(Role.SUPERVISOR, result.getRole());
+        verify(repo).save(any(User.class));
+    }
+
+    @Test
+    void update_shouldAllowChangingOtherFields_whenOpenShiftExists() {
+        // Arrange
+        UUID userId = UUID.randomUUID();
+        User existingUser = User.builder()
+                .id(userId)
+                .username("TESTUSER")
+                .fullName("Old Name")
+                .role(Role.OPERATOR)
+                .active(true)
+                .build();
+
+        User patch = User.builder()
+                .fullName("New Name")
+                .build();
+
+        when(repo.findByIdAndActiveTrue(userId)).thenReturn(Optional.of(existingUser));
+        when(repo.save(any(User.class))).thenAnswer(i -> i.getArguments()[0]);
+
+        // Act
+        User result = userService.update(userId, patch);
+
+        // Assert
+        assertEquals("New Name", result.getFullName());
+        assertEquals(Role.OPERATOR, result.getRole());
+        verify(repo).save(any(User.class));
+        verify(shiftRepo, never()).findByStatusAndOperatorIn(anyString(), anyList());
+    }
+
+    @Test
+    void findByStationAndRole_shouldCallRepository() {
+        // Arrange
+        String stationId = "ST01";
+        Role role = Role.OPERATOR;
+        List<User> users = List.of(User.builder().username("USER1").build());
+        when(repo.findByStationIdAndRoleAndActiveTrue(stationId, role)).thenReturn(users);
+
+        // Act
+        List<User> result = userService.findByStationAndRole(stationId, role);
+
+        // Assert
+        assertEquals(users, result);
+        verify(repo).findByStationIdAndRoleAndActiveTrue(stationId, role);
     }
 
     @Test

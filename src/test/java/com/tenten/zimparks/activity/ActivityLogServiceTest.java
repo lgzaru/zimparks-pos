@@ -77,7 +77,7 @@ class ActivityLogServiceTest {
         when(activityLogRepo.findByUsernameOrderByTimestampDesc("TESTUSER", pageable)).thenReturn(expectedPage);
 
         // Act
-        Page<ActivityLog> result = activityLogService.getLogsForCurrentUser(pageable);
+        Page<ActivityLog> result = activityLogService.getLogsForCurrentUser(null, pageable);
 
         // Assert
         assertEquals(expectedPage, result);
@@ -104,7 +104,7 @@ class ActivityLogServiceTest {
         when(activityLogRepo.findAllByOrderByTimestampDesc(pageable)).thenReturn(expectedPage);
 
         // Act
-        Page<ActivityLog> result = activityLogService.getLogsForCurrentUser(pageable);
+        Page<ActivityLog> result = activityLogService.getLogsForCurrentUser(null, pageable);
 
         // Assert
         assertEquals(expectedPage, result);

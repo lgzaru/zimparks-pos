@@ -39,12 +39,21 @@ public class ActivityLogService {
         }
     }
 
-    public Page<ActivityLog> getLogsForCurrentUser(Pageable pageable) {
+    public Page<ActivityLog> getLogsForCurrentUser(String search, Pageable pageable) {
         String username = getCurrentUsername();
         User user = userRepo.findByUsername(username).orElse(null);
 
         if (user != null && user.getRole() == Role.ADMIN) {
+            if (search != null && !search.isBlank()) {
+                return activityLogRepo.findByOperationContainingIgnoreCaseOrUsernameContainingIgnoreCaseOrDetailsContainingIgnoreCaseOrderByTimestampDesc(
+                        search, search, search, pageable);
+            }
             return activityLogRepo.findAllByOrderByTimestampDesc(pageable);
+        }
+
+        if (search != null && !search.isBlank()) {
+            return activityLogRepo.findByUsernameAndOperationContainingIgnoreCaseOrUsernameAndDetailsContainingIgnoreCaseOrderByTimestampDesc(
+                    username, search, username, search, pageable);
         }
         return activityLogRepo.findByUsernameOrderByTimestampDesc(username, pageable);
     }

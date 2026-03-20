@@ -12,4 +12,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     boolean existsByUsername(String username);
     List<User> findAllByActiveTrue();
     Optional<User> findByIdAndActiveTrue(UUID id);
+    List<User> findByStationId(String stationId);
+    List<User> findByStationIdAndRoleAndActiveTrue(String stationId, Role role);
+    List<User> findByRoleAndActiveTrue(Role role);
 }

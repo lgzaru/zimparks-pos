@@ -1,5 +1,6 @@
 package com.tenten.zimparks.user;
 
+import com.tenten.zimparks.shift.ShiftRepository;
 import com.tenten.zimparks.station.StationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,7 @@ public class UserService implements UserDetailsService {
 
     private final UserRepository repo;
     private final StationRepository stationRepo;
+    private final ShiftRepository shiftRepo;
     private final PasswordEncoder encoder;
 
     @Override
@@ -40,13 +42,13 @@ public class UserService implements UserDetailsService {
         // From Role
         authorities.addAll(u.getRole().getPermissions().stream()
                 .map(p -> new SimpleGrantedAuthority(p.getPermission()))
-                .collect(Collectors.toList()));
+                .toList());
         
         // From User (Individual permissions)
         if (u.getPermissions() != null) {
             authorities.addAll(u.getPermissions().stream()
                     .map(p -> new SimpleGrantedAuthority(p.getPermission()))
-                    .collect(Collectors.toList()));
+                    .toList());
         }
 
         return new org.springframework.security.core.userdetails.User(
@@ -57,6 +59,14 @@ public class UserService implements UserDetailsService {
     }
 
     public List<User> findAll()           { return repo.findAllByActiveTrue(); }
+
+    public List<User> findByStationAndRole(String stationId, Role role) {
+        return repo.findByStationIdAndRoleAndActiveTrue(stationId, role);
+    }
+
+    public List<User> findByRole(Role role) {
+        return repo.findByRoleAndActiveTrue(role);
+    }
 
     public User findById(UUID id) {
         return repo.findByIdAndActiveTrue(id).orElseThrow(() -> new RuntimeException("User not found"));
@@ -89,9 +99,22 @@ public class UserService implements UserDetailsService {
 
     public User update(UUID id, User patch) {
         User u = repo.findByIdAndActiveTrue(id).orElseThrow(() -> new RuntimeException("User not found"));
+
+        boolean changingRole = patch.getRole() != null && !patch.getRole().equals(u.getRole());
+        boolean changingStation = patch.getStation() != null && patch.getStation().getId() != null &&
+                (u.getStation() == null || !patch.getStation().getId().equals(u.getStation().getId()));
+
+        if (changingRole || changingStation) {
+            boolean hasOpenShift = !shiftRepo.findByStatusAndOperatorIn("Open", List.of(u.getUsername())).isEmpty();
+            if (hasOpenShift) {
+                throw new RuntimeException("User has an open shift and cannot change role or station");
+            }
+        }
+
         if (patch.getFullName() != null) u.setFullName(patch.getFullName());
         if (patch.getUsername() != null) u.setUsername(patch.getUsername().toUpperCase());
         if (patch.getRole() != null) u.setRole(patch.getRole());
+        if (patch.getCellPhone() != null) u.setCellPhone(patch.getCellPhone());
         u.setActive(patch.getActive() != null ? patch.getActive() : u.getActive());
         if (patch.getPermissions() != null) u.setPermissions(patch.getPermissions());
 

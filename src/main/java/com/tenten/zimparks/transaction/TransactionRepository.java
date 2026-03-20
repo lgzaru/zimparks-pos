@@ -13,6 +13,8 @@ public interface TransactionRepository
     List<Transaction> findByStatus(String status);
     List<Transaction> findByShiftId(String shiftId);
     List<Transaction> findByStatusAndShiftId(String status, String shiftId);
+    List<Transaction> findByStatusAndShiftIdIn(String status, List<String> shiftIds);
+    List<Transaction> findByStatusAndOperatorNameIn(String status, List<String> usernames);
     List<Transaction> findByCustomerId(String customerId);
 
     List<Transaction> findByStationId(String stationId);
