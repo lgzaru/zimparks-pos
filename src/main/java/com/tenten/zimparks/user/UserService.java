@@ -4,6 +4,8 @@ import com.tenten.zimparks.shift.ShiftRepository;
 import com.tenten.zimparks.station.StationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -58,14 +60,14 @@ public class UserService implements UserDetailsService {
         );
     }
 
-    public List<User> findAll()           { return repo.findAllByActiveTrue(); }
+    public Page<User> findAll(Pageable pageable)           { return repo.findAllByActiveTrue(pageable); }
 
-    public List<User> findByStationAndRole(String stationId, Role role) {
-        return repo.findByStationIdAndRoleAndActiveTrue(stationId, role);
+    public Page<User> findByStationAndRole(String stationId, Role role, Pageable pageable) {
+        return repo.findByStationIdAndRoleAndActiveTrue(stationId, role, pageable);
     }
 
-    public List<User> findByRole(Role role) {
-        return repo.findByRoleAndActiveTrue(role);
+    public Page<User> findByRole(Role role, Pageable pageable) {
+        return repo.findByRoleAndActiveTrue(role, pageable);
     }
 
     public User findById(UUID id) {

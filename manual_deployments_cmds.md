@@ -21,7 +21,8 @@ Rename the JAR for consistency and copy the existing configuration as an example
 # Copy and rename the JAR
 cp target/zimparks-0.0.1-SNAPSHOT.jar deploy/zimparks-pos.jar
 
-# Copy the properties file as a template
+# Copy the properties file as a template AND as the active config
+cp src/main/resources/application.properties deploy/config/application.properties
 cp src/main/resources/application.properties deploy/config/application.properties.example
 ```
 
@@ -31,9 +32,14 @@ Create a new file named `run.bat` inside `deploy/scripts/` with the following co
 @echo off
 setlocal
 
+:: Get the directory where the script is located
+set "SCRIPT_DIR=%~dp0"
+:: Change to the parent directory (the "deploy" folder)
+cd /d "%SCRIPT_DIR%.."
+
 set APP_NAME=zimparks-pos
 set JAR_FILE=zimparks-pos.jar
-set CONFIG_FILE=config/application.properties
+set CONFIG_FILE=config\application.properties
 set LOG_DIR=logs
 set JAVA_OPTS=-Xmx512m -Xms256m
 
@@ -51,9 +57,11 @@ if not exist %LOG_DIR% mkdir %LOG_DIR%
 :: Run Application
 echo [INFO] Starting %APP_NAME%...
 if exist %CONFIG_FILE% (
+    echo [INFO] Using configuration: %CONFIG_FILE%
     java %JAVA_OPTS% -Dspring.config.location=file:%CONFIG_FILE% -jar %JAR_FILE%
 ) else (
     echo [WARNING] %CONFIG_FILE% not found. Using defaults.
+    echo [TIP] Copy config\application.properties.example to %CONFIG_FILE% for custom settings.
     java %JAVA_OPTS% -jar %JAR_FILE%
 )
 
@@ -66,6 +74,7 @@ Your `deploy/` directory should now look like this:
 ```text
 deploy/
 ├── config/
+│   ├── application.properties
 │   └── application.properties.example
 ├── logs/
 ├── scripts/

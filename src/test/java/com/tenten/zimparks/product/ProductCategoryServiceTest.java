@@ -19,6 +19,9 @@ class ProductCategoryServiceTest {
     @Mock
     private ProductCategoryRepository repository;
 
+    @Mock
+    private ProductRepository productRepository;
+
     @InjectMocks
     private ProductCategoryService service;
 
@@ -71,7 +74,17 @@ class ProductCategoryServiceTest {
 
     @Test
     void delete_shouldCallRepository() {
+        when(productRepository.existsByCategoryCode("A")).thenReturn(false);
         service.delete("A");
         verify(repository).deleteById("A");
+    }
+
+    @Test
+    void delete_shouldThrowExceptionIfLinkedToProducts() {
+        when(productRepository.existsByCategoryCode("A")).thenReturn(true);
+        
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> service.delete("A"));
+        assertEquals("Cannot delete category linked to products", exception.getMessage());
+        verify(repository, never()).deleteById("A");
     }
 }

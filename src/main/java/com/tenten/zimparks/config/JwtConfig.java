@@ -42,24 +42,33 @@ public class JwtConfig {
     }
 
     public String extractUsername(String token) {
-        return parseClaims(token).getSubject();
-    }
-
-    public String extractRole(String token) {
-        return (String) parseClaims(token).get("role");
-    }
-
-    public boolean validateToken(String token, UserDetails userDetails) {
         try {
-            String username = extractUsername(token);
-            return username.equals(userDetails.getUsername()) && !isExpired(token);
+            return parseClaims(token).getSubject();
         } catch (JwtException | IllegalArgumentException e) {
-            return false;
+            return null;
         }
     }
 
+    public String extractRole(String token) {
+        try {
+            return (String) parseClaims(token).get("role");
+        } catch (JwtException | IllegalArgumentException e) {
+            return null;
+        }
+    }
+
+    public boolean validateToken(String token, UserDetails userDetails) {
+        String username = extractUsername(token);
+        if (username == null) return false;
+        return username.equals(userDetails.getUsername()) && !isExpired(token);
+    }
+
     private boolean isExpired(String token) {
-        return parseClaims(token).getExpiration().before(new Date());
+        try {
+            return parseClaims(token).getExpiration().before(new Date());
+        } catch (JwtException | IllegalArgumentException e) {
+            return true;
+        }
     }
 
     private Claims parseClaims(String token) {

@@ -5,6 +5,7 @@ import com.tenten.zimparks.bank.BankRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,6 +17,12 @@ public class StationService {
     private final BankRepository bankRepo;
 
     public List<Station> findAll()         { return repo.findAll(); }
+
+    public List<ClusterDto> getClusters() {
+        return Arrays.stream(Cluster.values())
+                .map(c -> new ClusterDto(c.getName(), c.getCode()))
+                .collect(Collectors.toList());
+    }
 
     public Station create(Station s) {
         if (s.getBanks() != null && !s.getBanks().isEmpty()) {

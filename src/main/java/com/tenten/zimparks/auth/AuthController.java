@@ -1,9 +1,11 @@
 package com.tenten.zimparks.auth;
 
 
+import com.tenten.zimparks.util.RequestUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,16 +25,18 @@ public class AuthController {
 
     @PostMapping("/login")
     @Operation(summary = "Authenticate user and issue JWT token.")
-    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest req) {
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest req, HttpServletRequest request) {
         log.info("Login request received for username={}", req.getUsername());
-        return ResponseEntity.ok(authService.login(req));
+        String ipAddress = RequestUtils.getClientIp(request);
+        return ResponseEntity.ok(authService.login(req, ipAddress));
     }
 
     @PostMapping("/logout")
     @Operation(summary = "Invalidate user's current JWT token.")
     @SecurityRequirement(name = "bearerAuth")
-    public ResponseEntity<Map<String, String>> logout() {
-        authService.logout();
+    public ResponseEntity<Map<String, String>> logout(HttpServletRequest request) {
+        String ipAddress = RequestUtils.getClientIp(request);
+        authService.logout(ipAddress);
         return ResponseEntity.ok(Map.of("message", "Logged out successfully."));
     }
 

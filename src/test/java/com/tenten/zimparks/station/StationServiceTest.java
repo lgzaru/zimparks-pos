@@ -53,9 +53,12 @@ class StationServiceTest {
         // Arrange
         String stationId = "ST01";
         String bankCode = "CBZ";
+        String otherBankCode = "FBC";
         Bank bank = Bank.builder().code(bankCode).name("CBZ Bank").build();
+        Bank otherBank = Bank.builder().code(otherBankCode).name("FBC Bank").build();
         List<Bank> banks = new ArrayList<>();
         banks.add(bank);
+        banks.add(otherBank);
         Station station = Station.builder().id(stationId).banks(banks).build();
 
         when(repo.findById(stationId)).thenReturn(Optional.of(station));
@@ -66,6 +69,67 @@ class StationServiceTest {
 
         // Assert
         assertFalse(result.getBanks().stream().anyMatch(b -> b.getCode().equals(bankCode)));
+        assertTrue(result.getBanks().stream().anyMatch(b -> b.getCode().equals(otherBankCode)));
         verify(repo).save(station);
+    }
+
+    @Test
+    void create_shouldAllowNoBanks() {
+        // Arrange
+        Station station = Station.builder().name("Test Station").banks(null).build();
+        when(repo.save(any(Station.class))).thenReturn(station);
+
+        // Act
+        Station result = stationService.create(station);
+
+        // Assert
+        assertNotNull(result);
+        assertNull(result.getBanks());
+        verify(repo).save(station);
+    }
+
+    @Test
+    void create_shouldAllowEmptyBanks() {
+        // Arrange
+        Station station = Station.builder().name("Test Station").banks(new ArrayList<>()).build();
+        when(repo.save(any(Station.class))).thenReturn(station);
+
+        // Act
+        Station result = stationService.create(station);
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result.getBanks().isEmpty());
+        verify(repo).save(station);
+    }
+
+    @Test
+    void update_shouldAllowEmptyBanks() {
+        // Arrange
+        String stationId = "ST01";
+        Station station = Station.builder().id(stationId).banks(new ArrayList<>()).build();
+        Station patch = Station.builder().banks(new ArrayList<>()).build();
+
+        when(repo.findById(stationId)).thenReturn(Optional.of(station));
+        when(repo.save(any(Station.class))).thenReturn(station);
+
+        // Act
+        Station result = stationService.update(stationId, patch);
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result.getBanks().isEmpty());
+        verify(repo).save(station);
+    }
+
+    @Test
+    void getClusters_shouldReturnAllClusters() {
+        // Act
+        List<ClusterDto> result = stationService.getClusters();
+
+        // Assert
+        assertEquals(Cluster.values().length, result.size());
+        assertEquals(Cluster.HW.getName(), result.get(0).getName());
+        assertEquals(Cluster.HW.getCode(), result.get(0).getCode());
     }
 }

@@ -1,5 +1,7 @@
 package com.tenten.zimparks.user;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -10,9 +12,9 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByUsername(String username);
     Optional<User> findByCellPhone(String cellPhone);
     boolean existsByUsername(String username);
-    List<User> findAllByActiveTrue();
+    Page<User> findAllByActiveTrue(Pageable pageable);
     Optional<User> findByIdAndActiveTrue(UUID id);
     List<User> findByStationId(String stationId);
-    List<User> findByStationIdAndRoleAndActiveTrue(String stationId, Role role);
-    List<User> findByRoleAndActiveTrue(Role role);
+    Page<User> findByStationIdAndRoleAndActiveTrue(String stationId, Role role, Pageable pageable);
+    Page<User> findByRoleAndActiveTrue(Role role, Pageable pageable);
 }

@@ -26,6 +26,16 @@ public class ActivityLog {
     @Column(nullable = false)
     private String operation;
 
+    @Column(nullable = false)
+    private String method;
+
+    @Column(nullable = false)
+    private String uri;
+
+    private Integer status;
+
+    private String ipAddress;
+
     @Column(columnDefinition = "TEXT")
     private String details;
 

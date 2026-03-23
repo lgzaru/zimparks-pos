@@ -2,6 +2,7 @@ package com.tenten.zimparks.creditnote;
 
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ public class CreditNoteController {
 
     @GetMapping
     @Operation(summary = "List credit notes, optionally filtered by status.")
-    public List<CreditNote> list(@RequestParam(required = false) String status) {
+    public List<CreditNote> list(@Parameter(description = "Credit note status to filter by.") @RequestParam(required = false) String status) {
         return status != null ? service.findByStatus(status) : service.findAll();
     }
 

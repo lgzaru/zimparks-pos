@@ -10,6 +10,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -228,15 +232,17 @@ class UserServiceTest {
         // Arrange
         String stationId = "ST01";
         Role role = Role.OPERATOR;
+        Pageable pageable = PageRequest.of(0, 30);
         List<User> users = List.of(User.builder().username("USER1").build());
-        when(repo.findByStationIdAndRoleAndActiveTrue(stationId, role)).thenReturn(users);
+        Page<User> page = new PageImpl<>(users, pageable, users.size());
+        when(repo.findByStationIdAndRoleAndActiveTrue(stationId, role, pageable)).thenReturn(page);
 
         // Act
-        List<User> result = userService.findByStationAndRole(stationId, role);
+        Page<User> result = userService.findByStationAndRole(stationId, role, pageable);
 
         // Assert
-        assertEquals(users, result);
-        verify(repo).findByStationIdAndRoleAndActiveTrue(stationId, role);
+        assertEquals(page, result);
+        verify(repo).findByStationIdAndRoleAndActiveTrue(stationId, role, pageable);
     }
 
     @Test

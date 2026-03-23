@@ -2,6 +2,7 @@ package com.tenten.zimparks.transaction;
 
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -20,11 +21,11 @@ public class TransactionController {
     private final TransactionService service;
 
     @GetMapping
-    @Operation(summary = "List transactions, optionally filtered by status or customer ID.")
+    @Operation(summary = "List transactions, optionally filtered by status, customer ID, or shift ID.")
     public List<Transaction> list(
-            @RequestParam(required = false) String status,
-            @RequestParam(required = false) String customerId,
-            @RequestParam(required = false) String shiftId) {
+            @Parameter(description = "Transaction status to filter by.") @RequestParam(required = false) String status,
+            @Parameter(description = "Customer ID to filter by.") @RequestParam(required = false) String customerId,
+            @Parameter(description = "Shift ID to filter by.") @RequestParam(required = false) String shiftId) {
 
         if (shiftId != null)    return service.findByShiftId(shiftId);
         if (status != null)     return service.findByStatus(status.toUpperCase());

@@ -2,6 +2,7 @@ package com.tenten.zimparks.activity;
 import com.tenten.zimparks.user.Role;
 import com.tenten.zimparks.user.User;
 import com.tenten.zimparks.user.UserRepository;
+import com.tenten.zimparks.util.RequestUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -67,17 +68,17 @@ public class ActivityLogFilter extends OncePerRequestFilter {
 
         // Admin logs all state-changing operations
         if (role == Role.ADMIN) {
-            logStateChangingOperation(request, username, method, uri);
+            logStateChangingOperation(request, response, username, method, uri);
             return;
         }
 
         // Supervisor: product creation, bank linking, void approvals, credit note approvals, plus state-changing
         if (role == Role.SUPERVISOR) {
             if (isSupervisorAction(method, uri)) {
-                logStateChangingOperation(request, username, method, uri);
+                logStateChangingOperation(request, response, username, method, uri);
             } else {
                 // Also log other state-changing operations for supervisor as before
-                logStateChangingOperation(request, username, method, uri);
+                logStateChangingOperation(request, response, username, method, uri);
             }
             return;
         }
@@ -85,7 +86,7 @@ public class ActivityLogFilter extends OncePerRequestFilter {
         // Operator: capture transactions creations, void requests, credit request.
         if (role == Role.OPERATOR) {
             if (isOperatorAction(method, uri)) {
-                logStateChangingOperation(request, username, method, uri);
+                logStateChangingOperation(request, response, username, method, uri);
             }
             return;
         }
@@ -121,16 +122,18 @@ public class ActivityLogFilter extends OncePerRequestFilter {
         return false;
     }
 
-    private void logAdminOperation(ContentCachingRequestWrapper request, String username, String method, String uri) {
+    private void logAdminOperation(ContentCachingRequestWrapper request, HttpServletResponse response, String username, String method, String uri) {
         String operation = determineOperationName(method);
         String body = getRequestBody(request);
-        String details = String.format("URL: %s, Body: %s", uri, body != null ? body : "NONE");
-        activityLogService.logActivity(username, operation, details);
+        String details = body != null ? body : "NONE";
+        int status = response.getStatus();
+        String ip = RequestUtils.getClientIp(request);
+        activityLogService.logActivity(username, operation, details, method, uri, status, ip);
     }
 
-    private void logStateChangingOperation(ContentCachingRequestWrapper request, String username, String method, String uri) {
+    private void logStateChangingOperation(ContentCachingRequestWrapper request, HttpServletResponse response, String username, String method, String uri) {
         if (!"GET".equalsIgnoreCase(method)) {
-            logAdminOperation(request, username, method, uri);
+            logAdminOperation(request, response, username, method, uri);
         }
     }
 

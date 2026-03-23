@@ -51,6 +51,7 @@ class ActivityLogFilterTest {
         MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/products");
         request.setContent("{\"name\":\"Test Product\"}".getBytes());
         HttpServletResponse response = mock(HttpServletResponse.class);
+        when(response.getStatus()).thenReturn(201);
 
         User admin = User.builder().username("admin").role(Role.ADMIN).build();
         when(authentication.isAuthenticated()).thenReturn(true);
@@ -70,12 +71,15 @@ class ActivityLogFilterTest {
         // Assert
         verify(filterChain).doFilter(any(ContentCachingRequestWrapper.class), eq(response));
         
-        ArgumentCaptor<String> detailsCaptor = ArgumentCaptor.forClass(String.class);
-        verify(activityLogService).logActivity(eq("admin"), eq("CREATE"), detailsCaptor.capture());
-        
-        String details = detailsCaptor.getValue();
-        assertTrue(details.contains("/api/products"));
-        assertTrue(details.contains("{\"name\":\"Test Product\"}"));
+        verify(activityLogService).logActivity(
+            eq("admin"), 
+            eq("CREATE"), 
+            eq("{\"name\":\"Test Product\"}"),
+            eq("POST"),
+            eq("/api/products"),
+            eq(201),
+            anyString()
+        );
     }
 
     @Test
@@ -84,6 +88,7 @@ class ActivityLogFilterTest {
         MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/transactions");
         request.setContent("{\"amount\":100}".getBytes());
         HttpServletResponse response = mock(HttpServletResponse.class);
+        when(response.getStatus()).thenReturn(200);
 
         User operator = User.builder().username("operator").role(Role.OPERATOR).build();
         when(authentication.isAuthenticated()).thenReturn(true);
@@ -100,7 +105,15 @@ class ActivityLogFilterTest {
         activityLogFilter.doFilterInternal(request, response, filterChain);
 
         // Assert
-        verify(activityLogService).logActivity(eq("operator"), eq("CREATE"), contains("{\"amount\":100}"));
+        verify(activityLogService).logActivity(
+            eq("operator"), 
+            eq("CREATE"), 
+            eq("{\"amount\":100}"),
+            eq("POST"),
+            eq("/api/transactions"),
+            eq(200),
+            anyString()
+        );
     }
 
     @Test
@@ -108,6 +121,7 @@ class ActivityLogFilterTest {
         // Arrange
         MockHttpServletRequest request = new MockHttpServletRequest("PATCH", "/api/transactions/TX123/void");
         HttpServletResponse response = mock(HttpServletResponse.class);
+        when(response.getStatus()).thenReturn(200);
 
         User operator = User.builder().username("operator").role(Role.OPERATOR).build();
         when(authentication.isAuthenticated()).thenReturn(true);
@@ -118,7 +132,15 @@ class ActivityLogFilterTest {
         activityLogFilter.doFilterInternal(request, response, filterChain);
 
         // Assert
-        verify(activityLogService).logActivity(eq("operator"), eq("EDIT"), contains("/api/transactions/TX123/void"));
+        verify(activityLogService).logActivity(
+            eq("operator"), 
+            eq("EDIT"), 
+            eq("NONE"),
+            eq("PATCH"),
+            eq("/api/transactions/TX123/void"),
+            eq(200),
+            anyString()
+        );
     }
 
     @Test
@@ -136,7 +158,7 @@ class ActivityLogFilterTest {
         activityLogFilter.doFilterInternal(request, response, filterChain);
 
         // Assert
-        verify(activityLogService, never()).logActivity(anyString(), anyString(), anyString());
+        verify(activityLogService, never()).logActivity(anyString(), anyString(), anyString(), anyString(), anyString(), anyInt(), anyString());
     }
 
     @Test
@@ -144,6 +166,7 @@ class ActivityLogFilterTest {
         // Arrange
         MockHttpServletRequest request = new MockHttpServletRequest("PATCH", "/api/transactions/TX123/void/approve");
         HttpServletResponse response = mock(HttpServletResponse.class);
+        when(response.getStatus()).thenReturn(200);
 
         User supervisor = User.builder().username("supervisor").role(Role.SUPERVISOR).build();
         when(authentication.isAuthenticated()).thenReturn(true);
@@ -154,7 +177,15 @@ class ActivityLogFilterTest {
         activityLogFilter.doFilterInternal(request, response, filterChain);
 
         // Assert
-        verify(activityLogService).logActivity(eq("supervisor"), eq("EDIT"), contains("/api/transactions/TX123/void/approve"));
+        verify(activityLogService).logActivity(
+            eq("supervisor"), 
+            eq("EDIT"), 
+            eq("NONE"),
+            eq("PATCH"),
+            eq("/api/transactions/TX123/void/approve"),
+            eq(200),
+            anyString()
+        );
     }
 
     @Test
@@ -172,7 +203,7 @@ class ActivityLogFilterTest {
         activityLogFilter.doFilterInternal(request, response, filterChain);
 
         // Assert
-        verify(activityLogService, never()).logActivity(anyString(), anyString(), anyString());
+        verify(activityLogService, never()).logActivity(anyString(), anyString(), anyString(), anyString(), anyString(), anyInt(), anyString());
     }
 
     @Test
@@ -190,7 +221,7 @@ class ActivityLogFilterTest {
         activityLogFilter.doFilterInternal(request, response, filterChain);
 
         // Assert
-        verify(activityLogService, never()).logActivity(anyString(), anyString(), anyString());
+        verify(activityLogService, never()).logActivity(anyString(), anyString(), anyString(), anyString(), anyString(), anyInt(), anyString());
     }
     @Test
     void doFilterInternal_SupervisorUser_ShiftOperations_ShouldLog() throws Exception {
@@ -202,13 +233,17 @@ class ActivityLogFilterTest {
 
         // Act & Assert - Open Shift
         MockHttpServletRequest openRequest = new MockHttpServletRequest("POST", "/api/shifts/open");
-        activityLogFilter.doFilterInternal(openRequest, mock(HttpServletResponse.class), filterChain);
-        verify(activityLogService).logActivity(eq("supervisor"), eq("CREATE"), contains("/api/shifts/open"));
+        HttpServletResponse openResponse = mock(HttpServletResponse.class);
+        when(openResponse.getStatus()).thenReturn(200);
+        activityLogFilter.doFilterInternal(openRequest, openResponse, filterChain);
+        verify(activityLogService).logActivity(eq("supervisor"), eq("CREATE"), eq("NONE"), eq("POST"), eq("/api/shifts/open"), eq(200), anyString());
 
         // Act & Assert - Close Shift
         MockHttpServletRequest closeRequest = new MockHttpServletRequest("POST", "/api/shifts/close/user1");
-        activityLogFilter.doFilterInternal(closeRequest, mock(HttpServletResponse.class), filterChain);
-        verify(activityLogService).logActivity(eq("supervisor"), eq("CREATE"), contains("/api/shifts/close/user1"));
+        HttpServletResponse closeResponse = mock(HttpServletResponse.class);
+        when(closeResponse.getStatus()).thenReturn(200);
+        activityLogFilter.doFilterInternal(closeRequest, closeResponse, filterChain);
+        verify(activityLogService).logActivity(eq("supervisor"), eq("CREATE"), eq("NONE"), eq("POST"), eq("/api/shifts/close/user1"), eq(200), anyString());
     }
 
     @Test
@@ -221,13 +256,17 @@ class ActivityLogFilterTest {
 
         // Act & Assert - Approve
         MockHttpServletRequest approveReq = new MockHttpServletRequest("PATCH", "/api/credit-notes/CN1/approve");
-        activityLogFilter.doFilterInternal(approveReq, mock(HttpServletResponse.class), filterChain);
-        verify(activityLogService).logActivity(eq("supervisor"), eq("EDIT"), contains("/api/credit-notes/CN1/approve"));
+        HttpServletResponse approveRes = mock(HttpServletResponse.class);
+        when(approveRes.getStatus()).thenReturn(200);
+        activityLogFilter.doFilterInternal(approveReq, approveRes, filterChain);
+        verify(activityLogService).logActivity(eq("supervisor"), eq("EDIT"), eq("NONE"), eq("PATCH"), eq("/api/credit-notes/CN1/approve"), eq(200), anyString());
 
         // Act & Assert - Reject
         MockHttpServletRequest rejectReq = new MockHttpServletRequest("PATCH", "/api/credit-notes/CN2/reject");
-        activityLogFilter.doFilterInternal(rejectReq, mock(HttpServletResponse.class), filterChain);
-        verify(activityLogService).logActivity(eq("supervisor"), eq("EDIT"), contains("/api/credit-notes/CN2/reject"));
+        HttpServletResponse rejectRes = mock(HttpServletResponse.class);
+        when(rejectRes.getStatus()).thenReturn(200);
+        activityLogFilter.doFilterInternal(rejectReq, rejectRes, filterChain);
+        verify(activityLogService).logActivity(eq("supervisor"), eq("EDIT"), eq("NONE"), eq("PATCH"), eq("/api/credit-notes/CN2/reject"), eq(200), anyString());
     }
 
     @Test
@@ -240,10 +279,12 @@ class ActivityLogFilterTest {
 
         // Act
         MockHttpServletRequest request = new MockHttpServletRequest("PATCH", "/api/transactions/TX123/void/reject");
-        activityLogFilter.doFilterInternal(request, mock(HttpServletResponse.class), filterChain);
+        HttpServletResponse response = mock(HttpServletResponse.class);
+        when(response.getStatus()).thenReturn(200);
+        activityLogFilter.doFilterInternal(request, response, filterChain);
 
         // Assert
-        verify(activityLogService).logActivity(eq("supervisor"), eq("EDIT"), contains("/api/transactions/TX123/void/reject"));
+        verify(activityLogService).logActivity(eq("supervisor"), eq("EDIT"), eq("NONE"), eq("PATCH"), eq("/api/transactions/TX123/void/reject"), eq(200), anyString());
     }
 
     @Test
@@ -256,9 +297,11 @@ class ActivityLogFilterTest {
 
         // Act
         MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/credit-notes");
-        activityLogFilter.doFilterInternal(request, mock(HttpServletResponse.class), filterChain);
+        HttpServletResponse response = mock(HttpServletResponse.class);
+        when(response.getStatus()).thenReturn(201);
+        activityLogFilter.doFilterInternal(request, response, filterChain);
 
         // Assert
-        verify(activityLogService).logActivity(eq("operator"), eq("CREATE"), contains("/api/credit-notes"));
+        verify(activityLogService).logActivity(eq("operator"), eq("CREATE"), eq("NONE"), eq("POST"), eq("/api/credit-notes"), eq(201), anyString());
     }
 }

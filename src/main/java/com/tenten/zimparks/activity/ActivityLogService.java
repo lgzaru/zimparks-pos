@@ -22,14 +22,19 @@ public class ActivityLogService {
     private final UserRepository userRepo;
 
     @Transactional
-    public void logActivity(String username, String operation, String details) {
-        log.debug("Logging activity: username={}, operation={}, details={}", username, operation, details);
+    public void logActivity(String username, String operation, String details, String method, String uri, Integer status, String ipAddress) {
+        log.debug("Logging activity: username={}, operation={}, method={}, uri={}, status={}, ip={}", 
+                username, operation, method, uri, status, ipAddress);
         User user = userRepo.findByUsername(username).orElse(null);
         if (user != null) {
             ActivityLog logEntry = ActivityLog.builder()
                     .user(user)
                     .username(username)
                     .operation(operation)
+                    .method(method)
+                    .uri(uri)
+                    .status(status)
+                    .ipAddress(ipAddress)
                     .details(details)
                     .timestamp(LocalDateTime.now())
                     .build();

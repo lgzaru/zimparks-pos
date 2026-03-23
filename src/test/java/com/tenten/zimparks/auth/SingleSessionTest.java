@@ -81,7 +81,7 @@ class SingleSessionTest {
         when(jwtConfig.generateToken(any(), any())).thenReturn("new-token");
 
         // Act
-        LoginResponse response = authService.login(req);
+        LoginResponse response = authService.login(req, "127.0.0.1");
 
         // Assert
         assertEquals("new-token", response.getToken());

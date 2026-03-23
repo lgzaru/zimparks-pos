@@ -6,5 +6,7 @@ import java.util.Optional;
 
 public interface ShiftRepository extends JpaRepository<Shift, String> {
     Optional<Shift> findTopByOperatorOrderByStartFullDesc(String operator);
+    List<Shift> findByStatus(String status);
     List<Shift> findByStatusAndOperatorIn(String status, List<String> operators);
+    List<Shift> findByOperatorIn(List<String> operators);
 }

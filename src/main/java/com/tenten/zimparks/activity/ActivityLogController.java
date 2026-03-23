@@ -1,6 +1,7 @@
 package com.tenten.zimparks.activity;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -25,8 +26,8 @@ public class ActivityLogController {
     @GetMapping
     @Operation(summary = "Get activity logs. Admin sees all logs, other roles see only their own.")
     public ResponseEntity<Page<ActivityLog>> getActivities(
-            @RequestParam(required = false) String search,
-            @PageableDefault(size = 100) Pageable pageable) {
+            @Parameter(description = "Search query to filter logs by username, operation or details.") @RequestParam(required = false) String search,
+            @PageableDefault(size = 30) Pageable pageable) {
         return ResponseEntity.ok(activityLogService.getLogsForCurrentUser(search, pageable));
     }
 }

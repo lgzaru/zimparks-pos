@@ -1,13 +1,16 @@
 package com.tenten.zimparks.user;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -20,14 +23,17 @@ public class UserController {
     private final UserService service;
 
     @GetMapping
-    @Operation(summary = "List all users.")
-    public List<User> list(@RequestParam(required = false) String stationId, @RequestParam(required = false) Role role) {
+    @Operation(summary = "List all users, optionally filtered by station or role.")
+    public ResponseEntity<Page<User>> list(
+            @Parameter(description = "Station ID to filter users by.") @RequestParam(required = false) String stationId,
+            @Parameter(description = "Role to filter users by.") @RequestParam(required = false) Role role,
+            @PageableDefault(size = 30) Pageable pageable) {
         if (stationId != null && role != null) {
-            return service.findByStationAndRole(stationId, role);
+            return ResponseEntity.ok(service.findByStationAndRole(stationId, role, pageable));
         } else if (role != null) {
-            return service.findByRole(role);
+            return ResponseEntity.ok(service.findByRole(role, pageable));
         }
-        return service.findAll();
+        return ResponseEntity.ok(service.findAll(pageable));
     }
 
     @GetMapping("/{id}")

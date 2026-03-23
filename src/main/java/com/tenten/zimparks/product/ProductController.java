@@ -1,13 +1,15 @@
 package com.tenten.zimparks.product;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
@@ -19,12 +21,14 @@ public class ProductController {
     private final ProductService service;
 
     @GetMapping
-    @Operation(summary = "List all products.")
-    public List<Product> list(@RequestParam(required = false) String stationId) {
+    @Operation(summary = "List all products, optionally filtered by station.")
+    public ResponseEntity<Page<Product>> list(
+            @Parameter(description = "Station ID to filter products by.") @RequestParam(required = false) String stationId,
+            @PageableDefault(size = 30) Pageable pageable) {
         if (stationId != null) {
-            return service.findByStation(stationId);
+            return ResponseEntity.ok(service.findByStation(stationId, pageable));
         }
-        return service.findAll();
+        return ResponseEntity.ok(service.findAll(pageable));
     }
 
     @PostMapping

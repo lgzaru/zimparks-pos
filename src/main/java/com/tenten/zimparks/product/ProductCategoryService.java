@@ -8,8 +8,8 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class ProductCategoryService {
-
     private final ProductCategoryRepository repository;
+    private final ProductRepository productRepository;
 
     public List<ProductCategory> findAll() {
         return repository.findAll();
@@ -30,6 +30,9 @@ public class ProductCategoryService {
     }
 
     public void delete(String code) {
+        if (productRepository.existsByCategoryCode(code)) {
+            throw new RuntimeException("Cannot delete category linked to products");
+        }
         repository.deleteById(code);
     }
 }

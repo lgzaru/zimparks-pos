@@ -3,6 +3,8 @@ package com.tenten.zimparks.product;
 import com.tenten.zimparks.station.Station;
 import com.tenten.zimparks.station.StationRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -17,13 +19,18 @@ public class ProductService {
     private final ProductRepository repo;
     private final StationRepository stationRepo;
 
-    public List<Product> findAll()               { return repo.findAll(); }
-    public List<Product> findByStation(String stationId) { return repo.findByIdStationId(stationId); }
+    public Page<Product> findAll(Pageable pageable)               { return repo.findAll(pageable); }
+    public Page<Product> findByStation(String stationId, Pageable pageable) { return repo.findByIdStationId(stationId, pageable); }
 
     public Product create(Product p)             {
         if (p.getId() != null && p.getId().getStationId() != null && p.getCategory() != null) {
             Station station = stationRepo.findById(p.getId().getStationId())
                     .orElseThrow(() -> new RuntimeException("Station not found"));
+
+            if (station.getCluster() == null) {
+                throw new RuntimeException("Station " + station.getId() + " has no cluster assigned. Cannot create product.");
+            }
+
             String clusterCode = station.getCluster().getCode();
             String stationId = station.getId();
             String categoryCode = p.getCategory().getCode();
@@ -53,6 +60,10 @@ public class ProductService {
 
             Station station = stationRepo.findById(id.getStationId())
                     .orElseThrow(() -> new RuntimeException("Station not found"));
+
+            if (station.getCluster() == null) {
+                throw new RuntimeException("Station " + station.getId() + " has no cluster assigned. Cannot update product category.");
+            }
 
             String clusterCode = station.getCluster().getCode();
             String stationId = station.getId();

@@ -5,6 +5,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,6 +22,8 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
 
+    private static final Logger log = LoggerFactory.getLogger(JwtFilter.class);
+
     private final JwtConfig jwtConfig;
     private final UserDetailsService userDetailsService;
     private final com.tenten.zimparks.user.UserRepository userRepo;
@@ -32,16 +36,30 @@ public class JwtFilter extends OncePerRequestFilter {
 
         if (token != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             String username = jwtConfig.extractUsername(token);
-            UserDetails ud = userDetailsService.loadUserByUsername(username);
+            if (username != null) {
+                UserDetails ud = userDetailsService.loadUserByUsername(username);
 
-            if (jwtConfig.validateToken(token, ud)) {
-                // Check if this token is the user's current valid session token
-                var userOpt = userRepo.findByUsername(username);
-                if (userOpt.isPresent() && token.equals(userOpt.get().getCurrentToken())) {
-                    var auth = new UsernamePasswordAuthenticationToken(ud, null, ud.getAuthorities());
-                    auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
-                    SecurityContextHolder.getContext().setAuthentication(auth);
+                if (jwtConfig.validateToken(token, ud)) {
+                    var userOpt = userRepo.findByUsername(username);
+                    if (userOpt.isPresent()) {
+                        String storedToken = userOpt.get().getCurrentToken();
+                        if (token.equals(storedToken)) {
+                            var auth = new UsernamePasswordAuthenticationToken(ud, null, ud.getAuthorities());
+                            auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
+                            SecurityContextHolder.getContext().setAuthentication(auth);
+                            log.debug("JWT auth set for user={}", username);
+                        } else {
+                            log.debug("Token mismatch for user={} — presented token does not match stored currentToken. " +
+                                    "storedToken isNull={}", username, storedToken == null);
+                        }
+                    } else {
+                        log.debug("User not found in repository: {}", username);
+                    }
+                } else {
+                    log.debug("Token validation failed for user={}", username);
                 }
+            } else {
+                log.debug("Could not extract username from token");
             }
         }
 

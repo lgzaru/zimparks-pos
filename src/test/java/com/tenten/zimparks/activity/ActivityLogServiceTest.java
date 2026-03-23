@@ -22,6 +22,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -51,10 +52,18 @@ class ActivityLogServiceTest {
         when(userRepo.findByUsername("TESTUSER")).thenReturn(Optional.of(user));
 
         // Act
-        activityLogService.logActivity("TESTUSER", "LOGIN", "Test details");
+        activityLogService.logActivity("TESTUSER", "CREATE", "Test details", "POST", "/api/test", 201, "127.0.0.1");
 
         // Assert
-        verify(activityLogRepo, times(1)).save(any(ActivityLog.class));
+        verify(activityLogRepo, times(1)).save(argThat(log -> 
+            "TESTUSER".equals(log.getUsername()) &&
+            "CREATE".equals(log.getOperation()) &&
+            "POST".equals(log.getMethod()) &&
+            "/api/test".equals(log.getUri()) &&
+            Integer.valueOf(201).equals(log.getStatus()) &&
+            "127.0.0.1".equals(log.getIpAddress()) &&
+            "Test details".equals(log.getDetails())
+        ));
     }
 
     @Test

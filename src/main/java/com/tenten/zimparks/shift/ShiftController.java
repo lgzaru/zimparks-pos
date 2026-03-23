@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -26,6 +27,12 @@ public class ShiftController {
                 .map(ResponseEntity::ok)
                 .<ResponseEntity<?>>map(r -> r)
                 .orElse(ResponseEntity.noContent().build());
+    }
+
+    @GetMapping("/active")
+    @Operation(summary = "Get all active shifts.")
+    public ResponseEntity<List<Map<String, Object>>> getActive() {
+        return ResponseEntity.ok(service.getActiveShifts());
     }
 
     @PostMapping("/open")
@@ -50,5 +57,11 @@ public class ShiftController {
     @Operation(summary = "Get all transactions for a specific shift.")
     public ResponseEntity<?> getTransactions(@PathVariable String shiftId) {
         return ResponseEntity.ok(service.getTransactions(shiftId));
+    }
+
+    @GetMapping("/station/{stationId}")
+    @Operation(summary = "Get all shifts for a specific station.")
+    public ResponseEntity<List<Shift>> getByStation(@PathVariable String stationId) {
+        return ResponseEntity.ok(service.getAllByStationId(stationId));
     }
 }

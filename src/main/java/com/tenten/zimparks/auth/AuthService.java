@@ -91,7 +91,7 @@ public class AuthService {
         log.info("Password reset successfully for phone={}", phoneNumber);
     }
 
-    public LoginResponse login(LoginRequest req) {
+    public LoginResponse login(LoginRequest req, String ipAddress) {
         try {
             String username = req.getUsername() != null ? req.getUsername().toUpperCase() : null;
             String password = req.getPassword() != null ? req.getPassword().toUpperCase() : null;
@@ -115,7 +115,7 @@ public class AuthService {
             userRepo.save(user);
             log.info("Login successful for username={}", req.getUsername());
 
-            activityLogService.logActivity(user.getUsername(), "LOGIN", "User logged in successfully");
+            activityLogService.logActivity(user.getUsername(), "LOGIN", "User logged in successfully", "POST", "/api/auth/login", 200, ipAddress);
 
             String stationId = (user.getStation() != null) ? user.getStation().getId() : null;
             var banks = (user.getStation() != null) ? user.getStation().getBanks() : null;
@@ -140,7 +140,7 @@ public class AuthService {
     }
 
     @Transactional
-    public void logout() {
+    public void logout(String ipAddress) {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String username;
         if (principal instanceof UserDetails) {
@@ -155,7 +155,7 @@ public class AuthService {
         user.setCurrentToken(null);
         userRepo.save(user);
 
-        activityLogService.logActivity(username, "LOGOUT", "User logged out successfully");
+        activityLogService.logActivity(username, "LOGOUT", "User logged out successfully", "POST", "/api/auth/logout", 200, ipAddress);
         log.info("Logout successful for username={}", username);
     }
 }

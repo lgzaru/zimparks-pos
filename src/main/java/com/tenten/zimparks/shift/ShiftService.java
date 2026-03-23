@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -63,6 +64,13 @@ public class ShiftService {
                 .filter(sh -> "Open".equals(sh.getStatus()))
                 .orElseThrow(() -> new IllegalStateException("No open shift for " + username));
 
+        if (!cnRepo.findByStatusAndShiftId("PENDING", s.getId()).isEmpty()) {
+            throw new IllegalStateException("Cannot close shift with pending credit notes");
+        }
+        if (!txRepo.findByStatusAndShiftId("PENDING_VOID", s.getId()).isEmpty()) {
+            throw new IllegalStateException("Cannot close shift with pending void requests");
+        }
+
         String currentUsername = getCurrentUsername();
         LocalDateTime now = LocalDateTime.now();
         s.setStatus("Closed");
@@ -83,6 +91,25 @@ public class ShiftService {
 
     public Object getTransactions(String shiftId) {
         return txRepo.findByShiftId(shiftId);
+    }
+    
+    public List<Shift> getAllByStationId(String stationId) {
+        List<User> users = userRepo.findByStationId(stationId);
+        List<String> usernames = users.stream().map(User::getUsername).toList();
+        return shiftRepo.findByOperatorIn(usernames);
+    }
+
+    public List<Map<String, Object>> getActiveShifts() {
+        return shiftRepo.findByStatus("Open").stream()
+                .map(s -> {
+                    Map<String, Object> map = new java.util.HashMap<>();
+                    map.put("username", s.getOperator());
+                    map.put("id", s.getId());
+                    map.put("status", s.getStatus());
+                    map.put("startTime", s.getStartTime());
+                    return map;
+                })
+                .toList();
     }
 
     private Map<String, Object> getSummary(Shift s) {

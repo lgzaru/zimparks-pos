@@ -27,17 +27,18 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-@RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtFilter jwtFilter;
-    private final com.tenten.zimparks.activity.ActivityLogFilter activityLogFilter;
+
+    // Removed direct field injection to avoid circular dependency via ActivityLogFilter -> ActivityLogService -> UserRepository -> SecurityConfig
 
     @Value("${app.cors.allowed-origins}")
     private String allowedOrigins;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, 
+                                           JwtFilter jwtFilter, 
+                                           com.tenten.zimparks.activity.ActivityLogFilter activityLogFilter) throws Exception {
         http
                 .cors(c -> c.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
@@ -52,6 +53,7 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                         // Admin only
                         .requestMatchers(HttpMethod.GET, "/api/users/**").hasAnyRole("ADMIN", "SUPERVISOR", "OPERATOR")
+                        .requestMatchers(HttpMethod.GET, "/api/users/permissions").hasAnyRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/users/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/users/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/api/users/**").hasRole("ADMIN")
@@ -74,10 +76,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/product-categories/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/product-categories/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/vat/**").hasAnyRole("ADMIN", "SUPERVISOR", "OPERATOR")
+                        .requestMatchers(HttpMethod.GET, "/api/currencies/**").hasAnyRole("ADMIN", "SUPERVISOR", "OPERATOR")
+                        .requestMatchers(HttpMethod.GET, "/api/activities/**").hasAnyRole("ADMIN", "SUPERVISOR")
                         .requestMatchers(HttpMethod.PUT, "/api/vat/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/api/vat/**").hasRole("ADMIN")
                         // Supervisor+
                         .requestMatchers(HttpMethod.POST, "/api/shifts/close/**").hasAuthority("shift:close")
+                        .requestMatchers("/api/shifts/station/**").hasAnyRole("ADMIN", "SUPERVISOR")
                         .requestMatchers("/api/shifts/**").hasAnyRole("ADMIN", "SUPERVISOR", "OPERATOR")
                         .requestMatchers("/api/credit-notes/**").hasAnyRole("ADMIN", "SUPERVISOR", "OPERATOR")
                         .requestMatchers("/api/credit-notes/*/approve", "/api/credit-notes/*/reject").hasAnyRole("SUPERVISOR", "ADMIN")
@@ -96,7 +101,8 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of(allowedOrigins.split(",")));
+        List<String> origins = List.of(allowedOrigins.split(","));
+        config.setAllowedOriginPatterns(origins.stream().map(String::trim).toList());
         config.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
