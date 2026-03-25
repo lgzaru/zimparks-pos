@@ -16,7 +16,9 @@ public class StationService {
     private final StationRepository repo;
     private final BankRepository bankRepo;
 
-    public List<Station> findAll()         { return repo.findAll(); }
+    public List<Station> findAll() {
+        return repo.findAll();
+    }
 
     public List<ClusterDto> getClusters() {
         return Arrays.stream(Cluster.values())
@@ -25,6 +27,14 @@ public class StationService {
     }
 
     public Station create(Station s) {
+        String prefix = "ST_" + s.getCluster().getCode() + "_";  // e.g. "ST_HW_"
+
+        int next = repo.findMaxIdByPrefix(prefix)
+                .map(maxId -> Integer.parseInt(maxId.substring(prefix.length())) + 1)
+                .orElse(1);
+
+        s.setId(String.format("%s%02d", prefix, next));  // e.g. "ST_HW_01"
+
         if (s.getBanks() != null && !s.getBanks().isEmpty()) {
             s.setBanks(resolveBanksByCode(s.getBanks()));
         }
@@ -62,5 +72,7 @@ public class StationService {
         return bankRepo.findAllById(codes);
     }
 
-    public void delete(String id)          { repo.deleteById(id); }
+    public void delete(String id) {
+        repo.deleteById(id);
+    }
 }

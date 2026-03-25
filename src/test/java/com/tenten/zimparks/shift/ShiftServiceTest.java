@@ -1,15 +1,11 @@
 package com.tenten.zimparks.shift;
 
 import com.tenten.zimparks.creditnote.CreditNoteRepository;
-import com.tenten.zimparks.transaction.Receipt;
-import com.tenten.zimparks.transaction.ReceiptRepository;
-import com.tenten.zimparks.transaction.TransactionRepository;
+import com.tenten.zimparks.transaction.*;
 import com.tenten.zimparks.station.Station;
 import com.tenten.zimparks.user.Role;
 import com.tenten.zimparks.user.User;
 import com.tenten.zimparks.user.UserRepository;
-import com.tenten.zimparks.transaction.PaymentBreakdown;
-import com.tenten.zimparks.transaction.Transaction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -158,9 +154,9 @@ class ShiftServiceTest {
         when(userRepo.findByUsername(clerkUsername)).thenReturn(Optional.of(clerk));
         when(shiftRepo.findTopByOperatorOrderByStartFullDesc(clerkUsername)).thenReturn(Optional.of(openShift));
         when(cnRepo.findByStatusAndShiftId("PENDING", openShift.getId())).thenReturn(Collections.emptyList());
-        when(txRepo.findByStatusAndShiftId("PENDING_VOID", openShift.getId())).thenReturn(Collections.emptyList());
-        when(txRepo.findByStatusAndShiftId("PAID", openShift.getId())).thenReturn(Collections.emptyList());
-        when(txRepo.findByStatusAndShiftId("VOIDED", openShift.getId())).thenReturn(Collections.emptyList());
+        when(txRepo.findByStatusAndShiftId(TransactionStatus.VOID_PENDING, openShift.getId())).thenReturn(Collections.emptyList());
+        when(txRepo.findByStatusAndShiftId(TransactionStatus.PAID, openShift.getId())).thenReturn(Collections.emptyList());
+        when(txRepo.findByStatusAndShiftId(TransactionStatus.VOIDED, openShift.getId())).thenReturn(Collections.emptyList());
         when(receiptRepo.findByShiftId(openShift.getId())).thenReturn(Collections.emptyList());
         when(cnRepo.findByStatusNotAndShiftId("REJECTED", openShift.getId())).thenReturn(Collections.emptyList());
         when(shiftRepo.save(any(Shift.class))).thenAnswer(i -> i.getArgument(0));
@@ -236,7 +232,7 @@ class ShiftServiceTest {
         // Simulating no pending credit notes
         when(cnRepo.findByStatusAndShiftId("PENDING", shiftId)).thenReturn(Collections.emptyList());
         // Simulating pending void requests
-        when(txRepo.findByStatusAndShiftId("PENDING_VOID", shiftId)).thenReturn(java.util.List.of(new Transaction()));
+        when(txRepo.findByStatusAndShiftId(TransactionStatus.VOID_PENDING, shiftId)).thenReturn(java.util.List.of(new Transaction()));
 
         // Act & Assert
         IllegalStateException exception = assertThrows(IllegalStateException.class, () -> shiftService.close(username));
@@ -264,25 +260,25 @@ class ShiftServiceTest {
                 .txRef("TX1")
                 .originalCurrency("USD")
                 .originalAmount(new java.math.BigDecimal("15.00"))
-                .status("PAID")
+                .status(TransactionStatus.PAID)
                 .build();
         Receipt r2 = Receipt.builder()
                 .txRef("TX2")
                 .originalCurrency("ZWG")
                 .originalAmount(new java.math.BigDecimal("100.00"))
-                .status("PAID")
+                .status(TransactionStatus.PAID)
                 .build();
 
         Transaction t1 = Transaction.builder()
                 .ref("TX1")
                 .amount(new java.math.BigDecimal("15.00"))
-                .status("PAID")
+                .status(TransactionStatus.PAID)
                 .breakdown(Collections.emptyList())
                 .build();
         Transaction t2 = Transaction.builder()
                 .ref("TX2")
                 .amount(new java.math.BigDecimal("100.00"))
-                .status("PAID")
+                .status(TransactionStatus.PAID)
                 .breakdown(Collections.emptyList())
                 .build();
 
@@ -291,8 +287,8 @@ class ShiftServiceTest {
         when(authentication.getPrincipal()).thenReturn(userDetails);
 
         when(shiftRepo.findTopByOperatorOrderByStartFullDesc(username)).thenReturn(Optional.of(shift));
-        when(txRepo.findByStatusAndShiftId("PAID", shiftId)).thenReturn(java.util.List.of(t1, t2));
-        when(txRepo.findByStatusAndShiftId("VOIDED", shiftId)).thenReturn(Collections.emptyList());
+        when(txRepo.findByStatusAndShiftId(TransactionStatus.PAID, shiftId)).thenReturn(java.util.List.of(t1, t2));
+        when(txRepo.findByStatusAndShiftId(TransactionStatus.VOIDED, shiftId)).thenReturn(Collections.emptyList());
         when(receiptRepo.findByShiftId(shiftId)).thenReturn(java.util.List.of(r1, r2));
         when(cnRepo.findByStatusNotAndShiftId("REJECTED", shiftId)).thenReturn(Collections.emptyList());
 

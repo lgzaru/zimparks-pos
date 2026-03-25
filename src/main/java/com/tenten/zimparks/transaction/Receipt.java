@@ -33,7 +33,8 @@ public class Receipt {
     private String receiptNumber;
 
     @Column(length = 20)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private TransactionStatus status;
 
     @Column(name = "vat_rate", precision = 5, scale = 2)
     private BigDecimal vatRate;

@@ -14,6 +14,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.math.BigDecimal;
 
+import java.util.Collections;
+import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -155,5 +157,25 @@ class ProductServiceTest {
         
         verify(repo, never()).deleteById(any());
         verify(repo).save(existingProduct);
+    }
+
+    @Test
+    void findByStation_shouldReturnListOfProducts() {
+        // Arrange
+        String stationId = "ST01";
+        Product p = Product.builder()
+                .id(new ProductId("CODE", stationId))
+                .descr("Product 1")
+                .build();
+        
+        when(repo.findByIdStationId(stationId)).thenReturn(Collections.singletonList(p));
+
+        // Act
+        List<Product> result = productService.findByStation(stationId);
+
+        // Assert
+        assertEquals(1, result.size());
+        assertEquals("Product 1", result.get(0).getDescr());
+        verify(repo).findByIdStationId(stationId);
     }
 }

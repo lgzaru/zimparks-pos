@@ -84,7 +84,7 @@ public class AuthService {
             throw new IllegalArgumentException("OTP has expired.");
         }
 
-        user.setPassword(passwordEncoder.encode(req.getNewPassword().toUpperCase()));
+        user.setPassword(passwordEncoder.encode(req.getNewPassword().trim().toUpperCase()));
         user.setResetOtp(null);
         user.setResetOtpExpiry(null);
         userRepo.save(user);
@@ -93,8 +93,8 @@ public class AuthService {
 
     public LoginResponse login(LoginRequest req, String ipAddress) {
         try {
-            String username = req.getUsername() != null ? req.getUsername().toUpperCase() : null;
-            String password = req.getPassword() != null ? req.getPassword().toUpperCase() : null;
+            String username = req.getUsername() != null ? req.getUsername().trim().toUpperCase() : null;
+            String password = req.getPassword() != null ? req.getPassword().trim().toUpperCase() : null;
 
             log.debug("Authenticating username={}", username);
             authManager.authenticate(

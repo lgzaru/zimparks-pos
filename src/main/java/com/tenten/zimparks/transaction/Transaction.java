@@ -26,7 +26,8 @@ public class Transaction {
     private BigDecimal amount;
 
     @Column(nullable = false, length = 20)
-    private String status;            // PAID | PENDING_VOID | VOIDED | VOID_REJECTED
+    @Enumerated(EnumType.STRING)
+    private TransactionStatus status;            // PAID | VOID_PENDING | VOIDED | VOID_REJECTED
 
     @Column(name = "tx_time", length = 10)
     private String txTime;

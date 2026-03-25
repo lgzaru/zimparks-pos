@@ -5,6 +5,7 @@ import com.tenten.zimparks.station.Station;
 import com.tenten.zimparks.transaction.Receipt;
 import com.tenten.zimparks.transaction.ReceiptRepository;
 import com.tenten.zimparks.transaction.TransactionRepository;
+import com.tenten.zimparks.transaction.TransactionStatus;
 import com.tenten.zimparks.user.Role;
 import com.tenten.zimparks.user.User;
 import com.tenten.zimparks.user.UserRepository;
@@ -67,7 +68,7 @@ public class ShiftService {
         if (!cnRepo.findByStatusAndShiftId("PENDING", s.getId()).isEmpty()) {
             throw new IllegalStateException("Cannot close shift with pending credit notes");
         }
-        if (!txRepo.findByStatusAndShiftId("PENDING_VOID", s.getId()).isEmpty()) {
+        if (!txRepo.findByStatusAndShiftId(TransactionStatus.VOID_PENDING, s.getId()).isEmpty()) {
             throw new IllegalStateException("Cannot close shift with pending void requests");
         }
 
@@ -113,8 +114,8 @@ public class ShiftService {
     }
 
     private Map<String, Object> getSummary(Shift s) {
-        var paid   = txRepo.findByStatusAndShiftId("PAID", s.getId());
-        var voided = txRepo.findByStatusAndShiftId("VOIDED", s.getId());
+        var paid   = txRepo.findByStatusAndShiftId(TransactionStatus.PAID, s.getId());
+        var voided = txRepo.findByStatusAndShiftId(TransactionStatus.VOIDED, s.getId());
         var receipts = receiptRepo.findByShiftId(s.getId());
 
         BigDecimal total = paid.stream()
@@ -122,7 +123,7 @@ public class ShiftService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         Map<String, BigDecimal> byCurrency = receipts.stream()
-                .filter(r -> !"VOIDED".equals(r.getStatus()))
+                .filter(r -> !TransactionStatus.VOIDED.equals(r.getStatus()))
                 .collect(Collectors.groupingBy(
                         Receipt::getOriginalCurrency,
                         Collectors.reducing(BigDecimal.ZERO, Receipt::getOriginalAmount, BigDecimal::add)

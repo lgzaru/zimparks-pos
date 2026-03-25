@@ -5,9 +5,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -25,10 +27,14 @@ public class ReportController {
      */
     @GetMapping
     @Operation(summary = "Build a report by type and query parameters.")
-    public List<Map<String, Object>> get(
+    public Page<Map<String, Object>> get(
             @RequestParam String type,
-            @RequestParam Map<String, String> allParams) {
+            @RequestParam Map<String, String> allParams,
+            @PageableDefault(size = 20) Pageable pageable) {
         allParams.remove("type");
-        return service.build(type, allParams);
+        allParams.remove("page");
+        allParams.remove("size");
+        allParams.remove("sort");
+        return service.build(type, allParams, pageable);
     }
 }

@@ -6,6 +6,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import jakarta.servlet.http.HttpServletResponse;
+
+
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -17,7 +20,9 @@ public class EventStreamController {
 
     /** Client subscribes here */
     @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter stream() {
+    public SseEmitter stream(HttpServletResponse response) {
+        response.setHeader("X-Accel-Buffering", "no");
+
         SseEmitter emitter = new SseEmitter(0L); // no timeout
         emitters.add(emitter);
         emitter.onCompletion(() -> emitters.remove(emitter));

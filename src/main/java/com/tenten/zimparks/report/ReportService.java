@@ -4,7 +4,11 @@ import com.tenten.zimparks.creditnote.CreditNote;
 import com.tenten.zimparks.creditnote.CreditNoteRepository;
 import com.tenten.zimparks.transaction.Transaction;
 import com.tenten.zimparks.transaction.TransactionRepository;
+import com.tenten.zimparks.transaction.TransactionStatus;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -23,8 +27,8 @@ public class ReportService {
     private static final List<String> PAY_TYPES   = List.of(
             "Cash", "Card", "Mobile Wallet", "Coupon", "Bank Transfer", "Other");
 
-    public List<Map<String, Object>> build(String type, Map<String, String> filters) {
-        List<Transaction> paid   = txRepo.findByStatus("PAID");
+    public Page<Map<String, Object>> build(String type, Map<String, String> filters, Pageable pageable) {
+        List<Transaction> paid   = txRepo.findByStatus(TransactionStatus.PAID);
         List<Transaction> all    = txRepo.findAll();
         List<CreditNote>  cns    = cnRepo.findAll();
 
@@ -32,7 +36,7 @@ public class ReportService {
         paid = applyFilters(paid, filters);
         all  = applyFilters(all,  filters);
 
-        return switch (type) {
+        List<Map<String, Object>> result = switch (type) {
             case "Shift Revenue Summary"       -> shiftRevenue(paid);
             case "Voided Transactions"         -> voided(all);
             case "Credit Notes"                -> creditNotes(cns);
@@ -41,6 +45,15 @@ public class ReportService {
             case "Visitors Report"             -> visitors(paid);
             default -> List.of();
         };
+
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), result.size());
+
+        if (start > result.size()) {
+            return new PageImpl<>(List.of(), pageable, result.size());
+        }
+
+        return new PageImpl<>(result.subList(start, end), pageable, result.size());
     }
 
     // ── Filter helpers ────────────────────────────────────────────────────────
@@ -55,7 +68,7 @@ public class ReportService {
             if (f.containsKey("user")     && !"All".equals(f.get("user"))
                     && !Objects.equals(t.getOperatorName(), f.get("user")))   return false;
             if (f.containsKey("status")   && !"All".equals(f.get("status"))
-                    && !t.getStatus().equalsIgnoreCase(f.get("status")))       return false;
+                    && !t.getStatus().name().equalsIgnoreCase(f.get("status")))       return false;
             return true;
         }).collect(Collectors.toList());
     }
@@ -74,7 +87,7 @@ public class ReportService {
 
     private List<Map<String, Object>> voided(List<Transaction> all) {
         return all.stream()
-                .filter(t -> "VOIDED".equals(t.getStatus()))
+                .filter(t -> TransactionStatus.VOIDED.equals(t.getStatus()))
                 .map(t -> Map.<String, Object>of(
                         "Date",      t.getTxDate()      != null ? t.getTxDate()      : "",
                         "Reference", t.getRef(),

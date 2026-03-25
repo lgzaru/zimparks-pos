@@ -6,6 +6,7 @@ import com.tenten.zimparks.shift.ShiftRepository;
 import com.tenten.zimparks.transaction.Receipt;
 import com.tenten.zimparks.transaction.ReceiptRepository;
 import com.tenten.zimparks.transaction.TransactionRepository;
+import com.tenten.zimparks.transaction.TransactionStatus;
 import com.tenten.zimparks.user.User;
 import com.tenten.zimparks.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,8 +32,8 @@ public class DashboardService {
                 .filter(s -> "Open".equals(s.getStatus()))
                 .orElseThrow(() -> new IllegalStateException("No open shift found for " + username));
 
-        var paidTransactions = txRepo.findByStatusAndShiftId("PAID", shift.getId());
-        var voidedTransactions = txRepo.findByStatusAndShiftId("VOIDED", shift.getId());
+        var paidTransactions = txRepo.findByStatusAndShiftId(TransactionStatus.PAID, shift.getId());
+        var voidedTransactions = txRepo.findByStatusAndShiftId(TransactionStatus.VOIDED, shift.getId());
         var creditNotes = cnRepo.findByShiftId(shift.getId());
         var receipts = receiptRepo.findByShiftId(shift.getId());
 
@@ -41,7 +42,7 @@ public class DashboardService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         Map<String, BigDecimal> revenueByCurrency = receipts.stream()
-                .filter(r -> !"VOIDED".equals(r.getStatus()))
+                .filter(r -> !TransactionStatus.VOIDED.equals(r.getStatus()))
                 .collect(Collectors.groupingBy(
                         Receipt::getOriginalCurrency,
                         Collectors.reducing(BigDecimal.ZERO, Receipt::getOriginalAmount, BigDecimal::add)
@@ -77,14 +78,14 @@ public class DashboardService {
         Map<String, BigDecimal> revenueByCurrency = new java.util.HashMap<>();
 
         if (!shiftIds.isEmpty()) {
-            var paidTransactions = txRepo.findByStatusAndShiftIdIn("PAID", shiftIds);
+            var paidTransactions = txRepo.findByStatusAndShiftIdIn(TransactionStatus.PAID, shiftIds);
             totalRevenue = paidTransactions.stream()
                     .map(t -> t.getAmount())
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
 
             var receipts = receiptRepo.findByShiftIdIn(shiftIds);
             revenueByCurrency = receipts.stream()
-                    .filter(r -> !"VOIDED".equals(r.getStatus()))
+                    .filter(r -> !TransactionStatus.VOIDED.equals(r.getStatus()))
                     .collect(Collectors.groupingBy(
                             Receipt::getOriginalCurrency,
                             Collectors.reducing(BigDecimal.ZERO, Receipt::getOriginalAmount, BigDecimal::add)
@@ -92,7 +93,7 @@ public class DashboardService {
         }
 
         long pendingCreditNotes = cnRepo.findByStatusAndRaisedByIn("PENDING", usernames).size();
-        long pendingVoids = txRepo.findByStatusAndOperatorNameIn("PENDING_VOID", usernames).size();
+        long pendingVoids = txRepo.findByStatusAndOperatorNameIn(TransactionStatus.VOID_PENDING, usernames).size();
 
         return SupervisorDashboardDTO.builder()
                 .stationId(stationId)

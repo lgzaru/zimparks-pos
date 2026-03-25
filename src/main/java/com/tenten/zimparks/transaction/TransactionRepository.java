@@ -10,14 +10,14 @@ public interface TransactionRepository
         extends JpaRepository<Transaction, String>,
         JpaSpecificationExecutor<Transaction> {
 
-    List<Transaction> findByStatus(String status);
+    List<Transaction> findByStatus(TransactionStatus status);
     List<Transaction> findByShiftId(String shiftId);
-    List<Transaction> findByStatusAndShiftId(String status, String shiftId);
-    List<Transaction> findByStatusAndShiftIdIn(String status, List<String> shiftIds);
-    List<Transaction> findByStatusAndOperatorNameIn(String status, List<String> usernames);
+    List<Transaction> findByStatusAndShiftId(TransactionStatus status, String shiftId);
+    List<Transaction> findByStatusAndShiftIdIn(TransactionStatus status, List<String> shiftIds);
+    List<Transaction> findByStatusAndOperatorNameIn(TransactionStatus status, List<String> usernames);
     List<Transaction> findByCustomerId(String customerId);
 
     List<Transaction> findByStationId(String stationId);
-    List<Transaction> findByStatusAndStationId(String status, String stationId);
+    List<Transaction> findByStatusAndStationId(TransactionStatus status, String stationId);
     List<Transaction> findByCustomerIdAndStationId(String customerId, String stationId);
 }

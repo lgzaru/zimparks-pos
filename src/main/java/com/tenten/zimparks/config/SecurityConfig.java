@@ -36,17 +36,26 @@ public class SecurityConfig {
     private String allowedOrigins;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, 
-                                           JwtFilter jwtFilter, 
+    public SecurityFilterChain filterChain(HttpSecurity http,
+                                           JwtFilter jwtFilter,
                                            com.tenten.zimparks.activity.ActivityLogFilter activityLogFilter) throws Exception {
         http
                 .cors(c -> c.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Allow CORS preflight through first
+                        // Allow CORS preflight
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        // Public
+                        // Frontend - permit ALL non-api requests
+                        .requestMatchers("/", "/index.html", "/favicon.ico",
+                                "/manifest.json", "/robots.txt",
+                                "/static/**",
+                                "/assets/**",
+                                "/*.png",
+                                "/*.jpg",
+                                "/*.svg").permitAll()
+                        // Public API
+                        .requestMatchers("/api/ping").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/users/by-cell/**").permitAll()
                         .requestMatchers("/api/events/stream/**").permitAll()
@@ -103,7 +112,7 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         List<String> origins = List.of(allowedOrigins.split(","));
         config.setAllowedOriginPatterns(origins.stream().map(String::trim).toList());
-        config.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

@@ -27,7 +27,7 @@ public class UserController {
     public ResponseEntity<Page<User>> list(
             @Parameter(description = "Station ID to filter users by.") @RequestParam(required = false) String stationId,
             @Parameter(description = "Role to filter users by.") @RequestParam(required = false) Role role,
-            @PageableDefault(size = 30) Pageable pageable) {
+            @PageableDefault(size = 50) Pageable pageable) {
         if (stationId != null && role != null) {
             return ResponseEntity.ok(service.findByStationAndRole(stationId, role, pageable));
         } else if (role != null) {

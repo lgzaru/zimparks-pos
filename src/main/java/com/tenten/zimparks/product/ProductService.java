@@ -19,10 +19,19 @@ public class ProductService {
     private final ProductRepository repo;
     private final StationRepository stationRepo;
 
-    public Page<Product> findAll(Pageable pageable)               { return repo.findAll(pageable); }
-    public Page<Product> findByStation(String stationId, Pageable pageable) { return repo.findByIdStationId(stationId, pageable); }
+    public Page<Product> findAll(Pageable pageable) {
+        return repo.findAll(pageable);
+    }
 
-    public Product create(Product p)             {
+    public Page<Product> findByStation(String stationId, Pageable pageable) {
+        return repo.findByIdStationId(stationId, pageable);
+    }
+
+    public List<Product> findByStation(String stationId) {
+        return repo.findByIdStationId(stationId);
+    }
+
+    public Product create(Product p) {
         if (p.getId() != null && p.getId().getStationId() != null && p.getCategory() != null) {
             Station station = stationRepo.findById(p.getId().getStationId())
                     .orElseThrow(() -> new RuntimeException("Station not found"));
@@ -31,12 +40,14 @@ public class ProductService {
                 throw new RuntimeException("Station " + station.getId() + " has no cluster assigned. Cannot create product.");
             }
 
-            String clusterCode = station.getCluster().getCode();
-            String stationId = station.getId();
-            String categoryCode = p.getCategory().getCode();
-            String originalProductCode = p.getId().getCode();
+            String stationId = station.getId();                    // "ST_HE_02"
+            String stationPart = stationId.replace("_", "");       // "STHE02"
 
-            String newCode = clusterCode + stationId + categoryCode + originalProductCode;
+            int next = repo.findMaxCodeByStationId(stationId)
+                    .map(maxCode -> Integer.parseInt(maxCode.substring(1)) + 1)
+                    .orElse(1);
+
+            String newCode = String.format("%sP%03d", stationPart, next); // "STHE02P001"
             p.getId().setCode(newCode);
         }
 
@@ -88,5 +99,7 @@ public class ProductService {
         return repo.save(p);
     }
 
-    public void delete(ProductId id)              { repo.deleteById(id); }
+    public void delete(ProductId id) {
+        repo.deleteById(id);
+    }
 }

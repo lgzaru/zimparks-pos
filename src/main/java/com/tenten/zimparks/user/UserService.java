@@ -83,8 +83,8 @@ public class UserService implements UserDetailsService {
     }
 
     public User create(User u) {
-        if (u.getUsername() != null) u.setUsername(u.getUsername().toUpperCase());
-        if (u.getPassword() != null) u.setPassword(u.getPassword().toUpperCase());
+        if (u.getUsername() != null) u.setUsername(u.getUsername().trim().toUpperCase());
+        if (u.getPassword() != null) u.setPassword(u.getPassword().trim().toUpperCase());
 
         if (repo.existsByUsername(u.getUsername()))
             throw new IllegalArgumentException("Username already exists");
@@ -114,7 +114,7 @@ public class UserService implements UserDetailsService {
         }
 
         if (patch.getFullName() != null) u.setFullName(patch.getFullName());
-        if (patch.getUsername() != null) u.setUsername(patch.getUsername().toUpperCase());
+        if (patch.getUsername() != null) u.setUsername(patch.getUsername().trim().toUpperCase());
         if (patch.getRole() != null) u.setRole(patch.getRole());
         if (patch.getCellPhone() != null) u.setCellPhone(patch.getCellPhone());
         u.setActive(patch.getActive() != null ? patch.getActive() : u.getActive());
@@ -126,7 +126,7 @@ public class UserService implements UserDetailsService {
         }
 
         if (patch.getPassword() != null && !patch.getPassword().isBlank())
-            u.setPassword(encoder.encode(patch.getPassword().toUpperCase()));
+            u.setPassword(encoder.encode(patch.getPassword().trim().toUpperCase()));
         return repo.save(u);
     }
 

@@ -27,7 +27,14 @@ public class User {
     private Role role;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "user_permissions", joinColumns = @JoinColumn(name = "user_id"))
+    @CollectionTable(
+            name = "user_permissions",
+            joinColumns = @JoinColumn(name = "user_id"),
+            uniqueConstraints = @UniqueConstraint(
+                    name = "uq_user_permissions",
+                    columnNames = {"user_id", "permission"}
+            )
+    )
     @Column(name = "permission")
     @Enumerated(EnumType.STRING)
     private java.util.Set<Permission> permissions;

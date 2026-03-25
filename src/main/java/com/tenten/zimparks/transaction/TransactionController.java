@@ -23,12 +23,12 @@ public class TransactionController {
     @GetMapping
     @Operation(summary = "List transactions, optionally filtered by status, customer ID, or shift ID.")
     public List<Transaction> list(
-            @Parameter(description = "Transaction status to filter by.") @RequestParam(required = false) String status,
+            @Parameter(description = "Transaction status to filter by.") @RequestParam(required = false) TransactionStatus status,
             @Parameter(description = "Customer ID to filter by.") @RequestParam(required = false) String customerId,
             @Parameter(description = "Shift ID to filter by.") @RequestParam(required = false) String shiftId) {
 
         if (shiftId != null)    return service.findByShiftId(shiftId);
-        if (status != null)     return service.findByStatus(status.toUpperCase());
+        if (status != null)     return service.findByStatus(status);
         if (customerId != null) return service.findByCustomer(customerId);
         return service.findAll();
     }

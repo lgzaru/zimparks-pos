@@ -63,7 +63,7 @@ public class TransactionService {
         return repo.findByShiftId(shiftId);
     }
 
-    public List<Transaction> findByStatus(String status) {
+    public List<Transaction> findByStatus(TransactionStatus status) {
         User user = getCurrentUser();
         if (user.getRole() == Role.ADMIN) {
             return repo.findByStatus(status);
@@ -98,7 +98,7 @@ public class TransactionService {
         String ref = "TXN-" + String.valueOf(System.currentTimeMillis()).substring(6);
         LocalDateTime now = LocalDateTime.now();
         tx.setRef(ref);
-        tx.setStatus("PAID");
+        tx.setStatus(TransactionStatus.PAID);
         tx.setTxTime(now.format(TF));
         tx.setTxDate(now.format(DF));
         // If shiftId is not provided in request, use the current active shift
@@ -110,7 +110,9 @@ public class TransactionService {
         var station = user.getStation();
         if (station != null && station.getBanks() != null) {
             var banks = station.getBanks();
-            if (banks.size() == 1) {
+            if (banks.isEmpty()) {
+                throw new RuntimeException(String.format("No banks linked yet to the %s contact System Admin or a Supervisor to resolve this", station.getName()));
+            } else if (banks.size() == 1) {
                 // Only one bank linked to station, select it automatically
                 tx.setBankCode(banks.get(0).getCode());
             } else if (banks.size() > 1) {
@@ -125,7 +127,7 @@ public class TransactionService {
                     throw new RuntimeException("Selected bank is not linked to this station");
                 }
             }
-        }
+        } 
 
         BigDecimal originalAmount = tx.getAmount();
         // Determine original currency (currency tendered)
@@ -172,7 +174,7 @@ public class TransactionService {
                 .baseCurrency(baseCurrency)
                 .baseAmount(baseAmount)
                 .receiptNumber("REC-" + ref.substring(4))
-                .status("PAID")
+                .status(TransactionStatus.PAID)
                 .vatRate(vatRate)
                 .vatAmount(vatAmount)
                 .shiftId(tx.getShiftId())
@@ -249,11 +251,11 @@ public class TransactionService {
             Transaction tx = repo.findById(ref)
                     .orElseThrow(() -> new RuntimeException("Transaction not found: " + ref));
 
-            if ("VOIDED".equals(tx.getStatus()))
+            if (TransactionStatus.VOIDED.equals(tx.getStatus()))
                 throw new IllegalStateException("Already voided");
 
             // All roles (Operator, Supervisor, Admin) only initiate a void request
-            tx.setStatus("PENDING_VOID");
+            tx.setStatus(TransactionStatus.VOID_PENDING);
             tx.setVoidReason(body.getReason());
             tx.setVoidRequestedBy(user.getUsername());
 
@@ -267,14 +269,14 @@ public class TransactionService {
             Transaction tx = repo.findById(ref)
                     .orElseThrow(() -> new RuntimeException("Transaction not found: " + ref));
 
-            if (!"PENDING_VOID".equals(tx.getStatus())) {
+            if (!TransactionStatus.VOID_PENDING.equals(tx.getStatus())) {
                 throw new IllegalStateException("Transaction is not pending void");
             }
 
-            tx.setStatus("VOIDED");
+            tx.setStatus(TransactionStatus.VOIDED);
             tx.setVoidedBy(user.getUsername());
             if (tx.getReceipt() != null) {
-                tx.getReceipt().setStatus("VOIDED");
+                tx.getReceipt().setStatus(TransactionStatus.VOIDED);
             }
             Transaction saved = repo.save(tx);
             eventStream.broadcastTxUpdate();
@@ -286,11 +288,11 @@ public class TransactionService {
             Transaction tx = repo.findById(ref)
                     .orElseThrow(() -> new RuntimeException("Transaction not found: " + ref));
 
-            if (!"PENDING_VOID".equals(tx.getStatus())) {
+            if (!TransactionStatus.VOID_PENDING.equals(tx.getStatus())) {
                 throw new IllegalStateException("Transaction is not pending void");
             }
 
-            tx.setStatus("VOID_REJECTED");
+            tx.setStatus(TransactionStatus.VOID_REJECTED);
             if (reason != null) {
                 tx.setVoidReason(tx.getVoidReason() + " [REJECTED: " + reason + "]");
             }

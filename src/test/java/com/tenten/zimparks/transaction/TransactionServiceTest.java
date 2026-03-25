@@ -67,6 +67,7 @@ class TransactionServiceTest {
                 .build();
 
         station1 = Station.builder().id("S1").name("Station 1").build();
+        station1.getBanks().add(Bank.builder().code("CBZ").name("CBZ Bank").build());
 
         operator = User.builder()
                 .username("op01")
@@ -210,7 +211,7 @@ class TransactionServiceTest {
         mockAuth(operator);
         Transaction tx = new Transaction();
         tx.setRef("TXN-1");
-        tx.setStatus("PAID");
+        tx.setStatus(TransactionStatus.PAID);
         when(repo.findById("TXN-1")).thenReturn(Optional.of(tx));
         when(repo.save(any())).thenAnswer(i -> i.getArguments()[0]);
 
@@ -231,7 +232,7 @@ class TransactionServiceTest {
         mockAuth(supervisor);
         Transaction tx = new Transaction();
         tx.setRef("TXN-1");
-        tx.setStatus("PAID");
+        tx.setStatus(TransactionStatus.PAID);
         when(repo.findById("TXN-1")).thenReturn(Optional.of(tx));
         when(repo.save(any())).thenAnswer(i -> i.getArguments()[0]);
 
@@ -251,9 +252,9 @@ class TransactionServiceTest {
         mockAuth(supervisor);
         Transaction tx = new Transaction();
         tx.setRef("TXN-1");
-        tx.setStatus("PENDING_VOID");
+        tx.setStatus(TransactionStatus.VOID_PENDING);
         tx.setVoidRequestedBy("op01");
-        Receipt receipt = Receipt.builder().txRef("TXN-1").status("PAID").build();
+        Receipt receipt = Receipt.builder().txRef("TXN-1").status(TransactionStatus.PAID).build();
         tx.setReceipt(receipt);
         when(repo.findById("TXN-1")).thenReturn(Optional.of(tx));
         when(repo.save(any())).thenAnswer(i -> i.getArguments()[0]);
@@ -331,7 +332,7 @@ class TransactionServiceTest {
         mockAuth(supervisor);
         Transaction tx = new Transaction();
         tx.setRef("TXN-1");
-        tx.setStatus("PENDING_VOID");
+        tx.setStatus(TransactionStatus.VOID_PENDING);
         tx.setVoidReason("Mistake");
         when(repo.findById("TXN-1")).thenReturn(Optional.of(tx));
         when(repo.save(any())).thenAnswer(i -> i.getArguments()[0]);
@@ -471,5 +472,23 @@ class TransactionServiceTest {
 
         RuntimeException ex = assertThrows(RuntimeException.class, () -> transactionService.create(tx));
         assertEquals("Selected bank is not linked to this station", ex.getMessage());
+    }
+
+    @Test
+    void should_fail_if_no_banks_linked_to_station() {
+        mockVat();
+        mockAuth(operator);
+        mockOpenShift(operator.getUsername());
+
+        // Arrange
+        station1.setBanks(List.of());
+
+        Transaction tx = new Transaction();
+        tx.setCurrency("USD");
+        tx.setAmount(new BigDecimal("100.00"));
+
+        // Act & Assert
+        RuntimeException ex = assertThrows(RuntimeException.class, () -> transactionService.create(tx));
+        assertEquals("No banks linked yet to the Station 1 contact System Admin or a Supervisor to resolve this", ex.getMessage());
     }
 }

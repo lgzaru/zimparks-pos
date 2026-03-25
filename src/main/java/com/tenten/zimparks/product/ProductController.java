@@ -1,5 +1,6 @@
 package com.tenten.zimparks.product;
 
+import java.util.List;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -29,6 +30,12 @@ public class ProductController {
             return ResponseEntity.ok(service.findByStation(stationId, pageable));
         }
         return ResponseEntity.ok(service.findAll(pageable));
+    }
+
+    @GetMapping("/station/{stationId}")
+    @Operation(summary = "Get all products for a specific station.")
+    public ResponseEntity<List<Product>> getByStation(@PathVariable String stationId) {
+        return ResponseEntity.ok(service.findByStation(stationId));
     }
 
     @PostMapping
