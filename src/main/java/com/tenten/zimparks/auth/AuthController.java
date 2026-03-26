@@ -31,6 +31,14 @@ public class AuthController {
         return ResponseEntity.ok(authService.login(req, ipAddress));
     }
 
+    //Heartbeat (safety net, ≤15s):
+    //Every 15 seconds, GET /auth/me is called. If the token is no longer the currentToken on the backend, it returns 401
+    @GetMapping("/me")
+    public ResponseEntity<Void> me() {
+        return ResponseEntity.ok().build();
+    }
+
+
     @PostMapping("/logout")
     @Operation(summary = "Invalidate user's current JWT token.")
     @SecurityRequirement(name = "bearerAuth")

@@ -56,7 +56,15 @@ public class SecurityConfig {
                                 "/*.svg").permitAll()
                         // Public API
                         .requestMatchers("/api/ping").permitAll()
-                        .requestMatchers("/api/auth/**").permitAll()
+                        //.requestMatchers("/api/auth/**").permitAll() // this was there before adding auth me,
+                        // now auth me need to be authenticated.
+                        .requestMatchers(
+                                "/api/auth/login",
+                                "/api/auth/logout",
+                                "/api/auth/forgot-password",
+                                "/api/auth/verify-otp",
+                                "/api/auth/reset-password"
+                        ).permitAll()
                         .requestMatchers("/api/users/by-cell/**").permitAll()
                         .requestMatchers("/api/events/stream/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()

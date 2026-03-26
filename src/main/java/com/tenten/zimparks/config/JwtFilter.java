@@ -49,9 +49,13 @@ public class JwtFilter extends OncePerRequestFilter {
                             SecurityContextHolder.getContext().setAuthentication(auth);
                             log.debug("JWT auth set for user={}", username);
                         } else {
-                            log.debug("Token mismatch for user={} — presented token does not match stored currentToken. " +
-                                    "storedToken isNull={}", username, storedToken == null);
+                            log.warn("Token mismatch for user={} — session invalidated by new login", username);
+                            res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            res.setContentType("application/json");
+                            res.getWriter().write("{\"error\":\"Session invalidated\"}");
+                            return; // stop here — do not call chain.doFilter
                         }
+
                     } else {
                         log.debug("User not found in repository: {}", username);
                     }
