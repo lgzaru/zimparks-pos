@@ -17,4 +17,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     List<User> findByStationId(String stationId);
     Page<User> findByStationIdAndRoleAndActiveTrue(String stationId, Role role, Pageable pageable);
     Page<User> findByRoleAndActiveTrue(Role role, Pageable pageable);
+    Optional<User> findByFullName(String fullName);
+
 }
