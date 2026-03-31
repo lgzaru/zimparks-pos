@@ -4,6 +4,7 @@ package com.tenten.zimparks.transaction;
 import com.tenten.zimparks.event.EventStreamController;
 import com.tenten.zimparks.currency.Currency;
 import com.tenten.zimparks.currency.CurrencyService;
+import com.tenten.zimparks.fiscalization.FiscalizationBridgeService;
 import com.tenten.zimparks.shift.NoOpenShiftException;
 import com.tenten.zimparks.shift.ShiftRepository;
 import com.tenten.zimparks.station.StationRepository;
@@ -35,6 +36,8 @@ public class TransactionService {
     private final EventStreamController eventStream;
     private final com.tenten.zimparks.product.ProductRepository productRepo;
     private final EntryTransactionRepository entryTxRepo;
+
+    private final FiscalizationBridgeService fiscalizationBridgeService;
 
     private static final DateTimeFormatter TF = DateTimeFormatter.ofPattern("hh:mm a");
     private static final DateTimeFormatter DF = DateTimeFormatter.ofPattern("dd MMM yyyy");
@@ -243,7 +246,14 @@ public class TransactionService {
 
         Transaction saved = repo.save(tx);
         eventStream.broadcastTxUpdate();
-        return saved;
+
+        // Fiscalize — updates receipt with fiscal data if successful
+        if(saved.getVirtualDeviceId() != null) {
+            fiscalizationBridgeService.fiscalize(saved);
+        }
+
+        // Reload from DB to include fiscal data populated by fiscalize()
+        return repo.findById(saved.getRef()).orElse(saved);
     }
 
         public Transaction voidTx(String ref, VoidTransactionRequest body) {

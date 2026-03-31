@@ -4,7 +4,6 @@ package com.tenten.zimparks.transaction;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-import java.time.LocalDate;
 import java.util.List;
 
 public interface TransactionRepository
@@ -26,7 +25,4 @@ public interface TransactionRepository
     List<Transaction> findByStatusAndTxDateStartingWith(TransactionStatus status, String monthPrefix);
 
     List<Transaction> findByStatusAndTxDateContaining(TransactionStatus status, String monthToken);
-
-
-
 }

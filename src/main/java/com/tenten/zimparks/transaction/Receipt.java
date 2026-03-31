@@ -44,4 +44,26 @@ public class Receipt {
 
     @Column(name = "shift_id", length = 20)
     private String shiftId;
+
+    // Fiscalization fields — populated on successful ZIMRA submission
+    @Column(name = "fiscal_receipt_id")
+    private Long fiscalReceiptId;
+
+    @Column(name = "fiscal_operation_id", length = 80)
+    private String fiscalOperationId;
+
+    @Column(name = "fiscal_qr_url", length = 700)
+    private String fiscalQrUrl;
+
+    @Column(name = "fiscal_verification_code", length = 50)
+    private String fiscalVerificationCode;
+
+    @Column(name = "fiscal_status", length = 40)
+    private String fiscalStatus; // PENDING, SUCCESS, FAILED
+
+    @Column(name = "fiscal_error", length = 2000)
+    private String fiscalError; // populated if fiscalization failed
+
+    @Column(name = "fiscal_day", length = 50)
+    private String fiscalDay;
 }

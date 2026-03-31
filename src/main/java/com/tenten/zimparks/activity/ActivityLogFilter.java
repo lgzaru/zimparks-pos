@@ -8,11 +8,13 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.ContentCachingRequestWrapper;
+import org.springframework.web.util.ContentCachingResponseWrapper;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -24,6 +26,9 @@ public class ActivityLogFilter extends OncePerRequestFilter {
     private final ActivityLogService activityLogService;
     private final UserRepository userRepository;
 
+    @Value("${zimparks.activity-log.log-transaction-response:false}")
+    private boolean logTransactionResponse;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
@@ -32,14 +37,17 @@ public class ActivityLogFilter extends OncePerRequestFilter {
                 ? (ContentCachingRequestWrapper) request 
                 : new ContentCachingRequestWrapper(request, 10000); // 10KB limit or whatever is appropriate
 
+        ContentCachingResponseWrapper wrappedResponse = new ContentCachingResponseWrapper(response);
+
         try {
-            filterChain.doFilter(wrappedRequest, response);
+            filterChain.doFilter(wrappedRequest, wrappedResponse);
         } finally {
-            logActivity(wrappedRequest, response);
+            logActivity(wrappedRequest, wrappedResponse);
+            wrappedResponse.copyBodyToResponse();
         }
     }
 
-    private void logActivity(ContentCachingRequestWrapper request, HttpServletResponse response) {
+    private void logActivity(ContentCachingRequestWrapper request, ContentCachingResponseWrapper response) {
         String method = request.getMethod();
         String uri = request.getRequestURI();
 
@@ -122,16 +130,25 @@ public class ActivityLogFilter extends OncePerRequestFilter {
         return false;
     }
 
-    private void logAdminOperation(ContentCachingRequestWrapper request, HttpServletResponse response, String username, String method, String uri) {
+    private void logAdminOperation(ContentCachingRequestWrapper request, ContentCachingResponseWrapper response, String username, String method, String uri) {
         String operation = determineOperationName(method);
-        String body = getRequestBody(request);
-        String details = body != null ? body : "NONE";
+        String requestBody = getRequestBody(request);
+        String details = requestBody != null ? requestBody : "NONE";
+
+        // Log response for transaction creation if enabled
+        if (logTransactionResponse && "POST".equalsIgnoreCase(method) && "/api/transactions".equals(uri)) {
+            String responseBody = getResponseBody(response);
+            if (responseBody != null) {
+                details = "REQUEST:\n" + details + "\n\nRESPONSE:\n" + responseBody;
+            }
+        }
+
         int status = response.getStatus();
         String ip = RequestUtils.getClientIp(request);
         activityLogService.logActivity(username, operation, details, method, uri, status, ip);
     }
 
-    private void logStateChangingOperation(ContentCachingRequestWrapper request, HttpServletResponse response, String username, String method, String uri) {
+    private void logStateChangingOperation(ContentCachingRequestWrapper request, ContentCachingResponseWrapper response, String username, String method, String uri) {
         if (!"GET".equalsIgnoreCase(method)) {
             logAdminOperation(request, response, username, method, uri);
         }
@@ -139,6 +156,14 @@ public class ActivityLogFilter extends OncePerRequestFilter {
 
     private String getRequestBody(ContentCachingRequestWrapper request) {
         byte[] content = request.getContentAsByteArray();
+        if (content.length > 0) {
+            return new String(content, StandardCharsets.UTF_8);
+        }
+        return null;
+    }
+
+    private String getResponseBody(ContentCachingResponseWrapper response) {
+        byte[] content = response.getContentAsByteArray();
         if (content.length > 0) {
             return new String(content, StandardCharsets.UTF_8);
         }

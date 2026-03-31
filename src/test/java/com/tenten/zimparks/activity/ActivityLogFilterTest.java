@@ -12,10 +12,14 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.util.ContentCachingRequestWrapper;
+import org.springframework.web.util.ContentCachingResponseWrapper;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Optional;
 
@@ -23,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class ActivityLogFilterTest {
 
     @Mock
@@ -63,14 +68,12 @@ class ActivityLogFilterTest {
             // Simulate reading the input stream to trigger content caching
             wrapper.getInputStream().readAllBytes();
             return null;
-        }).when(filterChain).doFilter(any(ContentCachingRequestWrapper.class), eq(response));
+        }).when(filterChain).doFilter(any(), any());
 
         // Act
         activityLogFilter.doFilterInternal(request, response, filterChain);
 
         // Assert
-        verify(filterChain).doFilter(any(ContentCachingRequestWrapper.class), eq(response));
-        
         verify(activityLogService).logActivity(
             eq("admin"), 
             eq("CREATE"), 
@@ -99,7 +102,7 @@ class ActivityLogFilterTest {
             ContentCachingRequestWrapper wrapper = invocation.getArgument(0);
             wrapper.getInputStream().readAllBytes();
             return null;
-        }).when(filterChain).doFilter(any(ContentCachingRequestWrapper.class), eq(response));
+        }).when(filterChain).doFilter(any(), any());
 
         // Act
         activityLogFilter.doFilterInternal(request, response, filterChain);
@@ -303,5 +306,53 @@ class ActivityLogFilterTest {
 
         // Assert
         verify(activityLogService).logActivity(eq("operator"), eq("CREATE"), eq("NONE"), eq("POST"), eq("/api/credit-notes"), eq(201), anyString());
+    }
+
+    @Test
+    void doFilterInternal_TransactionCreation_WithResponseLoggingEnabled_ShouldLogRequestAndResponse() throws Exception {
+        // Arrange
+        ReflectionTestUtils.setField(activityLogFilter, "logTransactionResponse", true);
+
+        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/transactions");
+        String requestBody = "{\"amount\":100}";
+        request.setContent(requestBody.getBytes());
+        
+        HttpServletResponse response = mock(HttpServletResponse.class);
+        when(response.getOutputStream()).thenReturn(new jakarta.servlet.ServletOutputStream() {
+            @Override public boolean isReady() { return true; }
+            @Override public void setWriteListener(jakarta.servlet.WriteListener writeListener) {}
+            @Override public void write(int b) throws java.io.IOException {}
+        });
+        when(response.getStatus()).thenReturn(201);
+
+        User operator = User.builder().username("operator").role(Role.OPERATOR).build();
+        when(authentication.isAuthenticated()).thenReturn(true);
+        when(authentication.getName()).thenReturn("operator");
+        when(userRepository.findByUsername("operator")).thenReturn(Optional.of(operator));
+
+        String responseBody = "{\"ref\":\"TXN-123\",\"status\":\"PAID\"}";
+        doAnswer(invocation -> {
+            ContentCachingRequestWrapper reqWrapper = invocation.getArgument(0);
+            reqWrapper.getInputStream().readAllBytes(); // consume request body
+
+            ContentCachingResponseWrapper resWrapper = invocation.getArgument(1);
+            resWrapper.getWriter().write(responseBody);
+            return null;
+        }).when(filterChain).doFilter(any(), any());
+
+        // Act
+        activityLogFilter.doFilterInternal(request, response, filterChain);
+
+        // Assert
+        String expectedDetails = "REQUEST:\n" + requestBody + "\n\nRESPONSE:\n" + responseBody;
+        verify(activityLogService).logActivity(
+            eq("operator"),
+            eq("CREATE"),
+            eq(expectedDetails),
+            eq("POST"),
+            eq("/api/transactions"),
+            eq(201),
+            anyString()
+        );
     }
 }

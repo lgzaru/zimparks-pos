@@ -19,8 +19,10 @@ public class StationController {
     private final StationService service;
 
     @GetMapping
-    @Operation(summary = "List all stations.")
-    public List<Station> list()                             { return service.findAll(); }
+    @Operation(summary = "List all stations.", security = {})
+    public List<Station> list() {
+        return service.findAll();
+    }
 
     @PostMapping
     @Operation(summary = "Create a station.")

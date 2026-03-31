@@ -1,5 +1,6 @@
 package com.tenten.zimparks.fiscalization;
 
+import com.tenten.zimparks.fiscalization.phoneLinkage.*;
 import com.tenten.zimparks.station.Station;
 import com.tenten.zimparks.station.StationRepository;
 import org.junit.jupiter.api.Test;
@@ -7,6 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,181 +26,147 @@ class FiscalizationServiceTest {
     @Mock
     private StationRepository stationRepo;
 
+    @Mock
+    private FiscalizationClient fiscalizationClient;
+
     @InjectMocks
     private FiscalizationService fiscalizationService;
 
     @Test
-    void configureDevice_shouldCreateNewFiscalDevice() {
+    void getUnlinkedDevices_shouldCallClient() {
         // Arrange
-        FiscalDeviceConfigDTO dto = FiscalDeviceConfigDTO.builder()
-                .deviceSerialNo("SN123")
-                .virtualDeviceId("V-001")
-                .stationId("ST01")
-                .taxPayerName("Test TaxPayer")
-                .build();
+        FiscalDeviceDTO d1 = new FiscalDeviceDTO();
+        d1.setDeviceSerialNo("SN1");
+        when(fiscalizationClient.getDevices(false)).thenReturn(List.of(d1));
+
+        // Act
+        List<FiscalDeviceDTO> result = fiscalizationService.getUnlinkedDevices();
+
+        // Assert
+        assertEquals(1, result.size());
+        assertEquals("SN1", result.get(0).getDeviceSerialNo());
+        verify(fiscalizationClient).getDevices(false);
+    }
+
+    @Test
+    void linkDevice_shouldCallClientAndSave() {
+        // Arrange
+        FiscalLinkRequestDTO dto = new FiscalLinkRequestDTO();
+        dto.setDeviceID(33941L);
+        dto.setPhoneSerialNumber("IMEI-123");
+
+        FiscalDeviceDTO linkedDeviceDTO = new FiscalDeviceDTO();
+        linkedDeviceDTO.setDeviceID(33941L);
+        linkedDeviceDTO.setDeviceSerialNo("SN-LINKED");
 
         Station station = Station.builder().id("ST01").name("Station 01").build();
 
-        when(fiscalDeviceRepo.findById(dto.getDeviceSerialNo())).thenReturn(Optional.empty());
-        when(fiscalDeviceRepo.findByVirtualDeviceId(dto.getVirtualDeviceId())).thenReturn(Optional.empty());
-        when(stationRepo.findById(dto.getStationId())).thenReturn(Optional.of(station));
+        when(fiscalizationClient.linkDevice(dto)).thenReturn(linkedDeviceDTO);
+        when(stationRepo.findById("ST01")).thenReturn(Optional.of(station));
+        when(fiscalDeviceRepo.findByDeviceSerialNo("SN-LINKED")).thenReturn(Optional.empty());
         when(fiscalDeviceRepo.save(any(FiscalDevice.class))).thenAnswer(i -> i.getArguments()[0]);
 
         // Act
-        FiscalDevice result = fiscalizationService.configureDevice(dto);
+        FiscalDevice result = fiscalizationService.linkDevice(dto, "ST01");
 
         // Assert
         assertNotNull(result);
-        assertEquals(dto.getDeviceSerialNo(), result.getDeviceSerialNo());
-        assertEquals(dto.getVirtualDeviceId(), result.getVirtualDeviceId());
+        assertEquals(33941L, result.getDeviceId());
         assertEquals(station, result.getStation());
+        verify(fiscalizationClient).linkDevice(dto);
         verify(fiscalDeviceRepo).save(any(FiscalDevice.class));
-    }
-
-    @Test
-    void configureDevice_shouldThrowExceptionIfDeviceAlreadyConfigured() {
-        // Arrange
-        FiscalDeviceConfigDTO dto = FiscalDeviceConfigDTO.builder()
-                .deviceSerialNo("SN123")
-                .virtualDeviceId("V-001")
-                .stationId("ST01")
-                .build();
-
-        FiscalDevice existingDevice = FiscalDevice.builder().deviceSerialNo("SN123").build();
-        when(fiscalDeviceRepo.findById(dto.getDeviceSerialNo())).thenReturn(Optional.of(existingDevice));
-
-        // Act & Assert
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            fiscalizationService.configureDevice(dto);
-        });
-
-        assertTrue(exception.getMessage().contains("already configured"));
-        verify(fiscalDeviceRepo, never()).save(any());
-    }
-
-    @Test
-    void configureDevice_shouldThrowExceptionIfVDeviceIdAlreadyUsed() {
-        // Arrange
-        FiscalDeviceConfigDTO dto = FiscalDeviceConfigDTO.builder()
-                .deviceSerialNo("SN124")
-                .virtualDeviceId("V-001")
-                .stationId("ST01")
-                .build();
-
-        FiscalDevice existingDeviceWithVId = FiscalDevice.builder().deviceSerialNo("SN123").virtualDeviceId("V-001").build();
-        
-        when(fiscalDeviceRepo.findById(dto.getDeviceSerialNo())).thenReturn(Optional.empty());
-        when(fiscalDeviceRepo.findByVirtualDeviceId(dto.getVirtualDeviceId())).thenReturn(Optional.of(existingDeviceWithVId));
-
-        // Act & Assert
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            fiscalizationService.configureDevice(dto);
-        });
-
-        assertTrue(exception.getMessage().contains("already linked to another device"));
-        verify(fiscalDeviceRepo, never()).save(any());
-    }
-
-    @Test
-    void configureDevice_shouldThrowExceptionIfStationNotFound() {
-        // Arrange
-        FiscalDeviceConfigDTO dto = FiscalDeviceConfigDTO.builder()
-                .deviceSerialNo("SN125")
-                .virtualDeviceId("V-002")
-                .stationId("INVALID_STATION")
-                .build();
-
-        when(fiscalDeviceRepo.findById(dto.getDeviceSerialNo())).thenReturn(Optional.empty());
-        when(fiscalDeviceRepo.findByVirtualDeviceId(dto.getVirtualDeviceId())).thenReturn(Optional.empty());
-        when(stationRepo.findById(dto.getStationId())).thenReturn(Optional.empty());
-
-        // Act & Assert
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            fiscalizationService.configureDevice(dto);
-        });
-
-        assertTrue(exception.getMessage().contains("Station not found"));
-        verify(fiscalDeviceRepo, never()).save(any());
-    }
-
-    @Test
-    void configureDevice_shouldThrowExceptionIfVirtualDeviceIdIsNull() {
-        // Arrange
-        FiscalDeviceConfigDTO dto = FiscalDeviceConfigDTO.builder()
-                .deviceSerialNo("SN126")
-                .virtualDeviceId(null)
-                .stationId("ST01")
-                .build();
-
-        // Act & Assert
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            fiscalizationService.configureDevice(dto);
-        });
-
-        assertTrue(exception.getMessage().contains("Virtual Device ID is required"));
-        verify(fiscalDeviceRepo, never()).save(any());
-    }
-
-    @Test
-    void updateDevice_shouldUpdateFields() {
-        // Arrange
-        String serial = "SN123";
-        FiscalDeviceConfigDTO dto = FiscalDeviceConfigDTO.builder()
-                .deviceSerialNo(serial)
-                .virtualDeviceId("V-NEW")
-                .stationId("ST02")
-                .taxPayerName("Updated Name")
-                .build();
-
-        Station oldStation = Station.builder().id("ST01").build();
-        Station newStation = Station.builder().id("ST02").build();
-        FiscalDevice existing = FiscalDevice.builder()
-                .deviceSerialNo(serial)
-                .virtualDeviceId("V-OLD")
-                .station(oldStation)
-                .build();
-
-        when(fiscalDeviceRepo.findById(serial)).thenReturn(Optional.of(existing));
-        when(fiscalDeviceRepo.findByVirtualDeviceId("V-NEW")).thenReturn(Optional.empty());
-        when(stationRepo.findById("ST02")).thenReturn(Optional.of(newStation));
-        when(fiscalDeviceRepo.save(any(FiscalDevice.class))).thenAnswer(i -> i.getArguments()[0]);
-
-        // Act
-        FiscalDevice result = fiscalizationService.updateDevice(serial, dto);
-
-        // Assert
-        assertEquals("V-NEW", result.getVirtualDeviceId());
-        assertEquals(newStation, result.getStation());
-        assertEquals("Updated Name", result.getTaxPayerName());
-        verify(fiscalDeviceRepo).save(existing);
     }
 
     @Test
     void deleteDevice_shouldCallRepository() {
         // Arrange
         String serial = "SN123";
+        FiscalDevice device = FiscalDevice.builder().deviceSerialNo(serial).build();
+        when(fiscalDeviceRepo.findByDeviceSerialNo(serial)).thenReturn(Optional.of(device));
 
         // Act
         fiscalizationService.deleteDevice(serial);
 
         // Assert
-        verify(fiscalDeviceRepo).deleteById(serial);
+        verify(fiscalDeviceRepo).delete(device);
     }
 
     @Test
-    void getAllDevices_shouldReturnList() {
+    void getAllLocalDevices_shouldReturnList() {
         // Arrange
         FiscalDevice d1 = FiscalDevice.builder().deviceSerialNo("SN1").build();
         FiscalDevice d2 = FiscalDevice.builder().deviceSerialNo("SN2").build();
         when(fiscalDeviceRepo.findAll()).thenReturn(List.of(d1, d2));
 
         // Act
-        List<FiscalDevice> result = fiscalizationService.getAllDevices();
+        List<FiscalDevice> result = fiscalizationService.getAllLocalDevices();
 
         // Assert
         assertEquals(2, result.size());
-        assertEquals("SN1", result.get(0).getDeviceSerialNo());
-        assertEquals("SN2", result.get(1).getDeviceSerialNo());
         verify(fiscalDeviceRepo).findAll();
+    }
+
+    @Test
+    void unlinkDevice_shouldSucceedWhenDeviceFound() {
+        // Arrange
+        String phoneSerial = "IMEI-123";
+        FiscalDevice device = FiscalDevice.builder()
+                .deviceSerialNo("SN-123")
+                .phoneSerialNumber(phoneSerial)
+                .linked(true)
+                .build();
+
+        when(fiscalDeviceRepo.findByPhoneSerialNumber(phoneSerial)).thenReturn(Optional.of(device));
+        when(fiscalDeviceRepo.save(any(FiscalDevice.class))).thenAnswer(i -> i.getArguments()[0]);
+
+        // Act
+        FiscalDevice result = fiscalizationService.unlinkDevice(phoneSerial);
+
+        // Assert
+        assertNotNull(result);
+        assertFalse(result.isLinked());
+        assertNull(result.getPhoneSerialNumber());
+        assertEquals("Unlinked", result.getLinkStatus());
+        verify(fiscalizationClient).unlinkDevice(phoneSerial);
+        verify(fiscalDeviceRepo).save(device);
+    }
+
+    @Test
+    void unlinkDevice_shouldReturnNullWhenLocalNotFound() {
+        // Arrange
+        String phoneSerial = "MISSING";
+        when(fiscalDeviceRepo.findByPhoneSerialNumber(phoneSerial)).thenReturn(Optional.empty());
+
+        // Act
+        FiscalDevice result = fiscalizationService.unlinkDevice(phoneSerial);
+
+        // Assert
+        assertNull(result);
+        verify(fiscalizationClient).unlinkDevice(phoneSerial);
+    }
+
+    @Test
+    void unlinkDevice_shouldSucceedWhenExternalNotFound() {
+        // Arrange
+        String phoneSerial = "IMEI-123";
+        FiscalDevice device = FiscalDevice.builder()
+                .deviceSerialNo("SN-123")
+                .phoneSerialNumber(phoneSerial)
+                .linked(true)
+                .build();
+
+        doThrow(HttpClientErrorException.NotFound.class).when(fiscalizationClient).unlinkDevice(phoneSerial);
+        when(fiscalDeviceRepo.findByPhoneSerialNumber(phoneSerial)).thenReturn(Optional.of(device));
+        when(fiscalDeviceRepo.save(any(FiscalDevice.class))).thenAnswer(i -> i.getArguments()[0]);
+
+        // Act
+        FiscalDevice result = fiscalizationService.unlinkDevice(phoneSerial);
+
+        // Assert
+        assertNotNull(result);
+        assertFalse(result.isLinked());
+        assertNull(result.getPhoneSerialNumber());
+        verify(fiscalizationClient).unlinkDevice(phoneSerial);
+        verify(fiscalDeviceRepo).save(device);
     }
 }
