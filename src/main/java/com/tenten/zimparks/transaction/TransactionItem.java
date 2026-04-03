@@ -26,6 +26,9 @@ public class TransactionItem {
     @Column(name = "descr", length = 200)
     private String descr;
 
+    @Column(name = "hs_code", length = 8)
+    private String hsCode;
+
     @Column(nullable = false)
     private Integer quantity;
 

@@ -88,20 +88,16 @@ public class FiscalizationService {
             log.warn("Device already unlinked or not found in external system for phoneSerial: {}", phoneSerial);
         }
 
-        // 2. Update local record
+        // 2. Delete local record
         Optional<FiscalDevice> deviceOpt = fiscalDeviceRepo.findByPhoneSerialNumber(phoneSerial);
         if (deviceOpt.isEmpty()) {
-            log.warn("No local record found to update for phoneSerial: {}", phoneSerial);
+            log.warn("No local record found to delete for phoneSerial: {}", phoneSerial);
             return null;
         }
 
         FiscalDevice device = deviceOpt.get();
-        device.setLinked(false);
-        device.setPhoneSerialNumber(null);
-        device.setLinkStatus("Unlinked");
-        device.setLinkedAt(null);
-
-        return fiscalDeviceRepo.save(device);
+        fiscalDeviceRepo.delete(device);
+        return device;
     }
 
     // ── Local DB queries ─────────────────────────────────────────────────────

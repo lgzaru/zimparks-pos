@@ -1,0 +1,12 @@
+What are Harmonized System Codes (HS Codes)?
+HS Codes are a standardised numerical method (8-digit classification) of classifying traded products. They were developed by World Customs Organization (WCO) and designed for use in classifying goods when exporting and importing. Zimbabwe Revenue Authority (ZIMRA) has extended the use of HS Codes in classifying domestic of products and services when recording and transmitting sales transactions under Fiscalisation Data Management System (FDMS).
+
+How to use HS codes when recording sales transactions on a fiscal device
+All VAT registered taxpayers/operators are expected to configure their fiscal devices to assign applicable HS codes when making a sale transaction through a fiscal device
+
+For all invoice line items where VAT is charged at 0% or Exempted from VAT, a full eight (8)-digit classification HS Code must be captured when generating and/or recording a fiscal tax invoice.
+For all invoice line items where VAT is charged at standard rate (15%), the first four digits are required or optionally a full eight (8)-digit classification HS Code may be captured when generating/recording a fiscal tax invoice.
+Is displaying HS codes on Fiscal Tax Invoices mandatory?
+Displaying HS codes on issued fiscal tax invoice is optional and not mandatory. However, it is mandatory for any configured and interfaced fiscal device to be transmitting the recorded HS codes on issued Fiscal Tax Invoice to the Fiscalisation Data Management System (FDMS) whether displayed or not displayed on the issued/printed Fiscal Tax Invoice.
+
+How to classify the domestic supply of services and other intangible products which are not classified on the Customs Harmonized System Codes e.g. Rentals, Consultancy etc.?

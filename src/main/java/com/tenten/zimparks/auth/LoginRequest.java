@@ -14,4 +14,7 @@ public class LoginRequest {
     @NotBlank
     @Schema(description = "Password for login.", example = "P@ssw0rd")
     String password;
+
+    @Schema(description = "Phone/device serial number. Required when the authenticating user is an OPERATOR.", example = "3444-00001")
+    String deviceSerial;
 }

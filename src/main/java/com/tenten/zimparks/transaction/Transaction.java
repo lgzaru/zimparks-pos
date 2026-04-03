@@ -47,6 +47,9 @@ public class Transaction {
     @Column(name = "operator_name", length = 100)
     private String operatorName;
 
+    @Column(name = "operator_username", length = 100)
+    private String operatorUsername;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "station_id")
     @JsonIgnoreProperties({"banks","region"})

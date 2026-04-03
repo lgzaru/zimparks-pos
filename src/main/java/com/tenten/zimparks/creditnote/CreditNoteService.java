@@ -2,6 +2,7 @@ package com.tenten.zimparks.creditnote;
 
 
 import com.tenten.zimparks.event.EventStreamController;
+import com.tenten.zimparks.fiscalization.FiscalizationBridgeService;
 import com.tenten.zimparks.shift.NoOpenShiftException;
 import com.tenten.zimparks.shift.ShiftRepository;
 import com.tenten.zimparks.transaction.Transaction;
@@ -31,6 +32,7 @@ public class CreditNoteService {
     private final UserRepository userRepo;
     private final ShiftRepository shiftRepo;
     private final EventStreamController eventStream;
+    private final FiscalizationBridgeService fiscalizationBridgeService;
 
     private static final DateTimeFormatter DF = DateTimeFormatter.ofPattern("dd MMM yyyy");
 
@@ -116,6 +118,10 @@ public class CreditNoteService {
 
         CreditNote saved = repo.save(cn);
         eventStream.broadcastCNUpdate();
+
+        // Fiscalize — submit CreditNote receipt to ZIMRA asynchronously
+        fiscalizationBridgeService.fiscalizeCreditNote(saved);
+
         return saved;
     }
 

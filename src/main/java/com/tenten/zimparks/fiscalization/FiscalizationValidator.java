@@ -13,6 +13,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Pre-flight validation of a Transaction before it is sent to the ZIMRA FDMS gateway.
@@ -188,9 +189,9 @@ public class FiscalizationValidator {
         // ── RCPT039 (Red) — Invoice total != sum of all payment amounts
         if (tx.getAmount() != null
                 && tx.getBreakdown() != null && !tx.getBreakdown().isEmpty()) {
-            BigDecimal paymentTotal = tx.getBreakdown().stream()
-                    .filter(b -> b.getAmount() != null)
-                    .map(PaymentBreakdown::getAmount)
+            BigDecimal paymentTotal = tx.getItemsList().stream()
+                    .map(TransactionItem::getUnitPrice)
+                    .filter(Objects::nonNull)
                     .reduce(BigDecimal.ZERO, BigDecimal::add)
                     .setScale(2, RoundingMode.HALF_UP);
             BigDecimal txAmount = tx.getAmount().setScale(2, RoundingMode.HALF_UP);

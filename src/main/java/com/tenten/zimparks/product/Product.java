@@ -32,4 +32,7 @@ public class Product {
     @Column(name = "entry_product", nullable = false)
     @Builder.Default
     private Boolean entryProduct = false;
+
+    @Column(name = "hs_code", length = 8)
+    private String hsCode;
 }

@@ -24,4 +24,10 @@ public class Customer {
 
     @Column(length = 50)
     private String nationality;
+
+    @Column(length = 20)
+    private String tin;           // Tax Identification Number — required for ZIMRA buyerData (RCPT043)
+
+    @Column(name = "vat_number", length = 9)
+    private String vatNumber;
 }

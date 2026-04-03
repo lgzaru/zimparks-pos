@@ -67,8 +67,8 @@ public class FiscalizationClient {
         try {
             FiscalDeviceDTO dto = restTemplate.getForObject(url, FiscalDeviceDTO.class);
             return Optional.ofNullable(dto);
-        } catch (HttpClientErrorException.NotFound e) {
-            log.warn("Device not found on external system for serialNo={}", serialNo);
+        } catch (HttpClientErrorException e) {
+            log.warn("Device lookup rejected by external system for serialNo={}: {} {}", serialNo, e.getStatusCode(), e.getMessage());
             return Optional.empty();
         }
     }

@@ -102,6 +102,7 @@ public class TransactionService {
         LocalDateTime now = LocalDateTime.now();
         tx.setRef(ref);
         tx.setStatus(TransactionStatus.PAID);
+        tx.setOperatorUsername(user.getUsername());
         tx.setTxTime(now.format(TF));
         tx.setTxDate(now.format(DF));
         // If shiftId is not provided in request, use the current active shift
@@ -208,6 +209,10 @@ public class TransactionService {
                 item.setTxRef(ref);
                 productRepo.findById(new com.tenten.zimparks.product.ProductId(item.getProductCode(), user.getStation().getId()))
                         .ifPresent(p -> {
+                            // Enrich item with HS code from product record (server is authoritative)
+                            if (p.getHsCode() != null && !p.getHsCode().isBlank()) {
+                                item.setHsCode(p.getHsCode());
+                            }
                             if (Boolean.TRUE.equals(p.getEntryProduct())) {
                                 for (int i = 0; i < item.getQuantity(); i++) {
                                     EntryTransaction entry = EntryTransaction.builder()

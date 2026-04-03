@@ -53,4 +53,17 @@ public class CreditNote {
 
     @Column(name = "shift_id", length = 20)
     private String shiftId;
+
+    // Fiscalization fields — populated on successful ZIMRA CreditNote submission
+    @Column(name = "fiscal_status", length = 40)
+    private String fiscalStatus;
+
+    @Column(name = "fiscal_receipt_id")
+    private Long fiscalReceiptId;
+
+    @Column(name = "fiscal_operation_id", length = 80)
+    private String fiscalOperationId;
+
+    @Column(name = "fiscal_error", length = 500)
+    private String fiscalError;
 }

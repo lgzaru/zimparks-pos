@@ -2,6 +2,9 @@ package com.tenten.zimparks.auth;
 
 import com.tenten.zimparks.activity.ActivityLogService;
 import com.tenten.zimparks.config.JwtConfig;
+import com.tenten.zimparks.fiscalization.phoneLinkage.FiscalDeviceRepository;
+import com.tenten.zimparks.fiscalization.phoneLinkage.FiscalizationClient;
+import com.tenten.zimparks.user.Role;
 import com.tenten.zimparks.user.User;
 import com.tenten.zimparks.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +34,12 @@ public class AuthService {
     private final SmsService smsService;
     private final PasswordEncoder passwordEncoder;
     private final ActivityLogService activityLogService;
+    private final FiscalizationClient fiscalizationClient;
+    private final FiscalDeviceRepository fiscalDeviceRepository;
+
+    private static final String FISCAL_ERR =
+            "This device has not been registered for fiscalization. " +
+            "Please contact your administrator to complete the device setup before logging in.";
 
     public void initiateForgotPassword(ForgotPasswordRequest req) {
         String phoneNumber = req.getPhoneNumber();
@@ -109,6 +118,41 @@ public class AuthService {
                     .orElseThrow(() -> new IllegalStateException("User not found after successful authentication"));
             log.debug("User entity loaded for username={} role={} active={}",
                     user.getUsername(), user.getRole(), user.getActive());
+
+            if (user.getRole() == Role.OPERATOR) {
+                String deviceSerial = req.getDeviceSerial();
+                if (deviceSerial == null || deviceSerial.isBlank()) {
+                    log.warn("Operator login blocked — no deviceSerial provided for username={}", username);
+                    throw new IllegalStateException(FISCAL_ERR);
+                }
+                try {
+                    boolean valid = fiscalizationClient.getDeviceBySerialNo(deviceSerial)
+                            .map(d -> d.isLinked())
+                            .orElse(false);
+                    if (!valid) {
+                        log.warn("Operator login blocked — serial not registered/linked: serial={} username={}", deviceSerial, username);
+                        throw new IllegalStateException(FISCAL_ERR);
+                    }
+                    log.debug("Fiscal device validated for username={} serial={}", username, deviceSerial);
+                } catch (IllegalStateException e) {
+                    throw e;
+                } catch (Exception e) {
+                    log.error("Fiscal device lookup failed for username={} serial={}", username, deviceSerial, e);
+                    throw new IllegalStateException(FISCAL_ERR);
+                }
+
+                String userStationId = user.getStation() != null ? user.getStation().getId() : null;
+                String deviceStationId = fiscalDeviceRepository.findByPhoneSerialNumber(deviceSerial)
+                        .map(d -> d.getStation() != null ? d.getStation().getId() : null)
+                        .orElse(null);
+                if (userStationId == null || !userStationId.equals(deviceStationId)) {
+                    log.warn("Operator login blocked — station mismatch: userStation={} deviceStation={} username={} serial={}",
+                            userStationId, deviceStationId, username, deviceSerial);
+                    throw new IllegalStateException(
+                            "This device is not assigned to your station. Please contact your administrator.");
+                }
+                log.debug("Station match confirmed for username={} serial={} station={}", username, deviceSerial, userStationId);
+            }
 
             String token = jwtConfig.generateToken(ud, user.getRole().name());
             user.setCurrentToken(token);
