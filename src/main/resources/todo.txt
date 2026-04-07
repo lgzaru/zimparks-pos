@@ -1,0 +1,56 @@
+package com.tenten.zimparks.config;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
+import org.springframework.stereotype.Component;
+
+import javax.sql.DataSource;
+
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class DataSeedInitializer {
+
+    private final DataSource dataSource;
+    private final JdbcTemplate jdbcTemplate;
+
+    @Value("${app.seed.enabled:true}")
+    private boolean seedEnabled;
+
+    @EventListener(ApplicationReadyEvent.class)
+    public void seedIfNeeded() {
+        if (!seedEnabled) {
+            log.info("Seed initialization disabled by app.seed.enabled=false");
+            return;
+        }
+
+        // Fix stale enum check constraint for user_permissions table (Hibernate doesn't update it)
+        try {
+            jdbcTemplate.execute("ALTER TABLE user_permissions DROP CONSTRAINT IF EXISTS user_permissions_permission_check");
+            log.info("Ensured user_permissions_permission_check constraint is dropped to allow enum expansion.");
+        } catch (Exception e) {
+            log.warn("Could not drop user_permissions_permission_check constraint; it might not exist or another error occurred: {}", e.getMessage());
+        }
+
+        Integer userCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users", Integer.class);
+        Integer deviceCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM fiscal_devices", Integer.class);
+
+        if (userCount != null && userCount > 0 && deviceCount != null && deviceCount > 0) {
+            log.info("Skipping data.sql seed; both users and fiscal_devices tables already contain rows");
+            return;
+        }
+
+        ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
+        populator.setContinueOnError(true); // Since some tables might already be seeded
+        populator.addScript(new ClassPathResource("data.sql"));
+        DatabasePopulatorUtils.execute(populator, dataSource);
+        log.info("Seeded database using data.sql");
+    }
+}

@@ -98,22 +98,25 @@ VALUES ('A', 'Conservation Fees Land'),
        ('J', 'Fishing Permit') ON CONFLICT (code) DO NOTHING;
 
 -- Products
-INSERT INTO products (code, station_id, created_by, created_at, category_code, descr, price, entry_product)
-VALUES ('STHE01P001', 'ST_HE_01', 'System', NOW(), 'A', 'Vehicle (Regional)', 5.00, TRUE),
-       ('STHE01P002', 'ST_HE_01', 'System', NOW(), 'A', 'Vehicle (Local)', 5.00, TRUE),
-       ('STHE01P003', 'ST_HE_01', 'System', NOW(), 'A', 'Vehicle (International)', 15.00, TRUE),
+--99001000:Services at 15.5% VAT
+--99002000:Services at 0% VAT
+--99003000:Services — VAT Exempt
+INSERT INTO products (code, station_id, created_by, created_at, hs_code ,category_code, descr, price, entry_product)
+VALUES ('STHE01P001', 'ST_HE_01', 'System', NOW(),'99001000', 'A', 'Vehicle (Regional)', 5.00, TRUE),
+       ('STHE01P002', 'ST_HE_01', 'System', NOW(),'99001000', 'A', 'Vehicle (Local)', 5.00, TRUE),
+       ('STHE01P003', 'ST_HE_01', 'System', NOW(),'99001000', 'A', 'Vehicle (International)', 15.00, TRUE),
 
-       ('STHE01P004', 'ST_HE_01', 'System', NOW(), 'A', 'Adult (Regional)', 15.00, TRUE),
-       ('STHE01P005', 'ST_HE_01', 'System', NOW(), 'A', 'Adult (Local)', 10.00, TRUE),
-       ('STHE01P006', 'ST_HE_01', 'System', NOW(), 'A', 'Adult (International)', 20.00, TRUE),
+       ('STHE01P004', 'ST_HE_01', 'System', NOW(),'99001000', 'A', 'Adult (Regional)', 15.00, TRUE),
+       ('STHE01P005', 'ST_HE_01', 'System', NOW(),'99001000', 'A', 'Adult (Local)', 10.00, TRUE),
+       ('STHE01P006', 'ST_HE_01', 'System', NOW(),'99001000', 'A', 'Adult (International)', 20.00, TRUE),
 
-       ('STHE01P007', 'ST_HE_01', 'System', NOW(), 'A', 'Child (Regional)', 10.00, TRUE),
-       ('STHE01P008', 'ST_HE_01', 'System', NOW(), 'A', 'Child (Local)', 5.00, TRUE),
-       ('STHE01P009', 'ST_HE_01', 'System', NOW(), 'A', 'Child (International)', 15.00, TRUE),
+       ('STHE01P007', 'ST_HE_01', 'System', NOW(),'99001000', 'A', 'Child (Regional)', 10.00, TRUE),
+       ('STHE01P008', 'ST_HE_01', 'System', NOW(),'99001000', 'A', 'Child (Local)', 5.00, TRUE),
+       ('STHE01P009', 'ST_HE_01', 'System', NOW(),'99001000', 'A', 'Child (International)', 15.00, TRUE),
 
-       ('STHE01P010', 'ST_HE_01', 'System', NOW(), 'C', 'Camping Fee', 25.00, FALSE),
-       ('STHE01P011', 'ST_HE_01', 'System', NOW(), 'E', 'Vehicle Entry', 10.00, FALSE),
-       ('STHE01P012', 'ST_HE_01', 'System', NOW(), 'E', 'Guide Service', 30.00,
+       ('STHE01P010', 'ST_HE_01', 'System', NOW(),'99001000', 'C', 'Camping Fee', 25.00, FALSE),
+       ('STHE01P011', 'ST_HE_01', 'System', NOW(),'99001000', 'E', 'Vehicle Entry', 10.00, FALSE),
+       ('STHE01P012', 'ST_HE_01', 'System', NOW(),'99001000', 'E', 'Guide Service', 30.00,
         FALSE) ON CONFLICT (code, station_id) DO NOTHING;
 
 -- VAT Settings

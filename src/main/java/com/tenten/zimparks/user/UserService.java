@@ -123,6 +123,7 @@ public class UserService implements UserDetailsService {
         if (patch.getStation() != null && patch.getStation().getId() != null) {
             u.setStation(stationRepo.findById(patch.getStation().getId())
                     .orElseThrow(() -> new RuntimeException("Station not found")));
+            if (changingStation) u.setCurrentToken(null); // force re-login so operator picks up new stationId
         }
 
         if (patch.getPassword() != null && !patch.getPassword().isBlank())

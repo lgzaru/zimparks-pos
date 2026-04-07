@@ -53,7 +53,8 @@ public class SecurityConfig {
                                 "/assets/**",
                                 "/*.png",
                                 "/*.jpg",
-                                "/*.svg").permitAll()
+                                "/*.svg",
+                                "/error").permitAll()
                         // Public API
                         .requestMatchers("/api/ping").permitAll()
                         //.requestMatchers("/api/auth/**").permitAll() // this was there before adding auth me,

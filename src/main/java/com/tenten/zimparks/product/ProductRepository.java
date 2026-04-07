@@ -14,8 +14,8 @@ public interface ProductRepository extends JpaRepository<Product, ProductId> {
     Page<Product> findByIdStationId(String stationId, Pageable pageable);
     List<Product> findByIdStationId(String stationId);
     boolean existsByCategoryCode(String categoryCode);
-    @Query("SELECT MAX(p.id.code) FROM Product p WHERE p.id.stationId = :stationId AND p.id.code LIKE 'P%'")
-    Optional<String> findMaxCodeByStationId(@Param("stationId") String stationId);
+    @Query("SELECT MAX(p.id.code) FROM Product p WHERE p.id.stationId = :stationId AND p.id.code LIKE CONCAT(:stationPart, '%')")
+    Optional<String> findMaxCodeByStationId(@Param("stationId") String stationId, @Param("stationPart") String stationPart);
 
     // ProductId has a 'code' field → Spring Data resolves id.code automatically
     List<Product> findByIdCodeIn(Collection<String> codes);

@@ -43,8 +43,12 @@ public class ProductService {
             String stationId = station.getId();                    // "ST_HE_02"
             String stationPart = stationId.replace("_", "");       // "STHE02"
 
-            int next = repo.findMaxCodeByStationId(stationId)
-                    .map(maxCode -> Integer.parseInt(maxCode.substring(1)) + 1)
+            int next = repo.findMaxCodeByStationId(stationId, stationPart)
+                    .map(maxCode -> {
+                        // Extract trailing digits: "STHE01P012" → 12
+                        java.util.regex.Matcher m = java.util.regex.Pattern.compile("(\\d+)$").matcher(maxCode);
+                        return m.find() ? Integer.parseInt(m.group(1)) + 1 : 1;
+                    })
                     .orElse(1);
 
             String newCode = String.format("%sP%03d", stationPart, next); // "STHE02P001"

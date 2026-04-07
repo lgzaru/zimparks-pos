@@ -72,4 +72,31 @@ public class FiscalizationClient {
             return Optional.empty();
         }
     }
+
+    /**
+     * POST /api/mobile/fiscal/status
+     */
+    public FiscalDayResponseDTO getFiscalStatus(FiscalDayRequestDTO request) {
+        String url = baseUrl + "/api/mobile/fiscal/status";
+        log.debug("Fetching fiscal day status for deviceID={} from: {}", request.getDeviceID(), url);
+        return restTemplate.postForObject(url, request, FiscalDayResponseDTO.class);
+    }
+
+    /**
+     * POST /api/mobile/fiscal/open-day
+     */
+    public FiscalDayResponseDTO openFiscalDay(FiscalDayRequestDTO request) {
+        String url = baseUrl + "/api/mobile/fiscal/open-day";
+        log.debug("Opening fiscal day for deviceID={} at: {}", request.getDeviceID(), url);
+        return restTemplate.postForObject(url, request, FiscalDayResponseDTO.class);
+    }
+
+    /**
+     * POST /api/mobile/fiscal/close-day
+     */
+    public FiscalDayResponseDTO closeFiscalDay(FiscalDayRequestDTO request) {
+        String url = baseUrl + "/api/mobile/fiscal/close-day";
+        log.debug("Closing fiscal day for deviceID={} at: {}", request.getDeviceID(), url);
+        return restTemplate.postForObject(url, request, FiscalDayResponseDTO.class);
+    }
 }

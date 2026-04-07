@@ -82,4 +82,24 @@ public class FiscalizationController {
         service.deleteDevice(deviceSerialNo);
         return ResponseEntity.noContent().build();
     }
+
+    // ── Fiscal Day Operations ───────────────────────────────────────────────
+
+    @PostMapping("/status")
+    @Operation(summary = "Get fiscal day status for a device.")
+    public ResponseEntity<FiscalDayResponseDTO> getFiscalStatus(@RequestBody FiscalDayRequestDTO request) {
+        return ResponseEntity.ok(service.getFiscalStatus(request));
+    }
+
+    @PostMapping("/open-day")
+    @Operation(summary = "Open a fiscal day for a device.")
+    public ResponseEntity<FiscalDayResponseDTO> openFiscalDay(@RequestBody FiscalDayRequestDTO request) {
+        return ResponseEntity.ok(service.openFiscalDay(request));
+    }
+
+    @PostMapping("/close-day")
+    @Operation(summary = "Close a fiscal day for a device.")
+    public ResponseEntity<FiscalDayResponseDTO> closeFiscalDay(@RequestBody FiscalDayRequestDTO request) {
+        return ResponseEntity.ok(service.closeFiscalDay(request));
+    }
 }

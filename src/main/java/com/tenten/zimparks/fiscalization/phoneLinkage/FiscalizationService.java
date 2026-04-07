@@ -116,6 +116,18 @@ public class FiscalizationService {
                 .ifPresent(fiscalDeviceRepo::delete);
     }
 
+    public FiscalDayResponseDTO getFiscalStatus(FiscalDayRequestDTO request) {
+        return fiscalizationClient.getFiscalStatus(request);
+    }
+
+    public FiscalDayResponseDTO openFiscalDay(FiscalDayRequestDTO request) {
+        return fiscalizationClient.openFiscalDay(request);
+    }
+
+    public FiscalDayResponseDTO closeFiscalDay(FiscalDayRequestDTO request) {
+        return fiscalizationClient.closeFiscalDay(request);
+    }
+
     // ── Mapping helpers (DTO → Entity) ───────────────────────────────────────
 
     private FiscalDevice toEntity(FiscalDeviceDTO dto) {
