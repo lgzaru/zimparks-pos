@@ -40,6 +40,9 @@ public class FiscalizationBridgeService {
     @Value("${zimra.fiscalization.enabled:false}")
     private boolean fiscalizationEnabled;
 
+    @Value("${zimra.fiscalization.credit-note.enabled:false}")
+    private boolean creditNoteFiscalizationEnabled;
+
     @Value("${fiscalization.base-url:http://localhost:8087}")
     private String gatewayUrl;
 
@@ -85,13 +88,13 @@ public class FiscalizationBridgeService {
 
         List<FiscalizationValidationError> redErrors = validationErrors.stream()
                 .filter(e -> e.getSeverity() == ValidationSeverity.RED)
-                .collect(Collectors.toList());
+                .toList();
         List<FiscalizationValidationError> yellowErrors = validationErrors.stream()
                 .filter(e -> e.getSeverity() == ValidationSeverity.YELLOW)
-                .collect(Collectors.toList());
+                .toList();
         List<FiscalizationValidationError> greyErrors = validationErrors.stream()
                 .filter(e -> e.getSeverity() == ValidationSeverity.GREY)
-                .collect(Collectors.toList());
+                .toList();
 
         if (!redErrors.isEmpty()) {
             // RED — major violations; abort and mark FAILED
@@ -212,23 +215,52 @@ public class FiscalizationBridgeService {
     }
 
     private Map<String, Object> buildReceiptRequest(Transaction tx) {
-        BigDecimal totalAmount = tx.getAmount();
-        BigDecimal vatRate     = tx.getVatRate();
-        BigDecimal taxAmount   = tx.getVatAmount();
-        String currency        = tx.getCurrency() != null ? tx.getCurrency() : defaultCurrency;
+        BigDecimal vatRate = tx.getVatRate();
+
+        // Resolve receipt currency and amounts.
+        // All receipts use a single currency (no mixed currencies per receipt).
+        // If the customer paid in a non-USD currency (e.g. ZWG), receipt.originalAmount
+        // holds the invoice total in that currency and we use it throughout.
+        Receipt txReceipt = tx.getReceipt();
+        final String currency;
+        final BigDecimal totalAmount;
+        final BigDecimal taxAmount;
+        final BigDecimal exchangeRate; // factor to convert stored USD line prices to receipt currency
+
+        if (txReceipt != null
+                && txReceipt.getOriginalCurrency() != null
+                && !txReceipt.getOriginalCurrency().equalsIgnoreCase("USD")
+                && txReceipt.getOriginalAmount() != null
+                && txReceipt.getBaseAmount() != null
+                && txReceipt.getBaseAmount().compareTo(BigDecimal.ZERO) != 0) {
+            currency     = txReceipt.getOriginalCurrency();
+            totalAmount  = txReceipt.getOriginalAmount();
+            taxAmount    = txReceipt.getVatAmount(); // in originalCurrency
+            exchangeRate = txReceipt.getOriginalAmount()
+                    .divide(txReceipt.getBaseAmount(), 10, RoundingMode.HALF_UP);
+        } else {
+            // USD transaction — use stored values directly, no conversion needed
+            currency     = tx.getCurrency() != null ? tx.getCurrency() : defaultCurrency;
+            totalAmount  = tx.getAmount();
+            taxAmount    = tx.getVatAmount();
+            exchangeRate = BigDecimal.ONE;
+        }
 
         List<Map<String, Object>> receiptLines = new ArrayList<>();
         if (tx.getItemsList() != null && !tx.getItemsList().isEmpty()) {
             int lineNo = 1;
             for (TransactionItem item : tx.getItemsList()) {
+                // Item prices are stored in USD; convert to receipt currency using exchange rate.
+                BigDecimal linePrice = item.getUnitPrice().multiply(exchangeRate).setScale(2, RoundingMode.HALF_UP);
+                BigDecimal lineTotal = item.getTotalPrice().multiply(exchangeRate).setScale(2, RoundingMode.HALF_UP);
                 Map<String, Object> line = new LinkedHashMap<>();
                 line.put("receiptLineType", receiptLineType);
                 line.put("receiptLineNo", lineNo++);
                 line.put("receiptLineHSCode", item.getHsCode() != null ? item.getHsCode() : hsCode);
                 line.put("receiptLineName", item.getDescr());
-                line.put("receiptLinePrice", item.getUnitPrice());
+                line.put("receiptLinePrice", linePrice);
                 line.put("receiptLineQuantity", BigDecimal.valueOf(item.getQuantity()));
-                line.put("receiptLineTotal", item.getTotalPrice());
+                line.put("receiptLineTotal", lineTotal);
                 line.put("taxCode", taxCode);
                 line.put("taxPercent", vatRate);
                 line.put("taxID", taxId);
@@ -258,10 +290,35 @@ public class FiscalizationBridgeService {
 
         List<Map<String, Object>> payments = new ArrayList<>();
         if (tx.getBreakdown() != null && !tx.getBreakdown().isEmpty()) {
+            // All breakdown entries share the same currency (no mixed currencies).
+            // Use originalAmount (tendered in receipt currency) for non-USD receipts;
+            // fall back to the USD-converted amount for USD receipts.
+            boolean useOriginal = !currency.equalsIgnoreCase("USD");
+
+            BigDecimal breakdownSum = tx.getBreakdown().stream()
+                    .map(b -> {
+                        BigDecimal amt = useOriginal && b.getOriginalAmount() != null
+                                ? b.getOriginalAmount() : b.getAmount();
+                        return amt != null ? amt : BigDecimal.ZERO;
+                    })
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
             for (var breakdown : tx.getBreakdown()) {
+                BigDecimal brkAmt = useOriginal && breakdown.getOriginalAmount() != null
+                        ? breakdown.getOriginalAmount() : breakdown.getAmount();
+
                 Map<String, Object> payment = new LinkedHashMap<>();
                 payment.put("moneyTypeCode", breakdown.getType());
-                payment.put("paymentAmount", breakdown.getAmount());
+
+                BigDecimal payAmt;
+                if (breakdownSum.compareTo(totalAmount) > 0 && breakdownSum.compareTo(BigDecimal.ZERO) > 0) {
+                    // Customer tendered more than invoice (cash change) — pro-rate to invoice total.
+                    BigDecimal ratio = brkAmt.divide(breakdownSum, 10, RoundingMode.HALF_UP);
+                    payAmt = totalAmount.multiply(ratio).setScale(2, RoundingMode.HALF_UP);
+                } else {
+                    payAmt = brkAmt;
+                }
+                payment.put("paymentAmount", payAmt);
                 payments.add(payment);
             }
         } else {
@@ -325,6 +382,10 @@ public class FiscalizationBridgeService {
     public void fiscalizeCreditNote(CreditNote cn) {
         if (!fiscalizationEnabled) {
             log.info("[fiscalization] disabled — skipping credit note: {}", cn.getId());
+            return;
+        }
+        if (!creditNoteFiscalizationEnabled) {
+            log.info("[fiscalization] credit note fiscalization disabled — skipping: {}", cn.getId());
             return;
         }
 
@@ -491,3 +552,20 @@ public class FiscalizationBridgeService {
         });
     }
 }
+
+
+
+/*
+ZIMRA HS Codes are 8-digit international standards for classifying traded goods to determine customs duties, while domestic VAT fiscalisation often uses simplified or mapped codes for local sales.
+
+Hs-codes  - international standards
+99001000 – Services at 15.5% VAT
+99002000 – Services at 0% VAT
+99003000 – Services — VAT Exempt
+
+Codes - Local goog
+Code - A (FR(l)): Provision of Services/Sales at 15% VAT (Standard Rate).
+Code - B (FR(m)): Provision of Services/Sales at 0% VAT (Zero Rated).
+Code - C (FR(n)): Provision of Services/Sales at VAT Exempted.
+Code - D: Often used for specific zero-rated or exempt transactions depending on the fiscal machine setting (usually corresponds to specific VAT categories).
+*/

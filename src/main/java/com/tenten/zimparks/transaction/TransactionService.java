@@ -133,54 +133,55 @@ public class TransactionService {
             }
         } 
 
-        BigDecimal originalAmount = tx.getAmount();
-        // Determine original currency (currency tendered)
-        // If breakdown is present and has at least one entry, we prefer the breakdown currency
-        // as the "original" one if it's different from the top-level currency.
+        // payload.amount from the frontend is always the cart total in USD base currency.
+        BigDecimal baseAmount = tx.getAmount();
+        String baseCurrency = "USD";
+
+        // Determine payment currency — all breakdown entries share the same currency (no mixed currencies per receipt).
         String currencyFromTx = tx.getCurrency();
         if (tx.getBreakdown() != null && !tx.getBreakdown().isEmpty()) {
-            // Use the first currency from breakdown as the primary original currency for the receipt
             currencyFromTx = tx.getBreakdown().get(0).getCurrency();
         }
         final String originalCurrency = currencyFromTx != null ? currencyFromTx : "USD";
 
-        // Calculate VAT based on currency tendered
+        // VAT rate is selected by payment currency (ZWG rate vs other rate).
+        // VAT is calculated on the base USD amount and stored in USD on the transaction.
         var vatSettings = vatService.get();
         BigDecimal vatRate = "ZWG".equalsIgnoreCase(originalCurrency) ? vatSettings.getZwgRate() : vatSettings.getOtherRate();
-        // Assuming price is inclusive: vatAmount = amount * (rate / (100 + rate))
+        // Tax-inclusive: vatAmount = amount * rate / (100 + rate)
         BigDecimal vatDivisor = vatRate.add(new BigDecimal("100")).divide(new BigDecimal("100"), 4, RoundingMode.HALF_UP);
-        BigDecimal amountExclVat = originalAmount.divide(vatDivisor, 2, RoundingMode.HALF_UP);
-        BigDecimal vatAmount = originalAmount.subtract(amountExclVat);
+        BigDecimal amountExclVat = baseAmount.divide(vatDivisor, 2, RoundingMode.HALF_UP);
+        BigDecimal baseVatAmount = baseAmount.subtract(amountExclVat); // in USD
 
         tx.setVatRate(vatRate);
 
-        BigDecimal baseAmount = originalAmount;
-        BigDecimal baseVatAmount = vatAmount;
-        String baseCurrency = "USD";
-
-        if (!baseCurrency.equalsIgnoreCase(originalCurrency)) {
-            Currency cur = currencyService.findById(originalCurrency)
-                    .orElseThrow(() -> new RuntimeException("Currency not found: " + originalCurrency));
-            // Convert amounts to base currency (USD)
-            baseAmount = originalAmount.divide(cur.getExchangeRate(), 2, RoundingMode.HALF_UP);
-            baseVatAmount = vatAmount.divide(cur.getExchangeRate(), 2, RoundingMode.HALF_UP);
-        }
-
-        // Transaction record should be in base currency
+        // Transaction record is always stored in base currency (USD).
         tx.setAmount(baseAmount);
         tx.setVatAmount(baseVatAmount);
         tx.setCurrency(baseCurrency);
 
+        // Convert USD amounts to the original payment currency for the receipt
+        // (used by fiscalization and receipt display).
+        BigDecimal originalCurrencyAmount = baseAmount;
+        BigDecimal originalCurrencyVatAmount = baseVatAmount;
+        if (!baseCurrency.equalsIgnoreCase(originalCurrency)) {
+            Currency cur = currencyService.findById(originalCurrency)
+                    .orElseThrow(() -> new RuntimeException("Currency not found: " + originalCurrency));
+            // USD → original currency: multiply by exchange rate
+            originalCurrencyAmount = baseAmount.multiply(cur.getExchangeRate()).setScale(2, RoundingMode.HALF_UP);
+            originalCurrencyVatAmount = baseVatAmount.multiply(cur.getExchangeRate()).setScale(2, RoundingMode.HALF_UP);
+        }
+
         Receipt receipt = Receipt.builder()
                 .txRef(ref)
                 .originalCurrency(originalCurrency)
-                .originalAmount(originalAmount)
+                .originalAmount(originalCurrencyAmount)   // in originalCurrency (e.g. ZWG)
                 .baseCurrency(baseCurrency)
-                .baseAmount(baseAmount)
+                .baseAmount(baseAmount)                   // always USD
                 .receiptNumber("REC-" + ref.substring(4))
                 .status(TransactionStatus.PAID)
                 .vatRate(vatRate)
-                .vatAmount(vatAmount)
+                .vatAmount(originalCurrencyVatAmount)     // in originalCurrency for fiscal display
                 .shiftId(tx.getShiftId())
                 .build();
         tx.setReceipt(receipt);
