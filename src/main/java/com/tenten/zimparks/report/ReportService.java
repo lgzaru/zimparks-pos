@@ -1,10 +1,14 @@
 package com.tenten.zimparks.report;
 
+import com.tenten.zimparks.bank.BankRepository;
 import com.tenten.zimparks.creditnote.CreditNote;
 import com.tenten.zimparks.creditnote.CreditNoteRepository;
+import com.tenten.zimparks.station.StationRepository;
 import com.tenten.zimparks.transaction.Transaction;
 import com.tenten.zimparks.transaction.TransactionRepository;
 import com.tenten.zimparks.transaction.TransactionStatus;
+import com.tenten.zimparks.vat.VatRepository;
+import com.tenten.zimparks.vat.VatSettings;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -13,6 +17,8 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -22,8 +28,12 @@ public class ReportService {
 
     private final TransactionRepository txRepo;
     private final CreditNoteRepository cnRepo;
+    private final BankRepository bankRepo;
+    private final VatRepository vatRepo;
+    private final StationRepository stationRepo;
 
     private static final List<String> CURRENCIES  = List.of("USD", "ZAR", "ZWG");
+    private static final DateTimeFormatter TX_DF   = DateTimeFormatter.ofPattern("dd MMM yyyy");
     private static final List<String> PAY_TYPES   = List.of(
             "Cash", "Card", "Mobile Wallet", "Coupon", "Bank Transfer", "Other");
 
@@ -43,6 +53,7 @@ public class ReportService {
             case "Currency Breakdown"          -> currencyBreakdown(paid);
             case "Payment Method Distribution" -> paymentDistribution(paid);
             case "Visitors Report"             -> visitors(paid);
+            case "Vision Report"               -> visionReport(sortedByDate(paid, filters));
             default -> List.of();
         };
 
@@ -168,5 +179,108 @@ public class ReportService {
     private String fmt(BigDecimal n, String currency) {
         return (currency != null ? currency : "USD") + " " +
                 (n != null ? n.setScale(2, RoundingMode.HALF_UP).toPlainString() : "0.00");
+    }
+
+    // ── Sort transactions by txDate ("dd MMM yyyy") using explicit sortDir filter ──
+    private List<Transaction> sortedByDate(List<Transaction> txs, Map<String, String> filters) {
+        boolean desc = !"asc".equalsIgnoreCase(filters.get("sortDir")); // default desc
+        Comparator<Transaction> cmp = Comparator.comparing(t -> {
+            try { return LocalDate.parse(t.getTxDate(), TX_DF); }
+            catch (Exception e) { return LocalDate.MIN; }
+        });
+        if (desc) cmp = cmp.reversed();
+        return txs.stream().sorted(cmp).collect(Collectors.toList());
+    }
+
+    // ── Vision Report ─────────────────────────────────────────────────────────
+    private List<Map<String, Object>> visionReport(List<Transaction> paid) {
+        VatSettings vat = vatRepo.findById(1L).orElseGet(() -> {
+            VatSettings v = new VatSettings();
+            v.setId(1L);
+            v.setZwgRate(BigDecimal.valueOf(15.0));
+            v.setOtherRate(BigDecimal.valueOf(15.5));
+            return v;
+        });
+
+        List<Map<String, Object>> rows = new ArrayList<>();
+        for (Transaction t : paid) {
+            String txDate   = t.getTxDate()       != null ? t.getTxDate()       : "";
+            String ref      = t.getRef()           != null ? t.getRef()           : "";
+            String descr    = visionDescr(t);
+            String ccy      = visionCcy(t);
+            String cluster  = t.getStation()      != null ? t.getStation().getId() : "";
+            String product  = t.getProductCode()  != null ? t.getProductCode()  : "";
+
+            BigDecimal total   = t.getAmount()    != null ? t.getAmount()    : BigDecimal.ZERO;
+            BigDecimal vatAmt  = t.getVatAmount() != null ? t.getVatAmount() : BigDecimal.ZERO;
+            BigDecimal exclVat = total.subtract(vatAmt);
+
+            String revAcct  = vat.getRevenueAccount() != null ? vat.getRevenueAccount() : "";
+            String vatAcct  = vat.getVatAccount()     != null ? vat.getVatAccount()     : "";
+            String bankAcct = visionBankAcct(t);
+
+            // Line 1 — revenue excl. VAT, Credit
+            rows.add(visionRow(txDate, revAcct, ref, descr, ccy, fmtNum(exclVat), "C", cluster, product, ""));
+            // Line 2 — VAT amount, Credit
+            rows.add(visionRow(txDate, vatAcct, ref, descr, ccy, fmtNum(vatAmt),  "C", cluster, product, "S"));
+            // Line 3 — total settlement, Debit
+            rows.add(visionRow(txDate, bankAcct, ref, descr, ccy, fmtNum(total),  "D", cluster, product, ""));
+        }
+        return rows;
+    }
+
+    private Map<String, Object> visionRow(String txDate, String account, String ref, String descr,
+                                          String ccy, String amount, String dc,
+                                          String cluster, String product, String vat) {
+        Map<String, Object> row = new LinkedHashMap<>();
+        row.put("TransactionDate", txDate);
+        row.put("Account",         account);
+        row.put("Reference",       ref);
+        row.put("Description",     descr);
+        row.put("PaymentCurrency", ccy);
+        row.put("Amount",          amount);
+        row.put("DebitCredit",     dc);
+        row.put("Cluster",         cluster);
+        row.put("Product",         product);
+        row.put("VAT",             vat);
+        return row;
+    }
+
+    private String visionDescr(Transaction t) {
+        if (t.getItemsList() != null && !t.getItemsList().isEmpty()
+                && t.getItemsList().get(0).getDescr() != null) {
+            return t.getItemsList().get(0).getDescr();
+        }
+        return t.getProductCode() != null ? t.getProductCode() : "";
+    }
+
+    private String visionCcy(Transaction t) {
+        if (t.getReceipt() != null && t.getReceipt().getOriginalCurrency() != null) {
+            return t.getReceipt().getOriginalCurrency();
+        }
+        return t.getCurrency() != null ? t.getCurrency() : "USD";
+    }
+
+    private String visionBankAcct(Transaction t) {
+        // Prefer the bank explicitly recorded on the transaction
+        if (t.getBankCode() != null) {
+            return bankRepo.findById(t.getBankCode())
+                    .map(b -> b.getAccountNumber() != null ? b.getAccountNumber() : "")
+                    .orElse("");
+        }
+        // Fall back to the station's first linked bank (single-bank stations never set bankCode)
+        if (t.getStation() != null) {
+            return stationRepo.findById(t.getStation().getId())
+                    .flatMap(s -> s.getBanks().stream()
+                            .filter(b -> b.getAccountNumber() != null && !b.getAccountNumber().isBlank())
+                            .findFirst())
+                    .map(b -> b.getAccountNumber())
+                    .orElse("");
+        }
+        return "";
+    }
+
+    private String fmtNum(BigDecimal n) {
+        return n != null ? n.setScale(2, RoundingMode.HALF_UP).toPlainString() : "0.00";
     }
 }

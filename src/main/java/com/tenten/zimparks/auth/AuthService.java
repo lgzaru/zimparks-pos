@@ -9,6 +9,7 @@ import com.tenten.zimparks.user.User;
 import com.tenten.zimparks.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
@@ -36,6 +37,9 @@ public class AuthService {
     private final ActivityLogService activityLogService;
     private final FiscalizationClient fiscalizationClient;
     private final FiscalDeviceRepository fiscalDeviceRepository;
+    
+    @Value("${zimra.fiscalization.enabled:false}")
+    private boolean fiscalizationEnabled;
 
     private static final String FISCAL_ERR =
             "This device has not been registered for fiscalization. " +
@@ -119,7 +123,7 @@ public class AuthService {
             log.debug("User entity loaded for username={} role={} active={}",
                     user.getUsername(), user.getRole(), user.getActive());
 
-            if (user.getRole() == Role.OPERATOR) {
+            if (fiscalizationEnabled && user.getRole() == Role.OPERATOR) {
                 String deviceSerial = req.getDeviceSerial();
                 if (deviceSerial == null || deviceSerial.isBlank()) {
                     log.warn("Operator login blocked — no deviceSerial provided for username={}", username);

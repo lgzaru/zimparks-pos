@@ -25,6 +25,6 @@ public class VatController {
     @PutMapping
     @Operation(summary = "Update VAT rates.")
     public ResponseEntity<VatSettings> set(@RequestBody VatUpdateRequest body) {
-        return ResponseEntity.ok(service.set(body.getZwgRate(), body.getOtherRate()));
+        return ResponseEntity.ok(service.set(body.getZwgRate(), body.getOtherRate(), body.getRevenueAccount(), body.getVatAccount()));
     }
 }

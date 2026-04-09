@@ -85,7 +85,7 @@ class TransactionServiceTest {
     }
 
     private void mockVat() {
-        lenient().when(vatService.get()).thenReturn(new com.tenten.zimparks.vat.VatSettings(1L, new BigDecimal("15.00"), new BigDecimal("15.50")));
+        lenient().when(vatService.get()).thenReturn(new com.tenten.zimparks.vat.VatSettings(1L, new BigDecimal("15.00"), new BigDecimal("15.50"), null, null));
     }
 
     private void mockAuth(User user) {

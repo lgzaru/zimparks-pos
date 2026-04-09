@@ -17,4 +17,10 @@ public class VatSettings {
 
     @Column(name = "other_rate", nullable = false, precision = 5, scale = 2)
     private BigDecimal otherRate;
+
+    @Column(name = "revenue_account", length = 30)
+    private String revenueAccount;
+
+    @Column(name = "vat_account", length = 30)
+    private String vatAccount;
 }

@@ -17,4 +17,10 @@ public class VatUpdateRequest {
     @NotNull
     @Schema(description = "VAT rate for other currencies.", example = "15.5")
     private BigDecimal otherRate;
+
+    @Schema(description = "GL account code for revenue recognition.", example = "60001000")
+    private String revenueAccount;
+
+    @Schema(description = "GL account code for VAT payable.", example = "42029000")
+    private String vatAccount;
 }

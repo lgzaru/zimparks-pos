@@ -27,4 +27,10 @@ public class BankController {
     public ResponseEntity<Bank> create(@RequestBody Bank b) {
         return ResponseEntity.ok(service.create(b));
     }
+
+    @PutMapping("/{code}")
+    @Operation(summary = "Update a bank (name and/or account number).")
+    public ResponseEntity<Bank> update(@PathVariable String code, @RequestBody Bank b) {
+        return ResponseEntity.ok(service.update(code, b));
+    }
 }

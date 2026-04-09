@@ -17,4 +17,7 @@ public class Bank {
 
     @Column(nullable = false, length = 100)
     private String name;
+
+    @Column(name = "account_number", length = 30)
+    private String accountNumber;
 }

@@ -33,10 +33,10 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        log.debug("Loading user details for username={}", username);
+        //log.debug("Loading user details for username={}", username);
         User u = repo.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
-        log.debug("User details loaded username={} active={} role={}", u.getUsername(), u.getActive(), u.getRole());
+        //log.debug("User details loaded username={} active={} role={}", u.getUsername(), u.getActive(), u.getRole());
 
         Collection<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority("ROLE_" + u.getRole().name()));

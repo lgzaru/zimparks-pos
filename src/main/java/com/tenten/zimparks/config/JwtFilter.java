@@ -47,7 +47,7 @@ public class JwtFilter extends OncePerRequestFilter {
                             var auth = new UsernamePasswordAuthenticationToken(ud, null, ud.getAuthorities());
                             auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
                             SecurityContextHolder.getContext().setAuthentication(auth);
-                            log.debug("JWT auth set for user={}", username);
+                            //log.debug("JWT auth set for user={}", username);
                         } else {
                             log.warn("Token mismatch for user={} — session invalidated by new login", username);
                             res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
