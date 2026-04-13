@@ -103,6 +103,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/banks/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/vat/**").hasAnyRole("ADMIN", "SUPERVISOR", "OPERATOR")
                         .requestMatchers(HttpMethod.GET, "/api/currencies/**").hasAnyRole("ADMIN", "SUPERVISOR", "OPERATOR")
+                        .requestMatchers(HttpMethod.GET, "/api/devices/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/devices/*/ping").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/activities/**").hasAnyRole("ADMIN", "SUPERVISOR")
                         .requestMatchers(HttpMethod.PUT, "/api/vat/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/api/vat/**").hasRole("ADMIN")

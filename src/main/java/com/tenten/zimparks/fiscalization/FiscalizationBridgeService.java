@@ -224,7 +224,6 @@ public class FiscalizationBridgeService {
         Receipt txReceipt = tx.getReceipt();
         final String currency;
         final BigDecimal totalAmount;
-        final BigDecimal taxAmount;
         final BigDecimal exchangeRate; // factor to convert stored USD line prices to receipt currency
 
         if (txReceipt != null
@@ -235,16 +234,23 @@ public class FiscalizationBridgeService {
                 && txReceipt.getBaseAmount().compareTo(BigDecimal.ZERO) != 0) {
             currency     = txReceipt.getOriginalCurrency();
             totalAmount  = txReceipt.getOriginalAmount();
-            taxAmount    = txReceipt.getVatAmount(); // in originalCurrency
             exchangeRate = txReceipt.getOriginalAmount()
                     .divide(txReceipt.getBaseAmount(), 10, RoundingMode.HALF_UP);
         } else {
             // USD transaction — use stored values directly, no conversion needed
             currency     = tx.getCurrency() != null ? tx.getCurrency() : defaultCurrency;
             totalAmount  = tx.getAmount();
-            taxAmount    = tx.getVatAmount();
             exchangeRate = BigDecimal.ONE;
         }
+
+        // Recompute taxAmount directly from totalAmount in receipt currency.
+        // ZIMRA validates: taxAmount = salesAmountWithTax × vatRate / (1 + vatRate).
+        // Using the stored vatAmount (computed in USD then converted) causes rounding
+        // divergence that triggers ReceiptsWithValidationErrors at day close.
+        BigDecimal vatDivisor = vatRate.add(BigDecimal.valueOf(100))
+                .divide(BigDecimal.valueOf(100), 10, RoundingMode.HALF_UP);
+        BigDecimal amountExclVat = totalAmount.divide(vatDivisor, 2, RoundingMode.HALF_UP);
+        final BigDecimal taxAmount = totalAmount.subtract(amountExclVat);
 
         List<Map<String, Object>> receiptLines = new ArrayList<>();
         if (tx.getItemsList() != null && !tx.getItemsList().isEmpty()) {
@@ -330,8 +336,11 @@ public class FiscalizationBridgeService {
 
         String receiptDate;
         try {
-            // txDate format is "dd MMM yyyy", txTime format is "hh:mm a"
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy hh:mm a");
+            // txDate format is "dd MMM yyyy", txTime format is "hh:mm a" (may be upper or lowercase am/pm)
+            DateTimeFormatter formatter = new java.time.format.DateTimeFormatterBuilder()
+                    .parseCaseInsensitive()
+                    .appendPattern("dd MMM yyyy hh:mm a")
+                    .toFormatter(java.util.Locale.ENGLISH);
             LocalDateTime dateTime = LocalDateTime.parse(tx.getTxDate() + " " + tx.getTxTime(), formatter);
             receiptDate = dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
         } catch (Exception e) {
