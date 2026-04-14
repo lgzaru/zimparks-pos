@@ -3044,3 +3044,811 @@ org.springframework.web.HttpMediaTypeNotAcceptableException: No acceptable repre
 2026-04-14T15:21:27.229+02:00  WARN 886978 --- [http-nio-0.0.0.0-8080-exec-9] com.tenten.zimparks.config.JwtFilter     : Token mismatch for user=LZARU — session invalidated by new login
 2026-04-14T15:21:31.088+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-1] c.t.z.activity.ActivityLogService        : Logging activity: username=LZARU, operation=UPDATE, method=PUT, uri=/api/products/ST_HE_01/STHE01P003, status=200, ip=127.0.0.1
 2026-04-14T15:22:05.198+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-5] c.t.z.activity.ActivityLogService        : Logging activity: username=LZARU, operation=UPDATE, method=PUT, uri=/api/products/ST_HE_01/STHE01P002, status=200, ip=127.0.0.1
+2026-04-14T15:22:49.435+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-6] c.t.z.activity.ActivityLogService        : Logging activity: username=LZARU, operation=CREATE, method=POST, uri=/api/devices/parkswild-4/ping, status=200, ip=127.0.0.1
+2026-04-14T15:23:47.806+02:00  INFO 886978 --- [http-nio-0.0.0.0-8080-exec-1] c.tenten.zimparks.auth.AuthController    : Login request received for username=amudavanhu
+2026-04-14T15:23:47.807+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-1] com.tenten.zimparks.auth.AuthService     : Authenticating username=AMUDAVANHU
+2026-04-14T15:23:47.894+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-1] com.tenten.zimparks.auth.AuthService     : AuthenticationManager accepted username=AMUDAVANHU
+2026-04-14T15:23:47.895+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-1] com.tenten.zimparks.auth.AuthService     : UserDetails loaded for username=AMUDAVANHU
+2026-04-14T15:23:47.895+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-1] com.tenten.zimparks.auth.AuthService     : User entity loaded for username=AMUDAVANHU role=OPERATOR active=true
+2026-04-14T15:23:47.897+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-1] c.t.z.f.p.FiscalizationClient            : Fetching fiscal device detail for serialNo=1111111111 from: http://localhost:8087/api/mobile/fiscal/device/1111111111
+2026-04-14T15:23:47.938+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-1] com.tenten.zimparks.auth.AuthService     : Fiscal device validated for username=AMUDAVANHU serial=1111111111
+2026-04-14T15:23:47.941+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-1] com.tenten.zimparks.auth.AuthService     : Station match confirmed for username=AMUDAVANHU serial=1111111111 station=ST_HW_01
+2026-04-14T15:23:47.944+02:00  INFO 886978 --- [http-nio-0.0.0.0-8080-exec-1] com.tenten.zimparks.auth.AuthService     : Login successful for username=amudavanhu
+2026-04-14T15:23:47.944+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-1] c.t.z.activity.ActivityLogService        : Logging activity: username=AMUDAVANHU, operation=LOGIN, method=POST, uri=/api/auth/login, status=200, ip=127.0.0.1
+2026-04-14T15:23:47.957+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-4] c.t.z.f.p.FiscalizationClient            : Fetching fiscal device detail for serialNo=1111111111 from: http://localhost:8087/api/mobile/fiscal/device/1111111111
+2026-04-14T15:23:57.998+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-3] c.t.z.f.p.FiscalizationClient            : Fetching fiscal day status for deviceID=33940 from: http://localhost:8087/api/fiscal/status
+2026-04-14T15:24:45.844+02:00  INFO 886978 --- [http-nio-0.0.0.0-8080-exec-9] c.tenten.zimparks.auth.AuthController    : Login request received for username=amudavanhu
+2026-04-14T15:24:45.845+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-9] com.tenten.zimparks.auth.AuthService     : Authenticating username=AMUDAVANHU
+2026-04-14T15:24:45.934+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-9] com.tenten.zimparks.auth.AuthService     : AuthenticationManager accepted username=AMUDAVANHU
+2026-04-14T15:24:45.935+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-9] com.tenten.zimparks.auth.AuthService     : UserDetails loaded for username=AMUDAVANHU
+2026-04-14T15:24:45.936+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-9] com.tenten.zimparks.auth.AuthService     : User entity loaded for username=AMUDAVANHU role=OPERATOR active=true
+2026-04-14T15:24:45.936+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-9] c.t.z.f.p.FiscalizationClient            : Fetching fiscal device detail for serialNo=1111111111 from: http://localhost:8087/api/mobile/fiscal/device/1111111111
+2026-04-14T15:24:45.942+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-9] com.tenten.zimparks.auth.AuthService     : Fiscal device validated for username=AMUDAVANHU serial=1111111111
+2026-04-14T15:24:45.943+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-9] com.tenten.zimparks.auth.AuthService     : Station match confirmed for username=AMUDAVANHU serial=1111111111 station=ST_HW_01
+2026-04-14T15:24:45.946+02:00  INFO 886978 --- [http-nio-0.0.0.0-8080-exec-9] com.tenten.zimparks.auth.AuthService     : Login successful for username=amudavanhu
+2026-04-14T15:24:45.946+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-9] c.t.z.activity.ActivityLogService        : Logging activity: username=AMUDAVANHU, operation=LOGIN, method=POST, uri=/api/auth/login, status=200, ip=127.0.0.1
+2026-04-14T15:24:45.955+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-8] c.t.z.f.p.FiscalizationClient            : Fetching fiscal device detail for serialNo=1111111111 from: http://localhost:8087/api/mobile/fiscal/device/1111111111
+2026-04-14T15:24:56.024+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-6] c.t.z.f.p.FiscalizationClient            : Fetching fiscal day status for deviceID=33940 from: http://localhost:8087/api/fiscal/status
+2026-04-14T15:25:07.343+02:00  WARN 886978 --- [http-nio-0.0.0.0-8080-exec-8] com.tenten.zimparks.config.JwtFilter     : Token mismatch for user=AMUDAVANHU — session invalidated by new login
+2026-04-14T15:25:38.056+02:00  INFO 886978 --- [http-nio-0.0.0.0-8080-exec-1] c.tenten.zimparks.auth.AuthController    : Login request received for username=lzaru
+2026-04-14T15:25:38.057+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-1] com.tenten.zimparks.auth.AuthService     : Authenticating username=LZARU
+2026-04-14T15:25:38.146+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-1] com.tenten.zimparks.auth.AuthService     : AuthenticationManager accepted username=LZARU
+2026-04-14T15:25:38.146+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-1] com.tenten.zimparks.auth.AuthService     : UserDetails loaded for username=LZARU
+2026-04-14T15:25:38.147+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-1] com.tenten.zimparks.auth.AuthService     : User entity loaded for username=LZARU role=ADMIN active=true
+2026-04-14T15:25:38.150+02:00  INFO 886978 --- [http-nio-0.0.0.0-8080-exec-1] com.tenten.zimparks.auth.AuthService     : Login successful for username=lzaru
+2026-04-14T15:25:38.150+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-1] c.t.z.activity.ActivityLogService        : Logging activity: username=LZARU, operation=LOGIN, method=POST, uri=/api/auth/login, status=200, ip=127.0.0.1
+2026-04-14T15:25:38.210+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-7] c.t.z.activity.ActivityLogService        : Logging activity: username=LZARU, operation=CREATE, method=POST, uri=/api/devices/parkswild-4/ping, status=200, ip=127.0.0.1
+2026-04-14T15:26:30.453+02:00  INFO 886978 --- [http-nio-0.0.0.0-8080-exec-8] c.tenten.zimparks.auth.AuthController    : Login request received for username=amudavanhu
+2026-04-14T15:26:30.453+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-8] com.tenten.zimparks.auth.AuthService     : Authenticating username=AMUDAVANHU
+2026-04-14T15:26:30.533+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-8] com.tenten.zimparks.auth.AuthService     : AuthenticationManager accepted username=AMUDAVANHU
+2026-04-14T15:26:30.534+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-8] com.tenten.zimparks.auth.AuthService     : UserDetails loaded for username=AMUDAVANHU
+2026-04-14T15:26:30.534+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-8] com.tenten.zimparks.auth.AuthService     : User entity loaded for username=AMUDAVANHU role=OPERATOR active=true
+2026-04-14T15:26:30.534+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-8] c.t.z.f.p.FiscalizationClient            : Fetching fiscal device detail for serialNo=1111111111 from: http://localhost:8087/api/mobile/fiscal/device/1111111111
+2026-04-14T15:26:30.541+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-8] com.tenten.zimparks.auth.AuthService     : Fiscal device validated for username=AMUDAVANHU serial=1111111111
+2026-04-14T15:26:30.542+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-8] com.tenten.zimparks.auth.AuthService     : Station match confirmed for username=AMUDAVANHU serial=1111111111 station=ST_HW_01
+2026-04-14T15:26:30.545+02:00  INFO 886978 --- [http-nio-0.0.0.0-8080-exec-8] com.tenten.zimparks.auth.AuthService     : Login successful for username=amudavanhu
+2026-04-14T15:26:30.546+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-8] c.t.z.activity.ActivityLogService        : Logging activity: username=AMUDAVANHU, operation=LOGIN, method=POST, uri=/api/auth/login, status=200, ip=127.0.0.1
+2026-04-14T15:26:30.554+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-1] c.t.z.f.p.FiscalizationClient            : Fetching fiscal device detail for serialNo=1111111111 from: http://localhost:8087/api/mobile/fiscal/device/1111111111
+2026-04-14T15:26:40.569+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-7] c.t.z.f.p.FiscalizationClient            : Fetching fiscal day status for deviceID=33940 from: http://localhost:8087/api/fiscal/status
+2026-04-14T15:27:05.930+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-8] c.t.z.f.p.FiscalizationClient            : Fetching fiscal devices (linked=false) from: http://localhost:8087/api/mobile/fiscal/devices?linked=false
+2026-04-14T15:27:14.495+02:00  INFO 886978 --- [http-nio-0.0.0.0-8080-exec-2] c.tenten.zimparks.auth.AuthController    : Login request received for username=amudavanhu
+2026-04-14T15:27:14.495+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-2] com.tenten.zimparks.auth.AuthService     : Authenticating username=AMUDAVANHU
+2026-04-14T15:27:14.575+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-2] com.tenten.zimparks.auth.AuthService     : AuthenticationManager accepted username=AMUDAVANHU
+2026-04-14T15:27:14.576+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-2] com.tenten.zimparks.auth.AuthService     : UserDetails loaded for username=AMUDAVANHU
+2026-04-14T15:27:14.577+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-2] com.tenten.zimparks.auth.AuthService     : User entity loaded for username=AMUDAVANHU role=OPERATOR active=true
+2026-04-14T15:27:14.577+02:00  WARN 886978 --- [http-nio-0.0.0.0-8080-exec-2] com.tenten.zimparks.auth.AuthService     : Operator login blocked — no deviceSerial provided for username=AMUDAVANHU
+2026-04-14T15:27:14.577+02:00 ERROR 886978 --- [http-nio-0.0.0.0-8080-exec-2] com.tenten.zimparks.auth.AuthService     : Login flow failed for username=amudavanhu reason=IllegalStateException message=This device has not been registered for fiscalization. Please contact your administrator to complete the device setup before logging in.
+
+java.lang.IllegalStateException: This device has not been registered for fiscalization. Please contact your administrator to complete the device setup before logging in.
+	at com.tenten.zimparks.auth.AuthService.login(AuthService.java:130) ~[classes/:na]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[na:na]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) ~[na:na]
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569) ~[na:na]
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:359) ~[spring-aop-7.0.5.jar:7.0.5]
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:715) ~[spring-aop-7.0.5.jar:7.0.5]
+	at com.tenten.zimparks.auth.AuthService$$SpringCGLIB$$0.login(<generated>) ~[classes/:na]
+	at com.tenten.zimparks.auth.AuthController.login(AuthController.java:31) ~[classes/:na]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[na:na]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) ~[na:na]
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569) ~[na:na]
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:252) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:184) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:117) ~[spring-webmvc-7.0.5.jar:7.0.5]
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:934) ~[spring-webmvc-7.0.5.jar:7.0.5]
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:853) ~[spring-webmvc-7.0.5.jar:7.0.5]
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:86) ~[spring-webmvc-7.0.5.jar:7.0.5]
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:963) ~[spring-webmvc-7.0.5.jar:7.0.5]
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:866) ~[spring-webmvc-7.0.5.jar:7.0.5]
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1000) ~[spring-webmvc-7.0.5.jar:7.0.5]
+	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:903) ~[spring-webmvc-7.0.5.jar:7.0.5]
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:649) ~[tomcat-embed-core-11.0.18.jar:6.1]
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:874) ~[spring-webmvc-7.0.5.jar:7.0.5]
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:710) ~[tomcat-embed-core-11.0.18.jar:6.1]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:128) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:53) ~[tomcat-embed-websocket-11.0.18.jar:11.0.18]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:110) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:110) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:108) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.security.web.FilterChainProxy.lambda$doFilterInternal$3(FilterChainProxy.java:235) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$FilterObservation$SimpleFilterObservation.lambda$wrap$1(ObservationFilterChainDecorator.java:493) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$AroundFilterObservation$SimpleAroundFilterObservation.lambda$wrap$1(ObservationFilterChainDecorator.java:354) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator.lambda$wrapSecured$0(ObservationFilterChainDecorator.java:86) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:132) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.access.intercept.AuthorizationFilter.doFilter(AuthorizationFilter.java:101) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:126) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:120) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:132) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:86) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.authentication.AnonymousAuthenticationFilter.doFilter(AnonymousAuthenticationFilter.java:100) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter.doFilter(SecurityContextHolderAwareRequestFilter.java:181) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at com.tenten.zimparks.activity.ActivityLogFilter.doFilterInternal(ActivityLogFilter.java:43) ~[classes/:na]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at com.tenten.zimparks.config.JwtFilter.doFilterInternal(JwtFilter.java:70) ~[classes/:na]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:110) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:96) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:91) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:82) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:69) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:62) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$AroundFilterObservation$SimpleAroundFilterObservation.lambda$wrap$0(ObservationFilterChainDecorator.java:337) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:228) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:237) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:195) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.web.filter.ServletRequestPathFilter.doFilter(ServletRequestPathFilter.java:52) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebSecurityConfiguration.java:317) ~[spring-security-config-7.0.3.jar:7.0.3]
+	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:355) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:272) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.springframework.web.filter.ServerHttpObservationFilter.doFilterInternal(ServerHttpObservationFilter.java:110) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:199) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:165) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:77) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:492) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:113) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:83) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:72) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:341) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:397) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1779) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:946) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:480) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:57) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at java.base/java.lang.Thread.run(Thread.java:840) ~[na:na]
+
+2026-04-14T15:27:35.195+02:00  INFO 886978 --- [http-nio-0.0.0.0-8080-exec-10] c.tenten.zimparks.auth.AuthController    : Login request received for username=amudavanhu
+2026-04-14T15:27:35.195+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-10] com.tenten.zimparks.auth.AuthService     : Authenticating username=AMUDAVANHU
+2026-04-14T15:27:35.282+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-10] com.tenten.zimparks.auth.AuthService     : AuthenticationManager accepted username=AMUDAVANHU
+2026-04-14T15:27:35.283+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-10] com.tenten.zimparks.auth.AuthService     : UserDetails loaded for username=AMUDAVANHU
+2026-04-14T15:27:35.283+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-10] com.tenten.zimparks.auth.AuthService     : User entity loaded for username=AMUDAVANHU role=OPERATOR active=true
+2026-04-14T15:27:35.283+02:00  WARN 886978 --- [http-nio-0.0.0.0-8080-exec-10] com.tenten.zimparks.auth.AuthService     : Operator login blocked — no deviceSerial provided for username=AMUDAVANHU
+2026-04-14T15:27:35.283+02:00 ERROR 886978 --- [http-nio-0.0.0.0-8080-exec-10] com.tenten.zimparks.auth.AuthService     : Login flow failed for username=amudavanhu reason=IllegalStateException message=This device has not been registered for fiscalization. Please contact your administrator to complete the device setup before logging in.
+
+java.lang.IllegalStateException: This device has not been registered for fiscalization. Please contact your administrator to complete the device setup before logging in.
+	at com.tenten.zimparks.auth.AuthService.login(AuthService.java:130) ~[classes/:na]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[na:na]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) ~[na:na]
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569) ~[na:na]
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:359) ~[spring-aop-7.0.5.jar:7.0.5]
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:715) ~[spring-aop-7.0.5.jar:7.0.5]
+	at com.tenten.zimparks.auth.AuthService$$SpringCGLIB$$0.login(<generated>) ~[classes/:na]
+	at com.tenten.zimparks.auth.AuthController.login(AuthController.java:31) ~[classes/:na]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[na:na]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) ~[na:na]
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569) ~[na:na]
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:252) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:184) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:117) ~[spring-webmvc-7.0.5.jar:7.0.5]
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:934) ~[spring-webmvc-7.0.5.jar:7.0.5]
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:853) ~[spring-webmvc-7.0.5.jar:7.0.5]
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:86) ~[spring-webmvc-7.0.5.jar:7.0.5]
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:963) ~[spring-webmvc-7.0.5.jar:7.0.5]
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:866) ~[spring-webmvc-7.0.5.jar:7.0.5]
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1000) ~[spring-webmvc-7.0.5.jar:7.0.5]
+	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:903) ~[spring-webmvc-7.0.5.jar:7.0.5]
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:649) ~[tomcat-embed-core-11.0.18.jar:6.1]
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:874) ~[spring-webmvc-7.0.5.jar:7.0.5]
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:710) ~[tomcat-embed-core-11.0.18.jar:6.1]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:128) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:53) ~[tomcat-embed-websocket-11.0.18.jar:11.0.18]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:110) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:110) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:108) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.security.web.FilterChainProxy.lambda$doFilterInternal$3(FilterChainProxy.java:235) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$FilterObservation$SimpleFilterObservation.lambda$wrap$1(ObservationFilterChainDecorator.java:493) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$AroundFilterObservation$SimpleAroundFilterObservation.lambda$wrap$1(ObservationFilterChainDecorator.java:354) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator.lambda$wrapSecured$0(ObservationFilterChainDecorator.java:86) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:132) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.access.intercept.AuthorizationFilter.doFilter(AuthorizationFilter.java:101) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:126) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:120) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:132) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:86) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.authentication.AnonymousAuthenticationFilter.doFilter(AnonymousAuthenticationFilter.java:100) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter.doFilter(SecurityContextHolderAwareRequestFilter.java:181) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at com.tenten.zimparks.activity.ActivityLogFilter.doFilterInternal(ActivityLogFilter.java:43) ~[classes/:na]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at com.tenten.zimparks.config.JwtFilter.doFilterInternal(JwtFilter.java:70) ~[classes/:na]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:110) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:96) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:91) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:82) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:69) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:62) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$AroundFilterObservation$SimpleAroundFilterObservation.lambda$wrap$0(ObservationFilterChainDecorator.java:337) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:228) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:237) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:195) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.web.filter.ServletRequestPathFilter.doFilter(ServletRequestPathFilter.java:52) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebSecurityConfiguration.java:317) ~[spring-security-config-7.0.3.jar:7.0.3]
+	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:355) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:272) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.springframework.web.filter.ServerHttpObservationFilter.doFilterInternal(ServerHttpObservationFilter.java:110) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:199) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:165) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:77) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:492) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:113) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:83) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:72) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:341) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:397) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1779) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:946) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:480) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:57) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at java.base/java.lang.Thread.run(Thread.java:840) ~[na:na]
+
+2026-04-14T15:27:52.397+02:00  INFO 886978 --- [http-nio-0.0.0.0-8080-exec-3] c.tenten.zimparks.auth.AuthController    : Login request received for username=lzaru
+2026-04-14T15:27:52.397+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-3] com.tenten.zimparks.auth.AuthService     : Authenticating username=LZARU
+2026-04-14T15:27:52.477+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-3] com.tenten.zimparks.auth.AuthService     : AuthenticationManager accepted username=LZARU
+2026-04-14T15:27:52.478+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-3] com.tenten.zimparks.auth.AuthService     : UserDetails loaded for username=LZARU
+2026-04-14T15:27:52.478+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-3] com.tenten.zimparks.auth.AuthService     : User entity loaded for username=LZARU role=ADMIN active=true
+2026-04-14T15:27:52.482+02:00  INFO 886978 --- [http-nio-0.0.0.0-8080-exec-3] com.tenten.zimparks.auth.AuthService     : Login successful for username=lzaru
+2026-04-14T15:27:52.482+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-3] c.t.z.activity.ActivityLogService        : Logging activity: username=LZARU, operation=LOGIN, method=POST, uri=/api/auth/login, status=200, ip=127.0.0.1
+2026-04-14T15:27:54.451+02:00  INFO 886978 --- [http-nio-0.0.0.0-8080-exec-2] c.tenten.zimparks.auth.AuthController    : Login request received for username=amudavanhu
+2026-04-14T15:27:54.451+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-2] com.tenten.zimparks.auth.AuthService     : Authenticating username=AMUDAVANHU
+2026-04-14T15:27:54.540+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-2] com.tenten.zimparks.auth.AuthService     : AuthenticationManager accepted username=AMUDAVANHU
+2026-04-14T15:27:54.542+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-2] com.tenten.zimparks.auth.AuthService     : UserDetails loaded for username=AMUDAVANHU
+2026-04-14T15:27:54.542+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-2] com.tenten.zimparks.auth.AuthService     : User entity loaded for username=AMUDAVANHU role=OPERATOR active=true
+2026-04-14T15:27:54.542+02:00  WARN 886978 --- [http-nio-0.0.0.0-8080-exec-2] com.tenten.zimparks.auth.AuthService     : Operator login blocked — no deviceSerial provided for username=AMUDAVANHU
+2026-04-14T15:27:54.543+02:00 ERROR 886978 --- [http-nio-0.0.0.0-8080-exec-2] com.tenten.zimparks.auth.AuthService     : Login flow failed for username=amudavanhu reason=IllegalStateException message=This device has not been registered for fiscalization. Please contact your administrator to complete the device setup before logging in.
+
+java.lang.IllegalStateException: This device has not been registered for fiscalization. Please contact your administrator to complete the device setup before logging in.
+	at com.tenten.zimparks.auth.AuthService.login(AuthService.java:130) ~[classes/:na]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[na:na]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) ~[na:na]
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569) ~[na:na]
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:359) ~[spring-aop-7.0.5.jar:7.0.5]
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:715) ~[spring-aop-7.0.5.jar:7.0.5]
+	at com.tenten.zimparks.auth.AuthService$$SpringCGLIB$$0.login(<generated>) ~[classes/:na]
+	at com.tenten.zimparks.auth.AuthController.login(AuthController.java:31) ~[classes/:na]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[na:na]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) ~[na:na]
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569) ~[na:na]
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:252) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:184) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:117) ~[spring-webmvc-7.0.5.jar:7.0.5]
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:934) ~[spring-webmvc-7.0.5.jar:7.0.5]
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:853) ~[spring-webmvc-7.0.5.jar:7.0.5]
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:86) ~[spring-webmvc-7.0.5.jar:7.0.5]
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:963) ~[spring-webmvc-7.0.5.jar:7.0.5]
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:866) ~[spring-webmvc-7.0.5.jar:7.0.5]
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1000) ~[spring-webmvc-7.0.5.jar:7.0.5]
+	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:903) ~[spring-webmvc-7.0.5.jar:7.0.5]
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:649) ~[tomcat-embed-core-11.0.18.jar:6.1]
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:874) ~[spring-webmvc-7.0.5.jar:7.0.5]
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:710) ~[tomcat-embed-core-11.0.18.jar:6.1]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:128) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:53) ~[tomcat-embed-websocket-11.0.18.jar:11.0.18]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:110) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:110) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:108) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.security.web.FilterChainProxy.lambda$doFilterInternal$3(FilterChainProxy.java:235) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$FilterObservation$SimpleFilterObservation.lambda$wrap$1(ObservationFilterChainDecorator.java:493) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$AroundFilterObservation$SimpleAroundFilterObservation.lambda$wrap$1(ObservationFilterChainDecorator.java:354) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator.lambda$wrapSecured$0(ObservationFilterChainDecorator.java:86) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:132) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.access.intercept.AuthorizationFilter.doFilter(AuthorizationFilter.java:101) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:126) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:120) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:132) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:86) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.authentication.AnonymousAuthenticationFilter.doFilter(AnonymousAuthenticationFilter.java:100) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter.doFilter(SecurityContextHolderAwareRequestFilter.java:181) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at com.tenten.zimparks.activity.ActivityLogFilter.doFilterInternal(ActivityLogFilter.java:43) ~[classes/:na]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at com.tenten.zimparks.config.JwtFilter.doFilterInternal(JwtFilter.java:70) ~[classes/:na]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:110) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:96) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:91) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:82) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:69) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:62) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$AroundFilterObservation$SimpleAroundFilterObservation.lambda$wrap$0(ObservationFilterChainDecorator.java:337) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:228) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:237) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:195) ~[spring-security-web-7.0.3.jar:7.0.3]
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.web.filter.ServletRequestPathFilter.doFilter(ServletRequestPathFilter.java:52) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebSecurityConfiguration.java:317) ~[spring-security-config-7.0.3.jar:7.0.3]
+	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:355) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:272) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.springframework.web.filter.ServerHttpObservationFilter.doFilterInternal(ServerHttpObservationFilter.java:110) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:199) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-7.0.5.jar:7.0.5]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:165) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:77) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:492) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:113) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:83) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:72) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:341) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:397) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1779) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:946) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:480) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:57) ~[tomcat-embed-core-11.0.18.jar:11.0.18]
+	at java.base/java.lang.Thread.run(Thread.java:840) ~[na:na]
+
+2026-04-14T15:27:55.506+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-8] c.t.z.activity.ActivityLogService        : Logging activity: username=LZARU, operation=CREATE, method=POST, uri=/api/devices/browser_nqgvbqf9f/ping, status=200, ip=127.0.0.1
+2026-04-14T15:31:45.989+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-6] c.t.z.f.p.FiscalizationClient            : Fetching fiscal devices (linked=false) from: http://localhost:8087/api/mobile/fiscal/devices?linked=false
+2026-04-14T15:32:09.134+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-8] c.t.z.activity.ActivityLogService        : Logging activity: username=LZARU, operation=CREATE, method=POST, uri=/api/devices/browser_nqgvbqf9f/ping, status=200, ip=127.0.0.1
+2026-04-14T15:32:38.982+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-4] c.t.z.f.p.FiscalizationClient            : Fetching fiscal devices (linked=false) from: http://localhost:8087/api/mobile/fiscal/devices?linked=false
+2026-04-14T15:33:25.718+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-7] c.t.z.f.p.FiscalizationClient            : Linking fiscal device (deviceID=33939) at: http://localhost:8087/api/mobile/fiscal/link-device
+2026-04-14T15:34:15.344+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-8] c.t.z.f.p.FiscalizationClient            : Fetching fiscal device detail for serialNo=1010-PC-LG from: http://localhost:8087/api/mobile/fiscal/device/1010-PC-LG
+2026-04-14T15:34:39.721+02:00  INFO 886978 --- [http-nio-0.0.0.0-8080-exec-10] c.tenten.zimparks.auth.AuthController    : Login request received for username=amudavanhu
+2026-04-14T15:34:39.722+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-10] com.tenten.zimparks.auth.AuthService     : Authenticating username=AMUDAVANHU
+2026-04-14T15:34:39.805+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-10] com.tenten.zimparks.auth.AuthService     : AuthenticationManager accepted username=AMUDAVANHU
+2026-04-14T15:34:39.806+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-10] com.tenten.zimparks.auth.AuthService     : UserDetails loaded for username=AMUDAVANHU
+2026-04-14T15:34:39.806+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-10] com.tenten.zimparks.auth.AuthService     : User entity loaded for username=AMUDAVANHU role=OPERATOR active=true
+2026-04-14T15:34:39.806+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-10] c.t.z.f.p.FiscalizationClient            : Fetching fiscal device detail for serialNo=1010-PC-LG from: http://localhost:8087/api/mobile/fiscal/device/1010-PC-LG
+2026-04-14T15:34:39.812+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-10] com.tenten.zimparks.auth.AuthService     : Fiscal device validated for username=AMUDAVANHU serial=1010-PC-LG
+2026-04-14T15:34:39.812+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-10] com.tenten.zimparks.auth.AuthService     : Station match confirmed for username=AMUDAVANHU serial=1010-PC-LG station=ST_HW_01
+2026-04-14T15:34:39.817+02:00  INFO 886978 --- [http-nio-0.0.0.0-8080-exec-10] com.tenten.zimparks.auth.AuthService     : Login successful for username=amudavanhu
+2026-04-14T15:34:39.818+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-10] c.t.z.activity.ActivityLogService        : Logging activity: username=AMUDAVANHU, operation=LOGIN, method=POST, uri=/api/auth/login, status=200, ip=127.0.0.1
+2026-04-14T15:34:39.831+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-7] c.t.z.f.p.FiscalizationClient            : Fetching fiscal device detail for serialNo=1010-PC-LG from: http://localhost:8087/api/mobile/fiscal/device/1010-PC-LG
+2026-04-14T15:34:49.856+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-8] c.t.z.f.p.FiscalizationClient            : Fetching fiscal day status for deviceID=33939 from: http://localhost:8087/api/fiscal/status
+2026-04-14T15:36:11.237+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-5] c.t.z.f.p.FiscalizationClient            : Fetching fiscal day status for deviceID=33939 from: http://localhost:8087/api/fiscal/status
+2026-04-14T15:36:30.460+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-8] c.t.z.f.p.FiscalizationClient            : Opening fiscal day for deviceID=33939 at: http://localhost:8087/api/fiscal/open-day
+2026-04-14T15:37:09.142+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-6] c.t.z.activity.ActivityLogService        : Logging activity: username=LZARU, operation=CREATE, method=POST, uri=/api/devices/browser_nqgvbqf9f/ping, status=200, ip=127.0.0.1
+2026-04-14T15:38:55.726+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-7] c.t.z.f.p.FiscalizationClient            : Fetching fiscal day status for deviceID=33939 from: http://localhost:8087/api/fiscal/status
+2026-04-14T15:39:30.204+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-7] c.t.z.f.p.FiscalizationClient            : Fetching fiscal day status for deviceID=33939 from: http://localhost:8087/api/fiscal/status
+2026-04-14T15:39:53.576+02:00  INFO 886978 --- [http-nio-0.0.0.0-8080-exec-6] c.t.z.f.FiscalizationBridgeService       : [fiscalization] ZIMRA payload for tx TXN-3993509:
+{
+  "deviceID" : 33939,
+  "receipt" : {
+    "receiptType" : "FiscalInvoice",
+    "receiptCurrency" : "USD",
+    "invoiceNo" : "TXN-3993509",
+    "receiptDate" : "2026-04-14T15:39:00",
+    "receiptLinesTaxInclusive" : true,
+    "receiptLines" : [ {
+      "receiptLineType" : "Sale",
+      "receiptLineNo" : 1,
+      "receiptLineHSCode" : "99001000",
+      "receiptLineName" : "Single Park Entry  Adult",
+      "receiptLinePrice" : 10.00,
+      "receiptLineQuantity" : 1,
+      "receiptLineTotal" : 10.00,
+      "taxCode" : "A",
+      "taxPercent" : 15.50,
+      "taxID" : 517
+    } ],
+    "receiptTaxes" : [ {
+      "taxCode" : "A",
+      "taxPercent" : 15.50,
+      "taxID" : 517,
+      "taxAmount" : 1.34,
+      "salesAmountWithTax" : 10
+    } ],
+    "receiptPayments" : [ {
+      "moneyTypeCode" : "Cash",
+      "paymentAmount" : 10
+    } ],
+    "receiptTotal" : 10,
+    "receiptPrintForm" : "Receipt48",
+    "username" : "AMUDAVANHU",
+    "userNameSurname" : "Alfred Mudavanhu"
+  }
+}
+2026-04-14T15:39:54.019+02:00  INFO 886978 --- [http-nio-0.0.0.0-8080-exec-6] c.t.z.f.FiscalizationBridgeService       : [fiscalization] receipt TXN-3993509 updated with fiscal data — fiscalDay: 5
+2026-04-14T15:39:54.020+02:00  INFO 886978 --- [http-nio-0.0.0.0-8080-exec-6] c.t.z.f.FiscalizationBridgeService       : [fiscalization] tx TXN-3993509 fiscalized successfully
+2026-04-14T15:39:54.025+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-6] c.t.z.activity.ActivityLogService        : Logging activity: username=AMUDAVANHU, operation=CREATE, method=POST, uri=/api/transactions, status=200, ip=127.0.0.1
+2026-04-14T15:42:09.136+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-4] c.t.z.activity.ActivityLogService        : Logging activity: username=LZARU, operation=CREATE, method=POST, uri=/api/devices/browser_nqgvbqf9f/ping, status=200, ip=127.0.0.1
+2026-04-14T15:46:14.393+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-9] c.t.z.f.p.FiscalizationClient            : Fetching fiscal device detail for serialNo=1010-PC-LG from: http://localhost:8087/api/mobile/fiscal/device/1010-PC-LG
+2026-04-14T15:46:24.422+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-2] c.t.z.f.p.FiscalizationClient            : Fetching fiscal day status for deviceID=33939 from: http://localhost:8087/api/fiscal/status
+2026-04-14T15:46:44.611+02:00  INFO 886978 --- [http-nio-0.0.0.0-8080-exec-4] c.t.z.f.FiscalizationBridgeService       : [fiscalization] ZIMRA payload for tx TXN-4404591:
+{
+  "deviceID" : 33939,
+  "receipt" : {
+    "receiptType" : "FiscalInvoice",
+    "receiptCurrency" : "USD",
+    "invoiceNo" : "TXN-4404591",
+    "receiptDate" : "2026-04-14T15:46:00",
+    "receiptLinesTaxInclusive" : true,
+    "receiptLines" : [ {
+      "receiptLineType" : "Sale",
+      "receiptLineNo" : 1,
+      "receiptLineHSCode" : "99001000",
+      "receiptLineName" : "Fishing",
+      "receiptLinePrice" : 20.00,
+      "receiptLineQuantity" : 1,
+      "receiptLineTotal" : 20.00,
+      "taxCode" : "A",
+      "taxPercent" : 15.50,
+      "taxID" : 517
+    } ],
+    "receiptTaxes" : [ {
+      "taxCode" : "A",
+      "taxPercent" : 15.50,
+      "taxID" : 517,
+      "taxAmount" : 2.68,
+      "salesAmountWithTax" : 20
+    } ],
+    "receiptPayments" : [ {
+      "moneyTypeCode" : "Cash",
+      "paymentAmount" : 20
+    } ],
+    "receiptTotal" : 20,
+    "receiptPrintForm" : "Receipt48",
+    "username" : "AMUDAVANHU",
+    "userNameSurname" : "Alfred Mudavanhu"
+  }
+}
+2026-04-14T15:46:45.147+02:00  INFO 886978 --- [http-nio-0.0.0.0-8080-exec-4] c.t.z.f.FiscalizationBridgeService       : [fiscalization] receipt TXN-4404591 updated with fiscal data — fiscalDay: 5
+2026-04-14T15:46:45.147+02:00  INFO 886978 --- [http-nio-0.0.0.0-8080-exec-4] c.t.z.f.FiscalizationBridgeService       : [fiscalization] tx TXN-4404591 fiscalized successfully
+2026-04-14T15:46:45.149+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-4] c.t.z.activity.ActivityLogService        : Logging activity: username=AMUDAVANHU, operation=CREATE, method=POST, uri=/api/transactions, status=200, ip=127.0.0.1
+2026-04-14T15:47:09.141+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-2] c.t.z.activity.ActivityLogService        : Logging activity: username=LZARU, operation=CREATE, method=POST, uri=/api/devices/browser_nqgvbqf9f/ping, status=200, ip=127.0.0.1
+2026-04-14T15:47:49.157+02:00  INFO 886978 --- [http-nio-0.0.0.0-8080-exec-8] c.t.z.f.FiscalizationBridgeService       : [fiscalization] ZIMRA payload for tx TXN-4469140:
+{
+  "deviceID" : 33939,
+  "receipt" : {
+    "receiptType" : "FiscalInvoice",
+    "receiptCurrency" : "USD",
+    "invoiceNo" : "TXN-4469140",
+    "receiptDate" : "2026-04-14T15:47:00",
+    "receiptLinesTaxInclusive" : true,
+    "receiptLines" : [ {
+      "receiptLineType" : "Sale",
+      "receiptLineNo" : 1,
+      "receiptLineHSCode" : "99001000",
+      "receiptLineName" : "Single Park Entry  Adult",
+      "receiptLinePrice" : 10.00,
+      "receiptLineQuantity" : 1,
+      "receiptLineTotal" : 10.00,
+      "taxCode" : "A",
+      "taxPercent" : 15.50,
+      "taxID" : 517
+    }, {
+      "receiptLineType" : "Sale",
+      "receiptLineNo" : 2,
+      "receiptLineHSCode" : "99001000",
+      "receiptLineName" : "Fishing",
+      "receiptLinePrice" : 20.00,
+      "receiptLineQuantity" : 1,
+      "receiptLineTotal" : 20.00,
+      "taxCode" : "A",
+      "taxPercent" : 15.50,
+      "taxID" : 517
+    } ],
+    "receiptTaxes" : [ {
+      "taxCode" : "A",
+      "taxPercent" : 15.50,
+      "taxID" : 517,
+      "taxAmount" : 4.03,
+      "salesAmountWithTax" : 30
+    } ],
+    "receiptPayments" : [ {
+      "moneyTypeCode" : "Cash",
+      "paymentAmount" : 30.00
+    } ],
+    "receiptTotal" : 30,
+    "receiptPrintForm" : "Receipt48",
+    "username" : "AMUDAVANHU",
+    "userNameSurname" : "Alfred Mudavanhu"
+  }
+}
+2026-04-14T15:47:49.571+02:00  INFO 886978 --- [http-nio-0.0.0.0-8080-exec-8] c.t.z.f.FiscalizationBridgeService       : [fiscalization] receipt TXN-4469140 updated with fiscal data — fiscalDay: 5
+2026-04-14T15:47:49.571+02:00  INFO 886978 --- [http-nio-0.0.0.0-8080-exec-8] c.t.z.f.FiscalizationBridgeService       : [fiscalization] tx TXN-4469140 fiscalized successfully
+2026-04-14T15:47:49.574+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-8] c.t.z.activity.ActivityLogService        : Logging activity: username=AMUDAVANHU, operation=CREATE, method=POST, uri=/api/transactions, status=200, ip=127.0.0.1
+2026-04-14T15:51:23.889+02:00  INFO 886978 --- [http-nio-0.0.0.0-8080-exec-1] c.t.z.f.FiscalizationBridgeService       : [fiscalization] ZIMRA payload for tx TXN-4683846:
+{
+  "deviceID" : 33939,
+  "receipt" : {
+    "receiptType" : "FiscalInvoice",
+    "receiptCurrency" : "USD",
+    "invoiceNo" : "TXN-4683846",
+    "receiptDate" : "2026-04-14T15:51:00",
+    "receiptLinesTaxInclusive" : true,
+    "receiptLines" : [ {
+      "receiptLineType" : "Sale",
+      "receiptLineNo" : 1,
+      "receiptLineHSCode" : "99001000",
+      "receiptLineName" : "Park Entry - Adult (x10)",
+      "receiptLinePrice" : 20.00,
+      "receiptLineQuantity" : 10,
+      "receiptLineTotal" : 200.00,
+      "taxCode" : "A",
+      "taxPercent" : 15.50,
+      "taxID" : 517
+    }, {
+      "receiptLineType" : "Sale",
+      "receiptLineNo" : 2,
+      "receiptLineHSCode" : "99001000",
+      "receiptLineName" : "Park Entry - Child (x5)",
+      "receiptLinePrice" : 5.00,
+      "receiptLineQuantity" : 5,
+      "receiptLineTotal" : 25.00,
+      "taxCode" : "A",
+      "taxPercent" : 15.50,
+      "taxID" : 517
+    }, {
+      "receiptLineType" : "Sale",
+      "receiptLineNo" : 3,
+      "receiptLineHSCode" : "99001000",
+      "receiptLineName" : "Vehicle Entry - Light (x3)",
+      "receiptLinePrice" : 20.00,
+      "receiptLineQuantity" : 3,
+      "receiptLineTotal" : 60.00,
+      "taxCode" : "A",
+      "taxPercent" : 15.50,
+      "taxID" : 517
+    } ],
+    "receiptTaxes" : [ {
+      "taxCode" : "A",
+      "taxPercent" : 15.50,
+      "taxID" : 517,
+      "taxAmount" : 38.25,
+      "salesAmountWithTax" : 285
+    } ],
+    "receiptPayments" : [ {
+      "moneyTypeCode" : "Cash",
+      "paymentAmount" : 285.00
+    } ],
+    "receiptTotal" : 285,
+    "receiptPrintForm" : "Receipt48",
+    "username" : "AMUDAVANHU",
+    "userNameSurname" : "Alfred Mudavanhu"
+  }
+}
+2026-04-14T15:51:24.207+02:00  INFO 886978 --- [http-nio-0.0.0.0-8080-exec-1] c.t.z.f.FiscalizationBridgeService       : [fiscalization] receipt TXN-4683846 updated with fiscal data — fiscalDay: 5
+2026-04-14T15:51:24.208+02:00  INFO 886978 --- [http-nio-0.0.0.0-8080-exec-1] c.t.z.f.FiscalizationBridgeService       : [fiscalization] tx TXN-4683846 fiscalized successfully
+2026-04-14T15:51:24.209+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-1] c.t.z.activity.ActivityLogService        : Logging activity: username=AMUDAVANHU, operation=CREATE, method=POST, uri=/api/transactions, status=200, ip=127.0.0.1
+2026-04-14T15:52:09.146+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-7] c.t.z.activity.ActivityLogService        : Logging activity: username=LZARU, operation=CREATE, method=POST, uri=/api/devices/browser_nqgvbqf9f/ping, status=200, ip=127.0.0.1
+2026-04-14T15:52:57.979+02:00  INFO 886978 --- [http-nio-0.0.0.0-8080-exec-1] c.t.z.f.FiscalizationBridgeService       : [fiscalization] ZIMRA payload for tx TXN-4777954:
+{
+  "deviceID" : 33939,
+  "receipt" : {
+    "receiptType" : "FiscalInvoice",
+    "receiptCurrency" : "USD",
+    "invoiceNo" : "TXN-4777954",
+    "receiptDate" : "2026-04-14T15:52:00",
+    "receiptLinesTaxInclusive" : true,
+    "receiptLines" : [ {
+      "receiptLineType" : "Sale",
+      "receiptLineNo" : 1,
+      "receiptLineHSCode" : "99001000",
+      "receiptLineName" : "Boat Hire",
+      "receiptLinePrice" : 100.00,
+      "receiptLineQuantity" : 2,
+      "receiptLineTotal" : 200.00,
+      "taxCode" : "A",
+      "taxPercent" : 15.50,
+      "taxID" : 517
+    }, {
+      "receiptLineType" : "Sale",
+      "receiptLineNo" : 2,
+      "receiptLineHSCode" : "99001000",
+      "receiptLineName" : "Single Park Entry  Adult",
+      "receiptLinePrice" : 10.00,
+      "receiptLineQuantity" : 3,
+      "receiptLineTotal" : 30.00,
+      "taxCode" : "A",
+      "taxPercent" : 15.50,
+      "taxID" : 517
+    }, {
+      "receiptLineType" : "Sale",
+      "receiptLineNo" : 3,
+      "receiptLineHSCode" : "99001000",
+      "receiptLineName" : "Single Park Entry  Adult",
+      "receiptLinePrice" : 10.00,
+      "receiptLineQuantity" : 5,
+      "receiptLineTotal" : 50.00,
+      "taxCode" : "A",
+      "taxPercent" : 15.50,
+      "taxID" : 517
+    } ],
+    "receiptTaxes" : [ {
+      "taxCode" : "A",
+      "taxPercent" : 15.50,
+      "taxID" : 517,
+      "taxAmount" : 37.58,
+      "salesAmountWithTax" : 280
+    } ],
+    "receiptPayments" : [ {
+      "moneyTypeCode" : "Cash",
+      "paymentAmount" : 280.00
+    } ],
+    "receiptTotal" : 280,
+    "receiptPrintForm" : "Receipt48",
+    "username" : "AMUDAVANHU",
+    "userNameSurname" : "Alfred Mudavanhu"
+  }
+}
+2026-04-14T15:52:58.345+02:00  INFO 886978 --- [http-nio-0.0.0.0-8080-exec-1] c.t.z.f.FiscalizationBridgeService       : [fiscalization] receipt TXN-4777954 updated with fiscal data — fiscalDay: 5
+2026-04-14T15:52:58.346+02:00  INFO 886978 --- [http-nio-0.0.0.0-8080-exec-1] c.t.z.f.FiscalizationBridgeService       : [fiscalization] tx TXN-4777954 fiscalized successfully
+2026-04-14T15:52:58.348+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-1] c.t.z.activity.ActivityLogService        : Logging activity: username=AMUDAVANHU, operation=CREATE, method=POST, uri=/api/transactions, status=200, ip=127.0.0.1
+2026-04-14T15:57:09.153+02:00 DEBUG 886978 --- [http-nio-0.0.0.0-8080-exec-4] c.t.z.activity.ActivityLogService        : Logging activity: username=LZARU, operation=CREATE, method=POST, uri=/api/devices/browser_nqgvbqf9f/ping, status=200, ip=127.0.0.1
