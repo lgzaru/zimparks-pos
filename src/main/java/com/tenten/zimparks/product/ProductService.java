@@ -41,18 +41,23 @@ public class ProductService {
                 throw new RuntimeException("Station " + station.getId() + " has no cluster assigned. Cannot create product.");
             }
 
+            String clusterCode = station.getCluster().getCode();   // "HE"
             String stationId = station.getId();                    // "ST_HE_02"
             String stationPart = stationId.replace("_", "");       // "STHE02"
+            String categoryCode = p.getCategory().getCode();       // "A"
 
-            int next = repo.findMaxCodeByStationId(stationId, stationPart)
+            // Prefix for internal code: Cluster(2) + Station(4+) + Category(1+)
+            String codePrefix = clusterCode + stationPart + categoryCode;
+
+            int next = repo.findMaxCodeByStationId(stationId, codePrefix)
                     .map(maxCode -> {
-                        // Extract trailing digits: "STHE01P012" → 12
+                        // Extract trailing digits: "HESTHE02AP012" → 12
                         java.util.regex.Matcher m = java.util.regex.Pattern.compile("(\\d+)$").matcher(maxCode);
                         return m.find() ? Integer.parseInt(m.group(1)) + 1 : 1;
                     })
                     .orElse(1);
 
-            String newCode = String.format("%sP%03d", stationPart, next); // "STHE02P001"
+            String newCode = String.format("%sP%03d", codePrefix, next); // "HESTHE02AP001"
             p.getId().setCode(newCode);
         }
 
@@ -83,16 +88,23 @@ public class ProductService {
 
             String clusterCode = station.getCluster().getCode();
             String stationId = station.getId();
+            String stationPart = stationId.replace("_", "");
 
-            // Extract the original product code from the old ID code
-            // Convention: Cluster(2) + Station(4) + Category(1) + OriginalCode
-            // But wait, stationId might not be 4 chars.
-            // Let's use the actual codes to be sure where they start/end.
+            // Convention: Cluster(2) + StationPart(4+) + Category(1+) + P + Next(3)
             String oldFullCode = id.getCode();
-            String prefixToRemove = clusterCode + stationId + oldCategoryCode;
-            String originalProductCode = oldFullCode.substring(prefixToRemove.length());
+            String oldPrefix = clusterCode + stationPart + oldCategoryCode;
+            
+            String originalProductPart;
+            if (oldFullCode.startsWith(oldPrefix)) {
+                originalProductPart = oldFullCode.substring(oldPrefix.length());
+            } else {
+                // Fallback for codes that don't match the new convention (e.g. legacy or partially migrated)
+                // Just keep the last part after 'P' if possible
+                int pIndex = oldFullCode.lastIndexOf('P');
+                originalProductPart = pIndex != -1 ? oldFullCode.substring(pIndex) : oldFullCode;
+            }
 
-            String newFullCode = clusterCode + stationId + newCategoryCode + originalProductCode;
+            String newFullCode = clusterCode + stationPart + newCategoryCode + originalProductPart;
 
             // Since ProductId is the primary key, we cannot just change it in the existing entity
             // We must delete the old one and save a new one.

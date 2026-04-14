@@ -64,8 +64,8 @@ class ProductServiceTest {
         // Assert
         assertNotNull(result.getCreatedAt());
         assertEquals("testuser", result.getCreatedBy());
-        // Cluster(HW) + Station(ST01) + Category(A) + Code(P01)
-        assertEquals("HWST01AP01", result.getId().getCode());
+        // Cluster(HW) + StationPart(ST01) + Category(A) + P001
+        assertEquals("HWST01AP001", result.getId().getCode());
         verify(repo).save(p);
 
         // Cleanup
@@ -110,7 +110,7 @@ class ProductServiceTest {
         assertEquals("New Descr", result.getDescr());
         assertEquals(new BigDecimal("20.00"), result.getPrice());
         assertEquals(newCategoryCode, result.getCategory().getCode());
-        // Cluster(HW) + Station(ST01) + NewCategory(B) + OriginalCode(P01)
+        // Cluster(HW) + StationPart(ST01) + NewCategory(B) + OriginalCode(P01)
         assertEquals("HWST01BP01", result.getId().getCode());
         
         // Since the ID changed, it should have been deleted and a new one saved, 
@@ -157,6 +157,45 @@ class ProductServiceTest {
         
         verify(repo, never()).deleteById(any());
         verify(repo).save(existingProduct);
+    }
+
+    @Test
+    void update_shouldHandleLegacyCodeDuringCategoryUpdate() {
+        // Arrange
+        String stationId = "ST_HE_02";
+        String oldCategoryCode = "A";
+        String newCategoryCode = "B";
+        String oldCode = "STHE02P001"; // Old convention (without cluster code and category code in prefix)
+        ProductId oldId = new ProductId(oldCode, stationId);
+
+        ProductCategory oldCategory = ProductCategory.builder().code(oldCategoryCode).description("Category A").build();
+        ProductCategory newCategory = ProductCategory.builder().code(newCategoryCode).description("Category B").build();
+        Station station = Station.builder().id(stationId).cluster(Cluster.HE).build();
+
+        Product existingProduct = Product.builder()
+                .id(oldId)
+                .descr("Old Descr")
+                .price(new BigDecimal("10.00"))
+                .category(oldCategory)
+                .build();
+
+        Product patch = Product.builder()
+                .descr("New Descr")
+                .price(new BigDecimal("20.00"))
+                .category(newCategory)
+                .build();
+
+        when(repo.findById(oldId)).thenReturn(java.util.Optional.of(existingProduct));
+        when(stationRepo.findById(stationId)).thenReturn(java.util.Optional.of(station));
+        when(repo.save(any(Product.class))).thenAnswer(i -> i.getArguments()[0]);
+
+        // Act
+        Product result = productService.update(oldId, patch);
+
+        // Assert
+        // New convention: Cluster(HE) + StationPart(STHE02) + Category(B) + P001
+        assertEquals("HESTHE02BP001", result.getId().getCode());
+        verify(repo).deleteById(oldId);
     }
 
     @Test
