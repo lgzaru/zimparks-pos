@@ -9,7 +9,8 @@ public enum Permission {
     UNLINK_BANKS("station:unlink-banks"),
     UPDATE_PRODUCT_PRICING("product:update-pricing"),
     ADD_PRODUCT("product:add-product"),
-    CLOSE_SHIFT("shift:close");
+    CLOSE_SHIFT("shift:close"),
+    CREATE_QUOTE("quotation:create");
 
     @Getter
     private final String permission;

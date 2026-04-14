@@ -27,7 +27,8 @@ public enum Role {
             UPDATE_PRODUCT_PRICING,
             ADD_PRODUCT,
             LINK_BANKS,
-            UNLINK_BANKS
+            UNLINK_BANKS,
+            CREATE_QUOTE
     ));
 
     @Getter

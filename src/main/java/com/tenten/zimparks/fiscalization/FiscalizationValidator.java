@@ -187,15 +187,19 @@ public class FiscalizationValidator {
         }
 
         // ── RCPT039 (Red) — Invoice total != sum of all payment amounts
+        // Note: the breakdown stores the tendered amount (may include change).
+        // FiscalizationBridgeService caps the fiscal payload to the invoice total when
+        // the customer tenders more (cash change scenario), so paymentTotal >= txAmount is valid.
+        // Only flag when payment is genuinely short.
         if (tx.getAmount() != null
                 && tx.getBreakdown() != null && !tx.getBreakdown().isEmpty()) {
-            BigDecimal paymentTotal = tx.getItemsList().stream()
-                    .map(TransactionItem::getUnitPrice)
+            BigDecimal paymentTotal = tx.getBreakdown().stream()
+                    .map(PaymentBreakdown::getAmount)
                     .filter(Objects::nonNull)
                     .reduce(BigDecimal.ZERO, BigDecimal::add)
                     .setScale(2, RoundingMode.HALF_UP);
             BigDecimal txAmount = tx.getAmount().setScale(2, RoundingMode.HALF_UP);
-            if (txAmount.compareTo(paymentTotal) != 0) {
+            if (paymentTotal.add(TOLERANCE).compareTo(txAmount) < 0) {
                 errors.add(red("RCPT039",
                         "Payment total " + paymentTotal + " != invoice total " + txAmount));
             }

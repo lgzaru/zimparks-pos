@@ -50,6 +50,10 @@ public class Device {
     @Column(length = 100)
     private String loggedInUser;
 
+    /** Role of whoever is currently logged in (OPERATOR | SUPERVISOR | ADMIN). */
+    @Column(length = 50)
+    private String loggedInUserRole;
+
     /** ID of the currently open shift on this device, if any. */
     @Column(length = 50)
     private String shiftId;

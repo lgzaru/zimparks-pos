@@ -83,6 +83,13 @@ public class Transaction {
     @Builder.Default
     private Boolean hasEntry = false;
 
+    /**
+     * Reference to the source quotation, if this transaction was created by
+     * converting a quotation. Null for regular (non-quotation) sales.
+     */
+    @Column(name = "quotation_ref", length = 50)
+    private String quotationRef;
+
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "tx_ref")
     private List<TransactionItem> itemsList;

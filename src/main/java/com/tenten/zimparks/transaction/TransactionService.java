@@ -5,6 +5,7 @@ import com.tenten.zimparks.event.EventStreamController;
 import com.tenten.zimparks.currency.Currency;
 import com.tenten.zimparks.currency.CurrencyService;
 import com.tenten.zimparks.fiscalization.FiscalizationBridgeService;
+import com.tenten.zimparks.quotation.QuotationService;
 import com.tenten.zimparks.shift.NoOpenShiftException;
 import com.tenten.zimparks.shift.ShiftRepository;
 import com.tenten.zimparks.station.StationRepository;
@@ -38,6 +39,7 @@ public class TransactionService {
     private final EntryTransactionRepository entryTxRepo;
 
     private final FiscalizationBridgeService fiscalizationBridgeService;
+    private final QuotationService quotationService;
 
     private static final DateTimeFormatter TF = DateTimeFormatter.ofPattern("hh:mm a");
     private static final DateTimeFormatter DF = DateTimeFormatter.ofPattern("dd MMM yyyy");
@@ -108,6 +110,11 @@ public class TransactionService {
         // If shiftId is not provided in request, use the current active shift
         if (tx.getShiftId() == null) {
             tx.setShiftId(shift.getId());
+        }
+
+        // Validate the source quotation before any further processing
+        if (tx.getQuotationRef() != null && !tx.getQuotationRef().isBlank()) {
+            quotationService.validateForConversion(tx.getQuotationRef());
         }
 
         // Link to bank
@@ -251,6 +258,12 @@ public class TransactionService {
         }
 
         Transaction saved = repo.save(tx);
+
+        // Mark the source quotation as CONVERTED now that the transaction is persisted
+        if (tx.getQuotationRef() != null && !tx.getQuotationRef().isBlank()) {
+            quotationService.markConverted(tx.getQuotationRef(), saved.getRef());
+        }
+
         eventStream.broadcastTxUpdate();
 
         // Fiscalize — updates receipt with fiscal data if successful

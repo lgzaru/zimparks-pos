@@ -14,6 +14,7 @@ public record DeviceResponse(
         Integer batteryLevel,
         Boolean isCharging,
         String loggedInUser,
+        String loggedInUserRole,
         String shiftId,
         LocalDateTime lastSeen,
         LocalDateTime registeredAt

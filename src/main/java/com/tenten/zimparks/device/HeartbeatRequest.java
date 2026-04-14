@@ -9,6 +9,7 @@ public class HeartbeatRequest {
     private String  appVersion;
     private String  platform;
     private String  loggedInUser;
+    private String  loggedInUserRole;
     private String  shiftId;
     private Integer batteryLevel;
     private Boolean isCharging;
