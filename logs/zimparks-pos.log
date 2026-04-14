@@ -2388,3 +2388,16 @@ org.springframework.web.HttpMediaTypeNotAcceptableException: No acceptable repre
 }
 2026-04-14T12:23:17.840+02:00 ERROR 780930 --- [http-nio-0.0.0.0-8080-exec-2] c.t.z.f.FiscalizationBridgeService       : [fiscalization] gateway returned error for tx: TXN-2197821 — 400 BAD_REQUEST {"error":"Fiscal day is not open for device: 33940"}
 2026-04-14T12:23:17.846+02:00 DEBUG 780930 --- [http-nio-0.0.0.0-8080-exec-2] c.t.z.activity.ActivityLogService        : Logging activity: username=AMUDAVANHU, operation=CREATE, method=POST, uri=/api/transactions, status=200, ip=127.0.0.1
+2026-04-14T12:27:02.149+02:00  INFO 780930 --- [http-nio-0.0.0.0-8080-exec-5] c.tenten.zimparks.auth.AuthController    : Login request received for username=lzaru
+2026-04-14T12:27:02.150+02:00 DEBUG 780930 --- [http-nio-0.0.0.0-8080-exec-5] com.tenten.zimparks.auth.AuthService     : Authenticating username=LZARU
+2026-04-14T12:27:02.315+02:00 DEBUG 780930 --- [http-nio-0.0.0.0-8080-exec-5] com.tenten.zimparks.auth.AuthService     : AuthenticationManager accepted username=LZARU
+2026-04-14T12:27:02.315+02:00 DEBUG 780930 --- [http-nio-0.0.0.0-8080-exec-5] com.tenten.zimparks.auth.AuthService     : UserDetails loaded for username=LZARU
+2026-04-14T12:27:02.316+02:00 DEBUG 780930 --- [http-nio-0.0.0.0-8080-exec-5] com.tenten.zimparks.auth.AuthService     : User entity loaded for username=LZARU role=ADMIN active=true
+2026-04-14T12:27:02.325+02:00  INFO 780930 --- [http-nio-0.0.0.0-8080-exec-5] com.tenten.zimparks.auth.AuthService     : Login successful for username=lzaru
+2026-04-14T12:27:02.326+02:00 DEBUG 780930 --- [http-nio-0.0.0.0-8080-exec-5] c.t.z.activity.ActivityLogService        : Logging activity: username=LZARU, operation=LOGIN, method=POST, uri=/api/auth/login, status=200, ip=127.0.0.1
+2026-04-14T12:27:02.429+02:00 DEBUG 780930 --- [http-nio-0.0.0.0-8080-exec-7] c.t.z.activity.ActivityLogService        : Logging activity: username=LZARU, operation=CREATE, method=POST, uri=/api/devices/parkswild-4/ping, status=200, ip=127.0.0.1
+2026-04-14T12:31:47.935+02:00 DEBUG 780930 --- [http-nio-0.0.0.0-8080-exec-7] c.t.z.activity.ActivityLogService        : Logging activity: username=LZARU, operation=CREATE, method=POST, uri=/api/devices/parkswild-4/ping, status=200, ip=127.0.0.1
+2026-04-14T12:36:48.254+02:00 DEBUG 780930 --- [http-nio-0.0.0.0-8080-exec-10] c.t.z.activity.ActivityLogService        : Logging activity: username=LZARU, operation=CREATE, method=POST, uri=/api/devices/parkswild-4/ping, status=200, ip=127.0.0.1
+2026-04-14T12:41:48.266+02:00 DEBUG 780930 --- [http-nio-0.0.0.0-8080-exec-5] c.t.z.activity.ActivityLogService        : Logging activity: username=LZARU, operation=CREATE, method=POST, uri=/api/devices/parkswild-4/ping, status=200, ip=127.0.0.1
+2026-04-14T12:46:48.338+02:00 DEBUG 780930 --- [http-nio-0.0.0.0-8080-exec-8] c.t.z.activity.ActivityLogService        : Logging activity: username=LZARU, operation=CREATE, method=POST, uri=/api/devices/parkswild-4/ping, status=200, ip=127.0.0.1
+2026-04-14T12:51:48.341+02:00 DEBUG 780930 --- [http-nio-0.0.0.0-8080-exec-2] c.t.z.activity.ActivityLogService        : Logging activity: username=LZARU, operation=CREATE, method=POST, uri=/api/devices/parkswild-4/ping, status=200, ip=127.0.0.1
