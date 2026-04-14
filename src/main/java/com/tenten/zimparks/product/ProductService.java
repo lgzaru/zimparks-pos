@@ -10,6 +10,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -101,6 +102,20 @@ public class ProductService {
         }
 
         return repo.save(p);
+    }
+
+    public BulkImportResult bulkCreate(List<Product> products) {
+        List<Product> imported = new ArrayList<>();
+        List<BulkImportResult.RowError> failed = new ArrayList<>();
+        for (Product p : products) {
+            try {
+                imported.add(create(p));
+            } catch (Exception e) {
+                String stationId = p.getId() != null ? p.getId().getStationId() : null;
+                failed.add(new BulkImportResult.RowError(p.getDescr(), stationId, e.getMessage()));
+            }
+        }
+        return new BulkImportResult(imported, failed);
     }
 
     public void delete(ProductId id) {

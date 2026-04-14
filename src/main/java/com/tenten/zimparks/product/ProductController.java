@@ -44,6 +44,12 @@ public class ProductController {
         return ResponseEntity.ok(service.create(p));
     }
 
+    @PostMapping("/bulk")
+    @Operation(summary = "Bulk import products. Returns imported products and per-row errors.")
+    public ResponseEntity<BulkImportResult> bulkCreate(@RequestBody List<Product> products) {
+        return ResponseEntity.ok(service.bulkCreate(products));
+    }
+
     @PutMapping("/{stationId}/{code}")
     @Operation(summary = "Update a product by station and code.")
     public ResponseEntity<Product> update(@PathVariable String stationId, @PathVariable String code, @RequestBody Product p) {
