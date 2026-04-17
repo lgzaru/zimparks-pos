@@ -42,9 +42,13 @@ public class ShiftController {
     }
 
     @PostMapping("/close/{username}")
-    @Operation(summary = "Close the currently open shift for a user.")
-    public ResponseEntity<Map<String, Object>> close(@PathVariable String username) {
-        return ResponseEntity.ok(service.close(username));
+    @Operation(summary = "Close the currently open shift for a user. " +
+               "When called by the operator themselves, cashupLines is required. " +
+               "When called by a supervisor or admin, cashupLines is ignored.")
+    public ResponseEntity<Map<String, Object>> close(
+            @PathVariable String username,
+            @RequestBody(required = false) CloseShiftRequest body) {
+        return ResponseEntity.ok(service.close(username, body));
     }
 
     @GetMapping("/summary/{username}")

@@ -226,6 +226,25 @@ class ActivityLogFilterTest {
         // Assert
         verify(activityLogService, never()).logActivity(anyString(), anyString(), anyString(), anyString(), anyString(), anyInt(), anyString());
     }
+
+    @Test
+    void doFilterInternal_PingRequest_ShouldNotLog() throws Exception {
+        // Arrange
+        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/devices/parkswild-5/ping");
+        HttpServletResponse response = mock(HttpServletResponse.class);
+        when(response.getStatus()).thenReturn(200);
+
+        User admin = User.builder().username("admin").role(Role.ADMIN).build();
+        when(authentication.isAuthenticated()).thenReturn(true);
+        when(authentication.getName()).thenReturn("admin");
+        when(userRepository.findByUsername("admin")).thenReturn(Optional.of(admin));
+
+        // Act
+        activityLogFilter.doFilterInternal(request, response, filterChain);
+
+        // Assert
+        verify(activityLogService, never()).logActivity(anyString(), anyString(), anyString(), anyString(), anyString(), anyInt(), anyString());
+    }
     @Test
     void doFilterInternal_SupervisorUser_ShiftOperations_ShouldLog() throws Exception {
         // Arrange

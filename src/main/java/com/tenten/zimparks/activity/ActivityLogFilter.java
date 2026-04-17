@@ -56,6 +56,11 @@ public class ActivityLogFilter extends OncePerRequestFilter {
             return;
         }
 
+        // Skip device pings
+        if (uri.endsWith("/ping")) {
+            return;
+        }
+
         // Only log /api/ requests
         if (!uri.startsWith("/api/")) {
             return;

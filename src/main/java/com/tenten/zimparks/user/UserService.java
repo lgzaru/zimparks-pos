@@ -74,6 +74,35 @@ public class UserService implements UserDetailsService {
         return repo.findByIdAndActiveTrue(id).orElseThrow(() -> new RuntimeException("User not found"));
     }
 
+    public List<String> getUserPermissions(UUID id) {
+        User u = repo.findByIdAndActiveTrue(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return getEffectivePermissions(u);
+    }
+
+    public List<String> getUserPermissionsByUsername(String username) {
+        User u = repo.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+        return getEffectivePermissions(u);
+    }
+
+    private List<String> getEffectivePermissions(User u) {
+        List<String> permissions = new ArrayList<>();
+        // From Role
+        if (u.getRole() != null && u.getRole().getPermissions() != null) {
+            permissions.addAll(u.getRole().getPermissions().stream()
+                    .map(Permission::getPermission)
+                    .toList());
+        }
+        // From User (Individual permissions)
+        if (u.getPermissions() != null) {
+            permissions.addAll(u.getPermissions().stream()
+                    .map(Permission::getPermission)
+                    .toList());
+        }
+        return permissions.stream().distinct().toList();
+    }
+
     public User findByCellPhone(String cellPhone) {
         if (cellPhone != null) {
             cellPhone = cellPhone.replaceAll("[\\+\\s]", "");

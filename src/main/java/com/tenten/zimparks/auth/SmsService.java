@@ -6,8 +6,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.*;
 import lombok.extern.slf4j.Slf4j;
+
+import javax.net.ssl.*;
+import java.security.cert.X509Certificate;
 import java.util.Map;
 import java.util.UUID;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.security.SecureRandom;
 
 @Service
 @Slf4j
@@ -22,7 +29,38 @@ public class SmsService {
     @Value("${sms.token}")
     private String token;
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate = createInsecureRestTemplate();
+
+    private RestTemplate createInsecureRestTemplate() {
+        try {
+            TrustManager[] trustAllCerts = new TrustManager[]{
+                new X509TrustManager() {
+                    public X509Certificate[] getAcceptedIssuers() { return null; }
+                    public void checkClientTrusted(X509Certificate[] certs, String authType) { }
+                    public void checkServerTrusted(X509Certificate[] certs, String authType) { }
+                }
+            };
+
+            SSLContext sc = SSLContext.getInstance("SSL");
+            sc.init(null, trustAllCerts, new SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+            HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> true);
+
+            return new RestTemplate(new SimpleClientHttpRequestFactory() {
+                @Override
+                protected void prepareConnection(HttpURLConnection connection, String httpMethod) throws IOException {
+                    if (connection instanceof HttpsURLConnection) {
+                        ((HttpsURLConnection) connection).setSSLSocketFactory(sc.getSocketFactory());
+                        ((HttpsURLConnection) connection).setHostnameVerifier((hostname, session) -> true);
+                    }
+                    super.prepareConnection(connection, httpMethod);
+                }
+            });
+        } catch (Exception e) {
+            log.error("Failed to create insecure RestTemplate", e);
+            return new RestTemplate();
+        }
+    }
 
     public void sendSms(String cell, String message) {
         try {

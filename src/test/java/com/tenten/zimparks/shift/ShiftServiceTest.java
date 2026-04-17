@@ -162,7 +162,7 @@ class ShiftServiceTest {
         when(shiftRepo.save(any(Shift.class))).thenAnswer(i -> i.getArgument(0));
 
         // Act
-        Map<String, Object> result = shiftService.close(clerkUsername);
+        Map<String, Object> result = shiftService.close(clerkUsername, null);
 
         // Assert
         ArgumentCaptor<Shift> shiftCaptor = ArgumentCaptor.forClass(Shift.class);
@@ -191,7 +191,7 @@ class ShiftServiceTest {
         when(shiftRepo.findTopByOperatorOrderByStartFullDesc(username)).thenReturn(Optional.empty());
 
         // Act & Assert
-        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> shiftService.close(username));
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> shiftService.close(username, null));
         assertEquals("No open shift for " + username, exception.getMessage());
     }
 
@@ -212,7 +212,7 @@ class ShiftServiceTest {
         when(cnRepo.findByStatusAndShiftId("PENDING", shiftId)).thenReturn(java.util.List.of(new com.tenten.zimparks.creditnote.CreditNote()));
 
         // Act & Assert
-        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> shiftService.close(username));
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> shiftService.close(username, null));
         assertEquals("Cannot close shift with pending credit notes", exception.getMessage());
     }
 
@@ -235,7 +235,7 @@ class ShiftServiceTest {
         when(txRepo.findByStatusAndShiftId(TransactionStatus.VOID_PENDING, shiftId)).thenReturn(java.util.List.of(new Transaction()));
 
         // Act & Assert
-        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> shiftService.close(username));
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> shiftService.close(username, null));
         assertEquals("Cannot close shift with pending void requests", exception.getMessage());
     }
 

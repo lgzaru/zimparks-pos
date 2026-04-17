@@ -10,7 +10,8 @@ public enum Permission {
     UPDATE_PRODUCT_PRICING("product:update-pricing"),
     ADD_PRODUCT("product:add-product"),
     CLOSE_SHIFT("shift:close"),
-    CREATE_QUOTE("quotation:create");
+    CREATE_QUOTE("quotation:create"),
+    BLIND_CASHUP("dashboard:blind-cashup");
 
     @Getter
     private final String permission;

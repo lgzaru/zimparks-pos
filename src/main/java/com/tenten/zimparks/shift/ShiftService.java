@@ -1,5 +1,6 @@
 package com.tenten.zimparks.shift;
 
+import com.tenten.zimparks.cashup.CashupService;
 import com.tenten.zimparks.creditnote.CreditNoteRepository;
 import com.tenten.zimparks.station.Station;
 import com.tenten.zimparks.transaction.Receipt;
@@ -29,11 +30,12 @@ import com.tenten.zimparks.transaction.PaymentBreakdown;
 @RequiredArgsConstructor
 public class ShiftService {
 
-    private final ShiftRepository      shiftRepo;
+    private final ShiftRepository       shiftRepo;
     private final TransactionRepository txRepo;
-    private final CreditNoteRepository cnRepo;
-    private final ReceiptRepository    receiptRepo;
-    private final UserRepository       userRepo;
+    private final CreditNoteRepository  cnRepo;
+    private final ReceiptRepository     receiptRepo;
+    private final UserRepository        userRepo;
+    private final CashupService         cashupService;
 
     private static final DateTimeFormatter TF = DateTimeFormatter.ofPattern("hh:mm a");
     private static final DateTimeFormatter DF = DateTimeFormatter.ofPattern("dd MMM yyyy");
@@ -59,8 +61,22 @@ public class ShiftService {
         return shiftRepo.save(s);
     }
 
-    public Map<String, Object> close(String username) {
+    public Map<String, Object> close(String username, CloseShiftRequest request) {
         validateShiftAccess(username);
+        String currentUsername = getCurrentUsername();
+        boolean selfClose = currentUsername.equals(username);
+
+        // When an operator closes their own shift they must declare cashup totals
+        if (selfClose) {
+            boolean hasLines = request != null
+                    && request.getCashupLines() != null
+                    && !request.getCashupLines().isEmpty();
+            if (!hasLines) {
+                throw new IllegalArgumentException(
+                        "Cashup declaration is required when closing your own shift.");
+            }
+        }
+
         Shift s = getLatest(username)
                 .filter(sh -> "Open".equals(sh.getStatus()))
                 .orElseThrow(() -> new IllegalStateException("No open shift for " + username));
@@ -72,13 +88,17 @@ public class ShiftService {
             throw new IllegalStateException("Cannot close shift with pending void requests");
         }
 
-        String currentUsername = getCurrentUsername();
         LocalDateTime now = LocalDateTime.now();
         s.setStatus("Closed");
         s.setEndTime(now.format(TF));
         s.setEndFull(now);
         s.setClosedBy(currentUsername);
         shiftRepo.save(s);
+
+        // Persist the operator's declared cashup lines
+        if (selfClose && request != null && request.getCashupLines() != null) {
+            cashupService.submit(s.getId(), currentUsername, request.getCashupLines());
+        }
 
         return getSummary(s);
     }
@@ -129,19 +149,31 @@ public class ShiftService {
                         Collectors.reducing(BigDecimal.ZERO, Receipt::getOriginalAmount, BigDecimal::add)
                 ));
 
+        // Aggregate actual totals by payment type + currency (for cashup comparison)
+        Map<String, BigDecimal> byPaymentType = new java.util.LinkedHashMap<>();
+        for (var tx : paid) {
+            if (tx.getBreakdown() == null) continue;
+            for (PaymentBreakdown pb : tx.getBreakdown()) {
+                if (pb.getOriginalAmount() == null) continue;
+                String key = pb.getType() + "|" + pb.getOriginalCurrency();
+                byPaymentType.merge(key, pb.getOriginalAmount(), BigDecimal::add);
+            }
+        }
+
         Map<String, Object> response = new java.util.HashMap<>();
-        response.put("id",          s.getId());
-        response.put("operator",    s.getOperator());
-        response.put("closedBy",    s.getClosedBy());
-        response.put("status",      s.getStatus());
-        response.put("start",       s.getStartTime());
-        response.put("end",         s.getEndTime());
-        response.put("date",        s.getEndFull() != null ? s.getEndFull().format(DF) : s.getStartFull().format(DF));
-        response.put("totalTxns",   paid.size());
+        response.put("id",             s.getId());
+        response.put("operator",       s.getOperator());
+        response.put("closedBy",       s.getClosedBy());
+        response.put("status",         s.getStatus());
+        response.put("start",          s.getStartTime());
+        response.put("end",            s.getEndTime());
+        response.put("date",           s.getEndFull() != null ? s.getEndFull().format(DF) : s.getStartFull().format(DF));
+        response.put("totalTxns",      paid.size());
         response.put("totalBaseAmount", total);
-        response.put("byCurrency",  byCurrency);
-        response.put("voids",       voided.size());
-        response.put("creditNotes", cnRepo.findByStatusNotAndShiftId("REJECTED", s.getId()).size());
+        response.put("byCurrency",     byCurrency);
+        response.put("byPaymentType",  byPaymentType);
+        response.put("voids",          voided.size());
+        response.put("creditNotes",    cnRepo.findByStatusNotAndShiftId("REJECTED", s.getId()).size());
 
         return response;
     }
@@ -163,10 +195,10 @@ public class ShiftService {
             User targetUser = userRepo.findByUsername(targetUsername)
                     .orElseThrow(() -> new RuntimeException("Target user not found"));
 
-            Station currentStation = currentUser.getStation();
-            Station targetStation = targetUser.getStation();
+            String currentStationId = currentUser.getStation() != null ? currentUser.getStation().getId() : null;
+            String targetStationId  = targetUser.getStation()  != null ? targetUser.getStation().getId()  : null;
 
-            if (currentStation != null && currentStation.equals(targetStation)) {
+            if (currentStationId != null && currentStationId.equals(targetStationId)) {
                 return; // Supervisor can manage shifts in the same station
             }
             throw new AccessDeniedException("Supervisor can only manage shifts for clerks in their station");

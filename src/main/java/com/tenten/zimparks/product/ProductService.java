@@ -73,6 +73,8 @@ public class ProductService {
         Product p = repo.findById(id).orElseThrow(() -> new RuntimeException("Product not found"));
         p.setDescr(patch.getDescr());
         p.setPrice(patch.getPrice());
+        p.setHsCode(patch.getHsCode());
+        p.setEntryProduct(patch.getEntryProduct());
 
         if (patch.getCategory() != null && !patch.getCategory().equals(p.getCategory())) {
             // Category changed, need to update the product code as well

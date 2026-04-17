@@ -108,7 +108,7 @@ public class FiscalizationBridgeService {
             log.warn("║ Errors      : {}", summary);
             log.warn("╚══════════════════════════════════════════════════");
             updateFiscalStatus(tx.getRef(), "FAILED", "Validation: " + summary);
-            return;
+            throw new FiscalizationRedErrorException(summary);
         }
 
         if (!yellowErrors.isEmpty()) {

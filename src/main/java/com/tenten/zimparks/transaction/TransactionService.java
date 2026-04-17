@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -94,8 +95,23 @@ public class TransactionService {
                 .orElseThrow(() -> new RuntimeException("Receipt not found for transaction: " + ref));
     }
 
+    @Transactional
     public Transaction create(Transaction tx) {
-        User user = getCurrentUser();
+        return doCreate(tx, getCurrentUser());
+    }
+
+    /**
+     * Creates a transaction on behalf of a specific operator — used by the online payment
+     * callback where there is no live JWT in the security context.
+     */
+    @Transactional
+    public Transaction createAsUser(Transaction tx, String operatorUsername) {
+        User user = userRepo.findByUsername(operatorUsername)
+                .orElseThrow(() -> new RuntimeException("Operator not found: " + operatorUsername));
+        return doCreate(tx, user);
+    }
+
+    private Transaction doCreate(Transaction tx, User user) {
         var shift = shiftRepo.findTopByOperatorOrderByStartFullDesc(user.getUsername())
                 .filter(s -> "Open".equals(s.getStatus()))
                 .orElseThrow(() -> new NoOpenShiftException("no open shifts are available"));

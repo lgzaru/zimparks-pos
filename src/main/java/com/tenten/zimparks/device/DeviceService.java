@@ -4,7 +4,10 @@ import com.tenten.zimparks.fiscalization.phoneLinkage.FiscalDevice;
 import com.tenten.zimparks.fiscalization.phoneLinkage.FiscalDeviceRepository;
 import com.tenten.zimparks.station.StationRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -14,9 +17,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DeviceService {
+
+    /** Browser sessions not seen within this window are excluded from the live response. */
+    private static final int BROWSER_SESSION_ACTIVE_HOURS = 24;
+
+    /** Browser sessions older than this are deleted by the nightly cleanup job. */
+    private static final int BROWSER_SESSION_RETAIN_DAYS = 7;
 
     private final DeviceRepository       deviceRepository;
     private final StationRepository      stationRepository;
@@ -56,10 +66,13 @@ public class DeviceService {
                 .toList());
 
         // Include browser/non-fiscal sessions (admins, supervisors without a fiscal device).
-        // These are Device records that have no matching FiscalDevice but have an active user.
+        // Only surface records seen within the active window — avoids showing stale browser
+        // sessions from previous logins on different browsers/phones.
+        LocalDateTime browserCutoff = LocalDateTime.now().minusHours(BROWSER_SESSION_ACTIVE_HOURS);
         heartbeats.values().stream()
                 .filter(d -> !fiscalSerials.contains(d.getSerialNumber()))
                 .filter(d -> d.getLoggedInUser() != null)
+                .filter(d -> d.getLastSeen() != null && d.getLastSeen().isAfter(browserCutoff))
                 .map(d -> new DeviceResponse(
                         d.getSerialNumber(),
                         null,
@@ -113,5 +126,14 @@ public class DeviceService {
 
         device.setLastSeen(LocalDateTime.now());
         return deviceRepository.save(device);
+    }
+
+    /** Nightly job — removes browser session records that have been inactive for BROWSER_SESSION_RETAIN_DAYS. */
+    @Transactional
+    @Scheduled(cron = "0 0 3 * * *") // 3 AM every day
+    public void cleanupBrowserSessions() {
+        LocalDateTime cutoff = LocalDateTime.now().minusDays(BROWSER_SESSION_RETAIN_DAYS);
+        deviceRepository.deleteStaleBrowserSessions(cutoff);
+        log.info("Browser session cleanup complete — removed sessions inactive since {}", cutoff);
     }
 }

@@ -11,6 +11,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -40,6 +41,18 @@ public class UserController {
     @Operation(summary = "Get a user by ID.")
     public ResponseEntity<User> getById(@PathVariable UUID id) {
         return ResponseEntity.ok(service.findById(id));
+    }
+
+    @GetMapping("/{id}/permissions")
+    @Operation(summary = "Get all effective permissions for a user by ID.")
+    public ResponseEntity<List<String>> getUserPermissions(@PathVariable UUID id) {
+        return ResponseEntity.ok(service.getUserPermissions(id));
+    }
+
+    @GetMapping("/by-username/{username}/permissions")
+    @Operation(summary = "Get all effective permissions for a user by username.")
+    public ResponseEntity<List<String>> getUserPermissionsByUsername(@PathVariable String username) {
+        return ResponseEntity.ok(service.getUserPermissionsByUsername(username));
     }
 
     @GetMapping("/by-cell/{cellPhone}")

@@ -68,6 +68,8 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers("/api/users/by-cell/**").permitAll()
                         .requestMatchers("/api/events/stream/**").permitAll()
+                        // Paynow callback — called by Paynow servers, no JWT
+                        .requestMatchers(HttpMethod.POST, "/api/online-payments/callback/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                         // Admin only
                         .requestMatchers(HttpMethod.GET, "/api/users/**").hasAnyRole("ADMIN", "SUPERVISOR", "OPERATOR")
