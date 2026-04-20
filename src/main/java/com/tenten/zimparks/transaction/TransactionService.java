@@ -95,23 +95,38 @@ public class TransactionService {
                 .orElseThrow(() -> new RuntimeException("Receipt not found for transaction: " + ref));
     }
 
-    @Transactional
     public Transaction create(Transaction tx) {
-        return doCreate(tx, getCurrentUser());
+        Transaction saved = doCreate(tx, getCurrentUser());
+        
+        // Fiscalize outside main transaction — updates receipt with fiscal data if successful
+        if(saved.getVirtualDeviceId() != null) {
+            fiscalizationBridgeService.fiscalize(saved);
+        }
+
+        // Reload from DB to include fiscal data populated by fiscalize()
+        return repo.findById(saved.getRef()).orElse(saved);
     }
 
     /**
      * Creates a transaction on behalf of a specific operator — used by the online payment
      * callback where there is no live JWT in the security context.
      */
-    @Transactional
     public Transaction createAsUser(Transaction tx, String operatorUsername) {
         User user = userRepo.findByUsername(operatorUsername)
                 .orElseThrow(() -> new RuntimeException("Operator not found: " + operatorUsername));
-        return doCreate(tx, user);
+        Transaction saved = doCreate(tx, user);
+
+        // Fiscalize outside main transaction — updates receipt with fiscal data if successful
+        if(saved.getVirtualDeviceId() != null) {
+            fiscalizationBridgeService.fiscalize(saved);
+        }
+
+        // Reload from DB to include fiscal data populated by fiscalize()
+        return repo.findById(saved.getRef()).orElse(saved);
     }
 
-    private Transaction doCreate(Transaction tx, User user) {
+    @Transactional
+    protected Transaction doCreate(Transaction tx, User user) {
         var shift = shiftRepo.findTopByOperatorOrderByStartFullDesc(user.getUsername())
                 .filter(s -> "Open".equals(s.getStatus()))
                 .orElseThrow(() -> new NoOpenShiftException("no open shifts are available"));
@@ -282,13 +297,7 @@ public class TransactionService {
 
         eventStream.broadcastTxUpdate();
 
-        // Fiscalize — updates receipt with fiscal data if successful
-        if(saved.getVirtualDeviceId() != null) {
-            fiscalizationBridgeService.fiscalize(saved);
-        }
-
-        // Reload from DB to include fiscal data populated by fiscalize()
-        return repo.findById(saved.getRef()).orElse(saved);
+        return saved;
     }
 
         public Transaction voidTx(String ref, VoidTransactionRequest body) {

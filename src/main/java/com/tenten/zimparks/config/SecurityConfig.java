@@ -105,6 +105,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/banks/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/vat/**").hasAnyRole("ADMIN", "SUPERVISOR", "OPERATOR")
                         .requestMatchers(HttpMethod.GET, "/api/currencies/**").hasAnyRole("ADMIN", "SUPERVISOR", "OPERATOR")
+                        .requestMatchers(HttpMethod.GET, "/api/cashup/history").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/cashup/history/export").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/devices/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/devices/*/ping").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/activities/**").hasAnyRole("ADMIN", "SUPERVISOR")

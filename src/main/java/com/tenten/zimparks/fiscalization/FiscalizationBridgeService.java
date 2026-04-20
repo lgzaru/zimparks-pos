@@ -15,6 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
@@ -188,7 +190,8 @@ public class FiscalizationBridgeService {
     }
 
     @SuppressWarnings("unchecked")
-    private void persistFiscalResponse(String txRef, Map<String, Object> response) {
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void persistFiscalResponse(String txRef, Map<String, Object> response) {
         receiptRepository.findById(txRef).ifPresent(receipt -> {
             receipt.setFiscalReceiptId(response.get("receiptID") != null
                     ? Long.valueOf(response.get("receiptID").toString()) : null);
@@ -205,7 +208,8 @@ public class FiscalizationBridgeService {
         });
     }
 
-    private void updateFiscalStatus(String txRef, String status, String error) {
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void updateFiscalStatus(String txRef, String status, String error) {
         receiptRepository.findById(txRef).ifPresent(receipt -> {
             receipt.setFiscalStatus(status);
             receipt.setFiscalError(error != null && error.length() > 500
@@ -540,7 +544,8 @@ public class FiscalizationBridgeService {
         return receipt;
     }
 
-    private void updateCreditNoteFiscalStatus(String cnId, String status, String error) {
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void updateCreditNoteFiscalStatus(String cnId, String status, String error) {
         creditNoteRepository.findById(cnId).ifPresent(cn -> {
             cn.setFiscalStatus(status);
             cn.setFiscalError(error != null && error.length() > 500 ? error.substring(0, 500) : error);
@@ -549,7 +554,8 @@ public class FiscalizationBridgeService {
     }
 
     @SuppressWarnings("unchecked")
-    private void persistCreditNoteFiscalResponse(String cnId, Map<String, Object> response) {
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void persistCreditNoteFiscalResponse(String cnId, Map<String, Object> response) {
         creditNoteRepository.findById(cnId).ifPresent(cn -> {
             cn.setFiscalReceiptId(response.get("receiptID") != null
                     ? Long.valueOf(response.get("receiptID").toString()) : null);

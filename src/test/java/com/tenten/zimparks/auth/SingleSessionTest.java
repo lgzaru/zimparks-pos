@@ -101,13 +101,17 @@ class SingleSessionTest {
         when(userDetailsService.loadUserByUsername("TESTUSER")).thenReturn(userDetails);
         when(jwtConfig.validateToken(oldToken, userDetails)).thenReturn(true);
         when(userRepo.findByUsername("TESTUSER")).thenReturn(Optional.of(user));
+        
+        java.io.PrintWriter writer = mock(java.io.PrintWriter.class);
+        when(response.getWriter()).thenReturn(writer);
 
         // Act
         jwtFilter.doFilter(request, response, filterChain);
 
         // Assert
         assertNull(org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication());
-        verify(filterChain).doFilter(request, response);
+        verify(filterChain, never()).doFilter(request, response);
+        verify(response).setStatus(jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED);
     }
 
     @Test

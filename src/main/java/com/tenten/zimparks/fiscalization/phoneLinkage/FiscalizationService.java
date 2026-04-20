@@ -45,10 +45,14 @@ public class FiscalizationService {
      * 3. Upserts the result into the local DB so the device is tracked here
      *    and associated with a Station for downstream usage.
      */
-    @Transactional
     public FiscalDevice linkDevice(FiscalLinkRequestDTO dto, String stationId) {
         FiscalDeviceDTO linked = fiscalizationClient.linkDevice(dto);
 
+        return persistLinkedDevice(linked, stationId);
+    }
+
+    @Transactional
+    protected FiscalDevice persistLinkedDevice(FiscalDeviceDTO linked, String stationId) {
         Station resolvedStation = null;
         if (stationId != null) {
             resolvedStation = stationRepo.findById(stationId)
@@ -79,16 +83,20 @@ public class FiscalizationService {
      *
      * Throws if the device is not found locally.
      */
-    @Transactional
     public FiscalDevice unlinkDevice(String phoneSerial) {
-        // 1. Notify external system
+        // 1. Notify external system — perform network call OUTSIDE of @Transactional
         try {
             fiscalizationClient.unlinkDevice(phoneSerial);
         } catch (HttpClientErrorException.NotFound e) {
             log.warn("Device already unlinked or not found in external system for phoneSerial: {}", phoneSerial);
         }
 
-        // 2. Delete local record
+        // 2. Delete local record in a transaction
+        return deleteLocalDeviceRecord(phoneSerial);
+    }
+
+    @Transactional
+    protected FiscalDevice deleteLocalDeviceRecord(String phoneSerial) {
         Optional<FiscalDevice> deviceOpt = fiscalDeviceRepo.findByPhoneSerialNumber(phoneSerial);
         if (deviceOpt.isEmpty()) {
             log.warn("No local record found to delete for phoneSerial: {}", phoneSerial);

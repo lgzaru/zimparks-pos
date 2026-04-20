@@ -35,35 +35,41 @@ public class JwtFilter extends OncePerRequestFilter {
         String token = extractToken(req);
 
         if (token != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            String username = jwtConfig.extractUsername(token);
-            if (username != null) {
-                UserDetails ud = userDetailsService.loadUserByUsername(username);
+            try {
+                String username = jwtConfig.extractUsername(token);
+                if (username != null) {
+                    UserDetails ud = userDetailsService.loadUserByUsername(username);
 
-                if (jwtConfig.validateToken(token, ud)) {
-                    var userOpt = userRepo.findByUsername(username);
-                    if (userOpt.isPresent()) {
-                        String storedToken = userOpt.get().getCurrentToken();
-                        if (token.equals(storedToken)) {
-                            var auth = new UsernamePasswordAuthenticationToken(ud, null, ud.getAuthorities());
-                            auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
-                            SecurityContextHolder.getContext().setAuthentication(auth);
-                            //log.debug("JWT auth set for user={}", username);
+                    if (jwtConfig.validateToken(token, ud)) {
+                        var userOpt = userRepo.findByUsername(username);
+                        if (userOpt.isPresent()) {
+                            String storedToken = userOpt.get().getCurrentToken();
+                            if (token.equals(storedToken)) {
+                                var auth = new UsernamePasswordAuthenticationToken(ud, null, ud.getAuthorities());
+                                auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
+                                SecurityContextHolder.getContext().setAuthentication(auth);
+                                //log.debug("JWT auth set for user={}", username);
+                            } else {
+                                log.warn("Token mismatch for user={} path={} — session invalidated by new login", username, req.getServletPath());
+                                res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                                res.setContentType("application/json");
+                                res.getWriter().write("{\"error\":\"Session invalidated\"}");
+                                return; // stop here — do not call chain.doFilter
+                            }
+
                         } else {
-                            log.warn("Token mismatch for user={} — session invalidated by new login", username);
-                            res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                            res.setContentType("application/json");
-                            res.getWriter().write("{\"error\":\"Session invalidated\"}");
-                            return; // stop here — do not call chain.doFilter
+                            log.debug("User not found in repository: {} (path={})", username, req.getServletPath());
                         }
-
                     } else {
-                        log.debug("User not found in repository: {}", username);
+                        log.debug("Token validation failed for user={} (path={})", username, req.getServletPath());
                     }
                 } else {
-                    log.debug("Token validation failed for user={}", username);
+                    log.debug("Could not extract username (subject) from token (path={})", req.getServletPath());
                 }
-            } else {
-                log.debug("Could not extract username from token");
+            } catch (io.jsonwebtoken.ExpiredJwtException e) {
+                log.debug("Token expired for path={}: {}", req.getServletPath(), e.getMessage());
+            } catch (io.jsonwebtoken.JwtException | IllegalArgumentException e) {
+                log.debug("Could not parse token for path={}: {}", req.getServletPath(), e.getMessage());
             }
         }
 

@@ -11,6 +11,8 @@ import com.tenten.zimparks.user.Role;
 import com.tenten.zimparks.user.User;
 import com.tenten.zimparks.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -104,6 +106,7 @@ public class CashupService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (currentUser.getRole() != Role.SUPERVISOR
+                && currentUser.getRole() != Role.ADMIN
                 && !currentUsername.equals(submission.getSubmittedBy())) {
             throw new AccessDeniedException("No permission to view this cashup");
         }
@@ -182,6 +185,101 @@ public class CashupService {
                     m.put("submittedBy", s.getSubmittedBy());
                     m.put("submittedAt", s.getSubmittedAt());
                     m.put("status",      s.getStatus());
+                    return m;
+                })
+                .collect(Collectors.toList());
+    }
+
+    // ── Admin: paginated history of all cashup submissions ───────────────────
+    //
+    // Lightweight list — does NOT compute actuals (expensive). Detail view
+    // uses the existing getCashupWithActuals() on demand.
+
+    public Page<Map<String, Object>> getHistoryForAdmin(String status, String search,
+                                                         LocalDateTime dateFrom, LocalDateTime dateTo,
+                                                         int page, int size) {
+        requireAdmin();
+
+        Page<CashupSubmission> resultPage = cashupRepo.findHistory(
+                blankToNull(status), blankToNull(search), dateFrom, dateTo,
+                PageRequest.of(page, size));
+
+        return resultPage.map(s -> {
+            Map<String, Object> m = new LinkedHashMap<>();
+            m.put("id",            s.getId());
+            m.put("shiftId",       s.getShiftId());
+            m.put("submittedBy",   s.getSubmittedBy());
+            m.put("submittedAt",   s.getSubmittedAt());
+            m.put("status",        s.getStatus());
+            m.put("reviewedBy",    s.getReviewedBy());
+            m.put("reviewedAt",    s.getReviewedAt());
+            m.put("reviewerNotes", s.getReviewerNotes());
+            // Lines are EAGER-fetched — include them at no extra cost
+            m.put("lines",         s.getLines() == null ? List.of() : s.getLines().stream()
+                    .map(l -> {
+                        Map<String, Object> line = new LinkedHashMap<>();
+                        line.put("type",            l.getType());
+                        line.put("currency",        l.getCurrency());
+                        line.put("submittedAmount", l.getSubmittedAmount());
+                        return line;
+                    })
+                    .collect(Collectors.toList()));
+            return m;
+        });
+    }
+
+    // ── Admin: full export (all matching records, no pagination) ─────────────
+
+    public List<Map<String, Object>> getExportForAdmin(String status, String search,
+                                                        LocalDateTime dateFrom, LocalDateTime dateTo) {
+        requireAdmin();
+
+        return cashupRepo.findForExport(blankToNull(status), blankToNull(search), dateFrom, dateTo)
+                .stream()
+                .map(s -> {
+                    Map<String, Object> m = new LinkedHashMap<>();
+                    m.put("id",            s.getId());
+                    m.put("shiftId",       s.getShiftId());
+                    m.put("submittedBy",   s.getSubmittedBy());
+                    m.put("submittedAt",   s.getSubmittedAt());
+                    m.put("status",        s.getStatus());
+                    m.put("reviewedBy",    s.getReviewedBy());
+                    m.put("reviewedAt",    s.getReviewedAt());
+                    m.put("reviewerNotes", s.getReviewerNotes());
+
+                    // Compute actuals for this shift so the export shows declared vs actual
+                    List<Transaction> paidTxns = txRepo.findByStatusAndShiftId(
+                            TransactionStatus.PAID, s.getShiftId());
+                    Map<String, BigDecimal> actuals = computeActuals(paidTxns);
+
+                    Set<String> allKeys = new LinkedHashSet<>();
+                    if (s.getLines() != null) {
+                        s.getLines().forEach(l -> allKeys.add(l.getType() + "|" + l.getCurrency()));
+                    }
+                    allKeys.addAll(actuals.keySet());
+
+                    List<Map<String, Object>> comparison = new ArrayList<>();
+                    for (String key : allKeys) {
+                        String[] parts    = key.split("\\|", 2);
+                        String type       = parts[0];
+                        String currency   = parts.length > 1 ? parts[1] : "USD";
+                        BigDecimal submitted = s.getLines() == null ? BigDecimal.ZERO :
+                                s.getLines().stream()
+                                        .filter(l -> l.getType().equals(type) && l.getCurrency().equals(currency))
+                                        .map(CashupLine::getSubmittedAmount)
+                                        .findFirst().orElse(BigDecimal.ZERO);
+                        BigDecimal actual   = actuals.getOrDefault(key, BigDecimal.ZERO);
+                        BigDecimal variance = actual.subtract(submitted);
+
+                        Map<String, Object> row = new LinkedHashMap<>();
+                        row.put("type",      type);
+                        row.put("currency",  currency);
+                        row.put("submitted", submitted);
+                        row.put("actual",    actual);
+                        row.put("variance",  variance);
+                        comparison.add(row);
+                    }
+                    m.put("comparison", comparison);
                     return m;
                 })
                 .collect(Collectors.toList());
@@ -287,5 +385,17 @@ public class CashupService {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof UserDetails ud) return ud.getUsername();
         return principal.toString();
+    }
+
+    private void requireAdmin() {
+        User user = userRepo.findByUsername(getCurrentUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        if (user.getRole() != Role.ADMIN) {
+            throw new AccessDeniedException("Only admins can access this resource");
+        }
+    }
+
+    private static String blankToNull(String s) {
+        return (s == null || s.isBlank()) ? null : s;
     }
 }
