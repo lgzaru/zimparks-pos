@@ -66,15 +66,11 @@ public class ShiftService {
         String currentUsername = getCurrentUsername();
         boolean selfClose = currentUsername.equals(username);
 
-        // When an operator closes their own shift they must declare cashup totals
-        if (selfClose) {
-            boolean hasLines = request != null
-                    && request.getCashupLines() != null
-                    && !request.getCashupLines().isEmpty();
-            if (!hasLines) {
-                throw new IllegalArgumentException(
-                        "Cashup declaration is required when closing your own shift.");
-            }
+        // When an operator closes their own shift they must submit a cashup declaration
+        // (lines may be empty for zero-transaction shifts, but the declaration must be present)
+        if (selfClose && (request == null || request.getCashupLines() == null)) {
+            throw new IllegalArgumentException(
+                    "Cashup declaration is required when closing your own shift.");
         }
 
         Shift s = getLatest(username)

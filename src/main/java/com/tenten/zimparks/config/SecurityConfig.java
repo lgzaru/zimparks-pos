@@ -55,7 +55,8 @@ public class SecurityConfig {
                                 "/*.jpg",
                                 "/*.svg",
                                 "/error").permitAll()
-                        // Public API
+                        // Public API — bare /ping for load-balancer health checks
+                        .requestMatchers("/ping").permitAll()
                         .requestMatchers("/api/ping").permitAll()
                         //.requestMatchers("/api/auth/**").permitAll() // this was there before adding auth me,
                         // now auth me need to be authenticated.

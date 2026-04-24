@@ -119,6 +119,21 @@ public class FiscalizationService {
     }
 
     @Transactional
+    public FiscalDevice updateLocalConfig(String deviceSerialNo, FiscalUpdateRequestDTO dto) {
+        FiscalDevice device = fiscalDeviceRepo.findByDeviceSerialNo(deviceSerialNo)
+                .orElseThrow(() -> new RuntimeException("Fiscal device not found: " + deviceSerialNo));
+        if (dto.getStationId() != null) {
+            Station station = stationRepo.findById(dto.getStationId())
+                    .orElseThrow(() -> new RuntimeException("Station not found: " + dto.getStationId()));
+            device.setStation(station);
+        }
+        if (dto.getTaxPayerName() != null) {
+            device.setTaxpayerName(dto.getTaxPayerName());
+        }
+        return fiscalDeviceRepo.save(device);
+    }
+
+    @Transactional
     public void deleteDevice(String deviceSerialNo) {
         fiscalDeviceRepo.findByDeviceSerialNo(deviceSerialNo)
                 .ifPresent(fiscalDeviceRepo::delete);

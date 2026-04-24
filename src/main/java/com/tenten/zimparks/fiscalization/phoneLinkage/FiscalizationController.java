@@ -76,6 +76,14 @@ public class FiscalizationController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @PutMapping("/config/{deviceSerialNo}")
+    @Operation(summary = "Update local config (station, taxpayer name) for a fiscal device.")
+    public ResponseEntity<FiscalDevice> updateLocalConfig(
+            @PathVariable String deviceSerialNo,
+            @RequestBody FiscalUpdateRequestDTO dto) {
+        return ResponseEntity.ok(service.updateLocalConfig(deviceSerialNo, dto));
+    }
+
     @DeleteMapping("/config/{deviceSerialNo}")
     @Operation(summary = "Remove local fiscal device record.")
     public ResponseEntity<Void> deleteLocalConfig(@PathVariable String deviceSerialNo) {

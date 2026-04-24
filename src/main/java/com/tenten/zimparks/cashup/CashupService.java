@@ -19,6 +19,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -348,11 +349,35 @@ public class CashupService {
     private Map<String, BigDecimal> computeActuals(List<Transaction> paidTxns) {
         Map<String, BigDecimal> actuals = new LinkedHashMap<>();
         for (Transaction t : paidTxns) {
-            if (t.getBreakdown() == null) continue;
+            if (t.getBreakdown() == null || t.getBreakdown().isEmpty()) continue;
+
+            // Sum breakdown amounts in base currency to detect over-tender (cash change scenario).
+            // pb.amount is the USD equivalent; pb.originalAmount is the tendered amount in original currency.
+            BigDecimal breakdownSumUSD = t.getBreakdown().stream()
+                    .filter(pb -> pb.getAmount() != null)
+                    .map(PaymentBreakdown::getAmount)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            BigDecimal txAmount = t.getAmount() != null ? t.getAmount() : BigDecimal.ZERO;
+            boolean overTendered = breakdownSumUSD.compareTo(txAmount) > 0
+                    && breakdownSumUSD.compareTo(BigDecimal.ZERO) > 0;
+
             for (PaymentBreakdown pb : t.getBreakdown()) {
                 if (pb.getOriginalAmount() == null) continue;
+
+                BigDecimal net;
+                if (overTendered) {
+                    // Customer tendered more than the invoice (cash change scenario).
+                    // Net in original currency = txAmount * originalAmount / breakdownSumUSD
+                    // This derivation holds across currencies because the ratio cancels exchange rates.
+                    net = txAmount.multiply(pb.getOriginalAmount())
+                            .divide(breakdownSumUSD, 2, RoundingMode.HALF_UP);
+                } else {
+                    net = pb.getOriginalAmount();
+                }
+
                 String key = pb.getType() + "|" + pb.getOriginalCurrency();
-                actuals.merge(key, pb.getOriginalAmount(), BigDecimal::add);
+                actuals.merge(key, net, BigDecimal::add);
             }
         }
         return actuals;
